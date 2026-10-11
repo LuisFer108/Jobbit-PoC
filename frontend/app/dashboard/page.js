@@ -57,6 +57,9 @@ export default function DashboardPage() {
 
             <h2>Tu perfil laboral</h2>
 
+            <p><strong>Nombre:</strong> {profile.name}</p>
+            <p><strong>Correo:</strong> {profile.email}</p>
+
             <p>
                 <strong>Campo:</strong> {profile.field}
             </p>
@@ -70,6 +73,10 @@ export default function DashboardPage() {
             </p>
 
             <p>
+                <strong>Educación:</strong> {profile.education || "No especificada"}
+            </p>
+
+            <p>
                 <strong>Preferencias:</strong> {profile.work_preferences}
             </p>
 
@@ -77,9 +84,9 @@ export default function DashboardPage() {
                 <strong>Modalidad:</strong> {profile.work_mode}
             </p>
 
-            <Link href="./">
-            Volver a inicio
-            </Link>
+            <p><Link href="/profile/edit">Actualizar perfil laboral</Link></p>
+
+            <Link href="/">Volver a inicio</Link>
 
         </main>
     );
