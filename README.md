@@ -98,7 +98,6 @@ CREATE TABLE work_profiles (
     field VARCHAR(150) NOT NULL,
     experience TEXT,
     experience_years INTEGER,
-    education TEXT,
     work_preferences TEXT,
     preferred_location VARCHAR(150),
     work_mode VARCHAR(50),
@@ -144,16 +143,3 @@ npm run dev
 
 
 
-
-
-## Actualizar perfil laboral
-
-La ruta autenticada `PUT /api/profile` actualiza los datos personales (nombre y correo) y la información laboral del usuario conectado. El formulario de edición está en `/profile/edit` y carga los valores actuales desde PostgreSQL.
-
-Si la base de datos ya estaba creada antes de agregar el campo de educación, ejecuta una vez esta migración desde la raíz del repositorio. En una instalación nueva, el campo ya está incluido en el SQL de creación de tablas de arriba:
-
-```bash
-psql -d job_portal -f backend/migrations/002_add_education_to_work_profiles.sql
-```
-
-Después de reiniciar el backend y frontend, entra al dashboard y selecciona **Actualizar perfil laboral**. La página mostrará una confirmación cuando los cambios se guarden correctamente.
