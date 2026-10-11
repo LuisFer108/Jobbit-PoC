@@ -143,3 +143,16 @@ npm run dev
 
 
 
+
+
+## Actualizar perfil laboral
+
+La ruta autenticada `PUT /api/profile` actualiza los datos personales (nombre y correo) y la información laboral del usuario conectado. El formulario de edición está en `/profile/edit` y carga los valores actuales desde PostgreSQL.
+
+Si la base de datos ya estaba creada, ejecuta una vez esta migración desde la raíz del repositorio:
+
+```bash
+psql -d job_portal -f backend/migrations/002_add_education_to_work_profiles.sql
+```
+
+Después de reiniciar el backend y frontend, entra al dashboard y selecciona **Actualizar perfil laboral**. La página mostrará una confirmación cuando los cambios se guarden correctamente.
