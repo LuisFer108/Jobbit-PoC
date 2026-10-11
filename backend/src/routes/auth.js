@@ -5,6 +5,17 @@ const pool = require("../db");
 
 const router = express.Router();
 
+function createToken(user) {
+    if (!process.env.JWT_SECRET) {
+        throw new Error("JWT_SECRET no está configurado");
+    }
+
+    return jwt.sign(
+        { userId: user.id },
+        process.env.JWT_SECRET,
+        { expiresIn: "24h" }
+    );
+}
 
 // REGISTRO
 router.post("/register", async (req, res) => {
@@ -37,7 +48,7 @@ router.post("/register", async (req, res) => {
             [name, email, passwordHash]
         );
 
-        res.status(201).json({
+        return res.status(201).json({
             message: "Usuario creado correctamente",
             user: result.rows[0]
         });
@@ -45,7 +56,7 @@ router.post("/register", async (req, res) => {
     } catch (error) {
         console.error(error);
 
-        res.status(500).json({
+        return res.status(500).json({
             message: "Error al registrar el usuario"
         });
     }
@@ -87,30 +98,50 @@ router.post("/login", async (req, res) => {
             [user.id]
         );
 
-        const hasProfile = profileResult.rows.length > 0;
+        const token = createToken(user);
 
-        const token = jwt.sign(
-            {
-                userId: user.id,
-                email: user.email
-            },
-            process.env.JWT_SECRET,
-            {
-                expiresIn: "24h"
-            }
-        );
-
-        res.json({
+        return res.json({
             message: "Inicio de sesión exitoso",
             token,
-            hasProfile
+            hasProfile: profileResult.rows.length>0, 
+            user: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                role:user.role
+            }
         });
 
     } catch (error) {
         console.error(error);
 
-        res.status(500).json({
+        return res.status(500).json({
             message: "Error al iniciar sesión"
+        });
+    }
+});
+
+// Devuelve el usuario autenticado y su rol actual desde la base de datos.
+const authenticateToken = require("../middleware/authMiddleware");
+
+router.get("/me", authenticateToken, async (req, res) => {
+    try {
+        const result = await pool.query(
+            "SELECT id, name, email, role FROM users WHERE id = $1",
+            [req.user.userId]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(401).json({
+                message: "La cuenta asociada a esta sesión ya no existe"
+            });
+        }
+
+        return res.json({ user: result.rows[0] });
+    } catch (error) {
+        console.error("Error al consultar el usuario autenticado:", error);
+        return res.status(500).json({
+            message: "Error al consultar la sesión"
         });
     }
 });
