@@ -11,7 +11,6 @@ export default function ProfilePage() {
         field: "",
         experience: "",
         experienceYears: "",
-        education: "",
         workPreferences: "",
         preferredLocation: "",
         workMode: ""
@@ -102,12 +101,6 @@ export default function ProfilePage() {
                     value={form.experience}
                     onChange={handleChange}
                 />
-
-                <br /><br />
-
-                <label>Educación</label>
-
-                <textarea name="education" placeholder="Ej: Carrera, institución, título obtenido..." value={form.education} onChange={handleChange} />
 
                 <br /><br />
 
