@@ -13,6 +13,7 @@ CREATE TABLE work_profiles (
     field VARCHAR(150) NOT NULL,
     experience TEXT,
     experience_years INTEGER,
+    education TEXT,
     work_preferences TEXT,
     preferred_location VARCHAR(150),
     work_mode VARCHAR(50),

@@ -12,6 +12,11 @@ export default function DashboardPage() {
 
     const [profile, setProfile] = useState(null);
 
+    function logout() {
+        localStorage.removeItem("token");
+        router.replace("/login");
+    }
+
     useEffect(() => {
 
         async function getProfile() {
@@ -53,7 +58,7 @@ export default function DashboardPage() {
     return (
         <main>
 
-            <h1>Bienvenido</h1>
+            <h1>Bienvenido/a</h1> {profile.name}
 
             <h2>Tu perfil laboral</h2>
 
@@ -70,6 +75,10 @@ export default function DashboardPage() {
             </p>
 
             <p>
+                <strong>Educación:</strong> {profile.education}
+            </p>
+
+            <p>
                 <strong>Preferencias:</strong> {profile.work_preferences}
             </p>
 
@@ -77,9 +86,13 @@ export default function DashboardPage() {
                 <strong>Modalidad:</strong> {profile.work_mode}
             </p>
 
-            <Link href="./">
-            Volver a inicio
-            </Link>
+            <p>
+                <Link href="/profile/edit">
+                    Actualizar perfil laboral
+                </Link>
+            </p>
+
+            <button type="button" onClick={logout}>Cerrar sesión</button>
 
         </main>
     );

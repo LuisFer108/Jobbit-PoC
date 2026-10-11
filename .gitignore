@@ -1,0 +1,17 @@
+# Ignore local environment variables (sensitive data)
+.env
+.env.local
+
+# Ignore heavy project dependencies
+node_modules/
+venv/
+.venv/
+__pycache__/
+
+.next/
+out/
+
+# Optional: Ignore debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
