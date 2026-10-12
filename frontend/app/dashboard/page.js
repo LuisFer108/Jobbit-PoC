@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import LogoutButton from "../components/LogoutButton";
 
 export default function DashboardPage() {
 
@@ -11,11 +12,6 @@ export default function DashboardPage() {
     const router = useRouter();
 
     const [profile, setProfile] = useState(null);
-
-    function logout() {
-        localStorage.removeItem("token");
-        router.replace("/login");
-    }
 
     useEffect(() => {
 
@@ -92,7 +88,7 @@ export default function DashboardPage() {
                 </Link>
             </p>
 
-            <button type="button" onClick={logout}>Cerrar sesión</button>
+            <LogoutButton />
 
         </main>
     );

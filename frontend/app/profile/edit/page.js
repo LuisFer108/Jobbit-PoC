@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import LogoutButton from "../../components/LogoutButton";
 
 const initialForm = {
     name: "",
@@ -276,6 +277,8 @@ export default function EditProfilePage() {
             <p>
                 <Link href="/dashboard">Cancelar y volver al dashboard</Link>
             </p>
+
+            <LogoutButton />
         </main>
     );
 }
