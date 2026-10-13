@@ -70,7 +70,10 @@ router.get("/", authenticateToken, async (req, res) => {
         const userId = req.user.userId;
 
         const result = await pool.query(
-            "SELECT * FROM work_profiles WHERE user_id = $1",
+            `SELECT wp.*, u.name, u.email
+            FROM work_profiles wp
+            JOIN users u ON u.id = wp.user_id
+            WHERE wp.user_id = $1`,
             [userId]
         );
 
@@ -88,5 +91,156 @@ router.get("/", authenticateToken, async (req, res) => {
         });
     }
 });
+
+ // ACTUALIZAR PERFIL
+router.put("/", authenticateToken, async (req, res) => {
+    let client;
+
+    try {
+        const {
+            name,
+            email,
+            field,
+            experience,
+            experienceYears,
+            education,
+            workPreferences,
+            preferredLocation,
+            workMode
+        } = req.body;
+
+    
+        if (typeof field !== "string" || !field.trim()) {
+            return res.status(400).json({
+                message: "El campo profesional es obligatorio"
+            });
+        }
+
+        const years =
+            experienceYears === "" || experienceYears == null
+                ? null
+                : Number(experienceYears);
+
+        if (
+            years !== null &&
+            (!Number.isInteger(years) || years < 0)
+        ) {
+            return res.status(400).json({
+                message: "Los años deben ser un entero igual o mayor que cero"
+            });
+        }
+
+        client = await pool.connect();
+        await client.query("BEGIN");
+
+        // Consultar el nombre y el correo que ya tiene el usuario.
+        const userResult = await client.query(
+            "SELECT name, email FROM users WHERE id = $1",
+            [req.user.userId]
+        );
+
+        if (userResult.rows.length === 0) {
+            await client.query("ROLLBACK");
+
+            return res.status(404).json({
+                message: "Usuario no encontrado"
+            });
+        }
+
+        const currentUser = userResult.rows[0];
+
+        // Si no se introduce un dato nuevo, se conserva el actual.
+        const normalizedName =
+            typeof name === "string" && name.trim()
+                ? name.trim()
+                : currentUser.name;
+
+        const normalizedEmail =
+            typeof email === "string" && email.trim()
+                ? email.trim().toLowerCase()
+                : currentUser.email;
+
+        const existingProfile = await client.query(
+            "SELECT user_id FROM work_profiles WHERE user_id = $1",
+            [req.user.userId]
+        );
+
+        if (existingProfile.rows.length === 0) {
+            await client.query("ROLLBACK");
+
+            return res.status(404).json({
+                message: "No existe un perfil laboral para actualizar"
+            });
+        }
+
+        await client.query(
+            "UPDATE users SET name = $1, email = $2 WHERE id = $3",
+            [normalizedName, normalizedEmail, req.user.userId]
+        );
+
+        const result = await client.query(
+            `UPDATE work_profiles
+             SET field = $1,
+                 experience = $2,
+                 experience_years = $3,
+                 education = $4,
+                 work_preferences = $5,
+                 preferred_location = $6,
+                 work_mode = $7,
+                 updated_at = CURRENT_TIMESTAMP
+             WHERE user_id = $8
+             RETURNING *`,
+            [
+                field.trim(),
+                experience || null,
+                years,
+                education || null,
+                workPreferences || null,
+                preferredLocation || null,
+                workMode || null,
+                req.user.userId
+            ]
+        );
+
+        await client.query("COMMIT");
+
+        return res.json({
+            message: "Perfil actualizado correctamente",
+            profile: {
+                ...result.rows[0],
+                name: normalizedName,
+                email: normalizedEmail
+            }
+        });
+    } catch (error) {
+        if (client) {
+            try {
+                await client.query("ROLLBACK");
+            } catch (rollbackError) {
+                console.error(
+                    "Error al revertir transacción:",
+                    rollbackError
+                );
+            }
+        }
+
+        console.error("Error al actualizar el perfil:", error);
+
+        if (error.code === "23505") {
+            return res.status(409).json({
+                message: "Ese correo ya está registrado en otra cuenta"
+            });
+        }
+
+        return res.status(500).json({
+            message: "No fue posible actualizar el perfil"
+        });
+    } finally {
+        if (client) {
+            client.release();
+        }
+    }
+});
+
 
 module.exports = router;

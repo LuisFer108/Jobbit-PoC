@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import LogoutButton from "../components/LogoutButton";
 
 export default function ProfilePage() {
 
@@ -11,12 +12,20 @@ export default function ProfilePage() {
         field: "",
         experience: "",
         experienceYears: "",
+        education: "",
         workPreferences: "",
         preferredLocation: "",
         workMode: ""
     });
 
     const [message, setMessage] = useState("");
+
+    // Protección de ruta: si no hay token al cargar la página, se redirige al
+    // login. Esto impide el acceso directo por URL tras cerrar sesión (SCRUM-71).
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (!token) router.replace("/login");
+    }, [router]);
 
     function handleChange(e) {
         setForm({
@@ -104,6 +113,18 @@ export default function ProfilePage() {
 
                 <br /><br />
 
+                <label>Educación</label>
+
+                <textarea
+                    name="education"
+                    placeholder="Ej: Estudie en..."
+                    value={form.education}
+                    onChange={handleChange}
+                />
+
+                <br /><br />
+
+
                 <label>Preferencias laborales</label>
 
                 <textarea
@@ -160,6 +181,8 @@ export default function ProfilePage() {
             </form>
 
             {message && <p>{message}</p>}
+
+            <LogoutButton />
 
         </main>
     );
