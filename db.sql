@@ -1,10 +1,15 @@
 CREATE DATABASE job_portal;
+
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(150) UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    role VARCHAR(20) NOT NULL DEFAULT 'candidate',
+    email_verified BOOLEAN NOT NULL DEFAULT FALSE,
+    verification_token_hash TEXT,
+    verification_expires TIMESTAMP
 );
 
 CREATE TABLE work_profiles (
