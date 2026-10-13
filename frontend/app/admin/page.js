@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import LogoutButton from "../components/LogoutButton";
 
 export default function AdminPage() {
     const router = useRouter();
@@ -54,11 +55,6 @@ export default function AdminPage() {
         return () => { cancelled = true; };
     }, [router]);
 
-    function logout() {
-        localStorage.removeItem("token");
-        router.replace("/login");
-    }
-
     return (
         <main style={{ padding: "2rem" }}>
             <h1>Panel administrativo</h1>
@@ -69,7 +65,7 @@ export default function AdminPage() {
                     <p>Perfiles laborales: {summary.total_profiles}</p>
                 </section>
             )}
-            <button type="button" onClick={logout}>Cerrar sesión</button>
+            <LogoutButton />
         </main>
     );
 }
