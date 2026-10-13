@@ -23,7 +23,7 @@ export default function LoginPage() {
         try {
             const response = await fetch("http://localhost:5001/api/auth/login", {
                 method: "POST",
-                 headers: { "Content-Type": "application/json" },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password })
             });
             const data = await response.json();
@@ -37,18 +37,18 @@ export default function LoginPage() {
             localStorage.setItem("token", data.token);
 
             if (data.user.role === "admin") {
-                    router.push("/admin");
-                } else if (!data.hasProfile) {
-                    router.push("/profile");
-                } else {
-                    router.push("/dashboard");
-                }
-            } catch {
-                setMessage("No fue posible conectar con el servidor");
-            } finally {
-                setLoading(false);
+                router.push("/admin");
+            } else if (!data.hasProfile) {
+                router.push("/profile");
+            } else {
+                router.push("/dashboard");
             }
+        } catch {
+            setMessage("No fue posible conectar con el servidor");
+        } finally {
+            setLoading(false);
         }
+    }
 
     return (
         <main className={styles.container}>
@@ -64,6 +64,7 @@ export default function LoginPage() {
                         placeholder="Correo"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
+                        required
                     />
 
                     <br />
@@ -74,17 +75,17 @@ export default function LoginPage() {
                         placeholder="Contraseña"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
+                        required
                     />
 
                     <br />
 
-                    <button className={styles.button} type="submit">
-                        Iniciar sesión
+                    <button className={styles.button} type="submit" disabled={loading}>
+                        {loading ? "Ingresando..." : "Iniciar sesión"}
                     </button>
-                    
 
                 </form>
-                
+
                 {message && <p>{message}</p>}
 
             </div>

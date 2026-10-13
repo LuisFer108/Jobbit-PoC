@@ -1,9 +1,19 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const rateLimit = require("express-rate-limit");
 const pool = require("../db");
+const authenticateToken = require("../middleware/authMiddleware");
 
 const router = express.Router();
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 10,
+    message: { message: "Demasiados intentos. Intenta de nuevo en 15 minutos" }
+});
 
 function createToken(user) {
     if (!process.env.JWT_SECRET) {
@@ -20,23 +30,33 @@ function createToken(user) {
 // REGISTRO
 router.post("/register", async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        const name = String(req.body.name || "").trim();
+        const email = String(req.body.email || "").trim().toLowerCase();
+        const password = String(req.body.password || "");
 
         if (!name || !email || !password) {
+            return res.status(400).json({ message: "Todos los campos son obligatorios" });
+        }
+        if (!EMAIL_REGEX.test(email)) {
+            return res.status(400).json({ message: "Ingresa un correo válido" });
+        }
+                if (password.length < 8) {
             return res.status(400).json({
-                message: "Todos los campos son obligatorios"
+                message: "La contraseña debe tener al menos 8 caracteres"
+            });
+        }
+        if (password.length > 72) {
+            return res.status(400).json({
+                message: "La contraseña no puede superar los 72 caracteres"
             });
         }
 
         const existingUser = await pool.query(
-            "SELECT id FROM users WHERE email = $1",
+            "SELECT id FROM users WHERE LOWER(email) = $1",
             [email]
         );
-
         if (existingUser.rows.length > 0) {
-            return res.status(400).json({
-                message: "El correo ya está registrado"
-            });
+            return res.status(409).json({ message: "El correo ya está registrado" });
         }
 
         const passwordHash = await bcrypt.hash(password, 10);
@@ -54,22 +74,30 @@ router.post("/register", async (req, res) => {
         });
 
     } catch (error) {
-        console.error(error);
-
-        return res.status(500).json({
-            message: "Error real: " + error.message
-        });
+        // 23505 = violación de UNIQUE (dos registros simultáneos con el mismo correo)
+        if (error.code === "23505") {
+            return res.status(409).json({ message: "El correo ya está registrado" });
+        }
+        console.error("Error en registro:", error);
+        return res.status(500).json({ message: "Error al crear la cuenta" });
     }
 });
 
 
 // LOGIN
-router.post("/login", async (req, res) => {
+router.post("/login", loginLimiter, async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const email = String(req.body.email || "").trim().toLowerCase();
+        const password = String(req.body.password || "");
+
+        if (!email || !password) {
+            return res.status(400).json({
+                message: "Ingresa tu correo y tu contraseña"
+            });
+        }
 
         const result = await pool.query(
-            "SELECT * FROM users WHERE email = $1",
+            "SELECT * FROM users WHERE LOWER(email) = $1",
             [email]
         );
 
@@ -103,17 +131,17 @@ router.post("/login", async (req, res) => {
         return res.json({
             message: "Inicio de sesión exitoso",
             token,
-            hasProfile: profileResult.rows.length>0, 
+            hasProfile: profileResult.rows.length > 0,
             user: {
                 id: user.id,
                 name: user.name,
                 email: user.email,
-                role:user.role
+                role: user.role
             }
         });
 
     } catch (error) {
-        console.error(error);
+        console.error("Error en login:", error);
 
         return res.status(500).json({
             message: "Error al iniciar sesión"
@@ -122,8 +150,6 @@ router.post("/login", async (req, res) => {
 });
 
 // Devuelve el usuario autenticado y su rol actual desde la base de datos.
-const authenticateToken = require("../middleware/authMiddleware");
-
 router.get("/me", authenticateToken, async (req, res) => {
     try {
         const result = await pool.query(
