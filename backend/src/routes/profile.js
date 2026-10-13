@@ -12,6 +12,7 @@ router.post("/", authenticateToken, async (req, res) => {
             field,
             experience,
             experienceYears,
+            education,
             workPreferences,
             preferredLocation,
             workMode
@@ -32,17 +33,19 @@ router.post("/", authenticateToken, async (req, res) => {
                 field,
                 experience,
                 experience_years,
+                education,
                 work_preferences,
                 preferred_location,
                 work_mode
             )
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             RETURNING *`,
             [
                 userId,
                 field,
                 experience,
                 experienceYears,
+                education,
                 workPreferences,
                 preferredLocation,
                 workMode
