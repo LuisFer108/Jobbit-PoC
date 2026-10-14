@@ -1,0 +1,685 @@
+/* =========================================
+   JOBBIT — VACANTES DISPONIBLES
+   page.module.css
+   ========================================= */
+
+.page {
+    --cream: #faf3e5;
+    --navy: #16182e;
+    --amber: #f59f32;
+    --terracotta: #eb5e34;
+    --muted: #686878;
+    --border: #e6dfd2;
+    --white: #ffffff;
+    --blue: #3156a4;
+
+    min-height: 100vh;
+    padding: 2.5rem 1.5rem;
+    background: var(--cream);
+    color: var(--navy);
+    font-family: "Poppins", Arial, sans-serif;
+}
+
+.container {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+/* Encabezado */
+
+.header {
+    margin-bottom: 2rem;
+}
+
+.eyebrow {
+    margin: 0 0 0.6rem;
+    color: var(--terracotta);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+}
+
+.title {
+    margin: 0 0 0.65rem;
+    color: var(--navy);
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.04em;
+}
+
+.subtitle {
+    max-width: 650px;
+    margin: 0;
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.7;
+}
+
+.navigation {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.8rem 1.5rem;
+    margin: 1.5rem 0 2rem;
+}
+
+.backLink,
+.applicationsLink,
+.profileLink {
+    color: var(--navy);
+    font-size: 0.92rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.backLink:hover,
+.applicationsLink:hover,
+.profileLink:hover {
+    color: var(--terracotta);
+}
+
+.applicationsLink {
+    color: var(--blue);
+}
+
+/* Avisos de perfil y mensajes */
+
+.notice {
+    margin-bottom: 1.5rem;
+    padding: 1.1rem 1.25rem;
+    border: 1px solid;
+    border-radius: 14px;
+    line-height: 1.65;
+}
+
+.warningNotice {
+    color: #79511a;
+    background: #fff1d4;
+    border-color: #f1c66f;
+}
+
+.errorNotice {
+    color: #913b2c;
+    background: #fff0eb;
+    border-color: #efb3a5;
+}
+
+.noticeTitle {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-weight: 700;
+}
+
+.noticeLink {
+    display: inline-block;
+    margin-top: 0.5rem;
+    color: inherit;
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.errorMessage {
+    margin: 1rem 0;
+    padding: 0.85rem 1rem;
+    border: 1px solid #efb3a5;
+    border-radius: 10px;
+    background: #fff0eb;
+    color: #913b2c;
+    line-height: 1.5;
+}
+
+.loading,
+.emptyMessage {
+    padding: 2rem 1rem;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1.7;
+}
+
+.emptyMessage {
+    border: 1px dashed #d6cbb9;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.45);
+}
+
+/* Lista de vacantes */
+
+.jobsList {
+    display: grid;
+    gap: 1.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.jobCard {
+    min-width: 0;
+    padding: 1.5rem;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    background: var(--white);
+    box-shadow: 0 5px 18px rgba(22, 24, 46, 0.045);
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.jobCard:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 26px rgba(22, 24, 46, 0.08);
+}
+
+.jobCardApplied {
+    border: 2px solid #8bc8d9;
+    background: #f2fbfd;
+}
+
+.jobHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.jobTitle {
+    margin: 0;
+    color: var(--navy);
+    font-size: 1.35rem;
+    font-weight: 750;
+    line-height: 1.35;
+    letter-spacing: -0.02em;
+    overflow-wrap: anywhere;
+}
+
+.company {
+    margin: 0 0 0.75rem;
+    color: #51516a;
+    font-size: 0.98rem;
+    font-weight: 700;
+}
+
+.description {
+    margin: 0 0 1rem;
+    color: #4e4e60;
+    font-size: 0.95rem;
+    line-height: 1.75;
+    white-space: pre-line;
+}
+
+.metadata {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin-bottom: 1.25rem;
+}
+
+.metaItem {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.4rem 0.7rem;
+    border: 1px solid #eee5d7;
+    border-radius: 999px;
+    background: #fcf8f0;
+    color: #55556a;
+    font-size: 0.82rem;
+    line-height: 1.4;
+}
+
+/* Estado de postulación */
+
+.statusBadge {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    background: #dceff4;
+    color: #225d70;
+    font-size: 0.76rem;
+    font-weight: 750;
+    letter-spacing: 0.035em;
+    overflow-wrap: anywhere;
+}
+
+.jobActions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+}
+
+.appliedInfo {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.appliedText {
+    color: #286d7e;
+    font-size: 0.84rem;
+    line-height: 1.5;
+}
+
+.button {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 42px;
+    padding: 0.7rem 1.15rem;
+    border: none;
+    border-radius: 10px;
+    background: var(--navy);
+    color: white;
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        opacity 0.2s ease;
+}
+
+.button:hover:not(:disabled) {
+    transform: translateY(-1px);
+    background: var(--terracotta);
+}
+
+.button:focus-visible,
+.secondaryButton:focus-visible,
+.backLink:focus-visible,
+.applicationsLink:focus-visible,
+.profileLink:focus-visible {
+    outline: 3px solid var(--amber);
+    outline-offset: 3px;
+}
+
+.button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.secondaryButton {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 42px;
+    padding: 0.65rem 1rem;
+    border: 1px solid #d8d4cc;
+    border-radius: 10px;
+    background: #f7f4ee;
+    color: var(--navy);
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.secondaryButton:hover:not(:disabled) {
+    background: #ece6da;
+}
+
+.secondaryButton:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.appliedButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    padding: 0.6rem 1rem;
+    border: 1px solid #d5e1e5;
+    border-radius: 10px;
+    background: #e8f0f2;
+    color: #53666d;
+    font: inherit;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: not-allowed;
+}
+
+/* Modales */
+
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background: rgba(22, 24, 46, 0.62);
+    backdrop-filter: blur(4px);
+    overflow-y: auto;
+}
+
+.modal {
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    padding: 2rem;
+    overflow-y: auto;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 20px;
+    background: var(--cream);
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.25);
+    animation: modalAppear 0.2s ease-out;
+}
+
+.applyModal {
+    max-width: 680px;
+}
+
+.confirmationModal {
+    text-align: center;
+}
+
+.modalTitle {
+    margin: 0 0 0.65rem;
+    color: var(--navy);
+    font-size: 1.55rem;
+    font-weight: 800;
+    line-height: 1.3;
+    letter-spacing: -0.025em;
+}
+
+.warningTitle {
+    color: #8a5116;
+}
+
+.modalDescription {
+    margin: 0 0 1rem;
+    color: #55556a;
+    font-size: 0.94rem;
+    line-height: 1.7;
+}
+
+.modalActions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+/* Resumen del perfil dentro del modal */
+
+.profileSummary {
+    margin-bottom: 1.25rem;
+    padding: 1.1rem;
+    border: 1px solid #e4dac9;
+    border-radius: 12px;
+    background: #fffdf8;
+}
+
+.summaryTitle {
+    margin: 0 0 0.65rem;
+    color: var(--navy);
+    font-size: 1rem;
+    font-weight: 750;
+}
+
+.profileDetails {
+    display: grid;
+    gap: 0.5rem;
+    margin: 0;
+    padding-left: 1.25rem;
+    color: #505064;
+    font-size: 0.9rem;
+    line-height: 1.65;
+    overflow-wrap: anywhere;
+}
+
+.profileDetails strong {
+    color: var(--navy);
+}
+
+/* Carta de presentación */
+
+.form {
+    display: grid;
+    gap: 0.65rem;
+}
+
+.label {
+    color: var(--navy);
+    font-size: 0.92rem;
+    font-weight: 700;
+}
+
+.helpText {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
+.textarea {
+    display: block;
+    width: 100%;
+    min-height: 150px;
+    padding: 0.9rem 1rem;
+    border: 1px solid #d8d0c2;
+    border-radius: 12px;
+    background: #fffdf9;
+    color: var(--navy);
+    font: inherit;
+    font-size: 0.93rem;
+    line-height: 1.65;
+    resize: vertical;
+    box-sizing: border-box;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.textarea:focus {
+    border-color: var(--amber);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(245, 159, 50, 0.18);
+}
+
+.applyError {
+    margin: 0.4rem 0 0;
+    padding: 0.75rem 0.9rem;
+    border: 1px solid #efb3a5;
+    border-radius: 10px;
+    background: #fff0eb;
+    color: #913b2c;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+/* Confirmación de postulación */
+
+.confirmationIcon {
+    margin-bottom: 0.75rem;
+    font-size: 3rem;
+}
+
+.confirmationTitle {
+    margin: 0 0 0.75rem;
+    color: #286b51;
+    font-size: 1.65rem;
+    font-weight: 800;
+    line-height: 1.3;
+}
+
+.confirmationText {
+    margin: 0 0 1rem;
+    color: #45455a;
+    font-size: 1rem;
+    line-height: 1.7;
+}
+
+.confirmationDetails {
+    margin: 1rem 0;
+    padding: 1rem;
+    border: 1px solid #c5dfce;
+    border-radius: 12px;
+    background: #edf8ef;
+    color: #334d3a;
+    text-align: left;
+    font-size: 0.92rem;
+    line-height: 1.65;
+    overflow-wrap: anywhere;
+}
+
+.confirmationDetails p {
+    margin: 0 0 0.4rem;
+}
+
+.confirmationDetails p:last-child {
+    margin-bottom: 0;
+}
+
+.confirmationStatus {
+    color: #287847;
+    font-weight: 800;
+}
+
+.confirmationNote {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.88rem;
+    line-height: 1.7;
+}
+
+.confirmationActions {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+/* Pie de página */
+
+.footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 2rem;
+}
+
+/* Animaciones */
+
+@keyframes modalAppear {
+    from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.99);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Responsive */
+
+@media (max-width: 700px) {
+    .page {
+        padding: 1.75rem 1rem;
+    }
+
+    .jobCard {
+        padding: 1.15rem;
+        border-radius: 15px;
+    }
+
+    .jobTitle {
+        font-size: 1.2rem;
+    }
+
+    .modal {
+        padding: 1.5rem;
+        border-radius: 16px;
+    }
+
+    .modalActions,
+    .confirmationActions {
+        gap: 0.6rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .page {
+        padding: 1.25rem 0.75rem;
+    }
+
+    .navigation {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 0.7rem;
+    }
+
+    .jobActions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .jobActions > * {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .appliedInfo {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .modalOverlay {
+        align-items: flex-start;
+        padding: 0.65rem;
+    }
+
+    .modal {
+        margin: auto 0;
+        max-height: calc(100vh - 1.3rem);
+        padding: 1.25rem;
+    }
+
+    .modalActions,
+    .confirmationActions {
+        align-items: stretch;
+        flex-direction: column-reverse;
+    }
+
+    .modalActions button,
+    .confirmationActions button {
+        width: 100%;
+    }
+
+    .statusBadge {
+        font-size: 0.72rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .page *,
+    .page *::before,
+    .page *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+    }
+}
