@@ -16,7 +16,9 @@ router.post("/", authenticateToken, async (req, res) => {
             education,
             workPreferences,
             preferredLocation,
-            workMode
+            workMode,
+            salaryRange,
+            salary_range
         } = req.body;
 
         const userId = req.user.userId;
@@ -26,6 +28,8 @@ router.post("/", authenticateToken, async (req, res) => {
                 message: "El campo profesional es obligatorio"
             });
         }
+
+        const chosenSalary = salaryRange || salary_range || null;
 
         const result = await pool.query(
             `INSERT INTO work_profiles
@@ -37,9 +41,10 @@ router.post("/", authenticateToken, async (req, res) => {
                 education,
                 work_preferences,
                 preferred_location,
-                work_mode
+                work_mode,
+                salary_range
             )
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
             RETURNING *`,
             [
                 userId,
@@ -49,7 +54,8 @@ router.post("/", authenticateToken, async (req, res) => {
                 education,
                 workPreferences,
                 preferredLocation,
-                workMode
+                workMode,
+                chosenSalary
             ]
         );
 
@@ -117,7 +123,9 @@ router.put("/", authenticateToken, async (req, res) => {
             education,
             workPreferences,
             preferredLocation,
-            workMode
+            workMode,
+            salaryRange,
+            salary_range
         } = req.body;
 
     
@@ -189,6 +197,11 @@ router.put("/", authenticateToken, async (req, res) => {
             [normalizedName, normalizedEmail, req.user.userId]
         );
 
+        const chosenSalary =
+            salaryRange !== undefined
+                ? (salaryRange || null)
+                : (salary_range !== undefined ? (salary_range || null) : null);
+
         const result = await client.query(
             `UPDATE work_profiles
              SET field = $1,
@@ -198,8 +211,9 @@ router.put("/", authenticateToken, async (req, res) => {
                  work_preferences = $5,
                  preferred_location = $6,
                  work_mode = $7,
+                 salary_range = COALESCE($8, salary_range),
                  updated_at = CURRENT_TIMESTAMP
-             WHERE user_id = $8
+             WHERE user_id = $9
              RETURNING *`,
             [
                 field.trim(),
@@ -209,6 +223,7 @@ router.put("/", authenticateToken, async (req, res) => {
                 workPreferences || null,
                 preferredLocation || null,
                 workMode || null,
+                chosenSalary,
                 req.user.userId
             ]
         );

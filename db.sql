@@ -22,9 +22,12 @@ CREATE TABLE work_profiles (
     work_preferences TEXT,
     preferred_location VARCHAR(150),
     work_mode VARCHAR(50),
+    salary_range VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+ALTER TABLE work_profiles ADD COLUMN IF NOT EXISTS salary_range VARCHAR(50);
 
 -- ===== NOTA: la columna role ahora ya forma parte del CREATE TABLE users de arriba =====
 -- (la agregaron los cambios de autenticación en main). Este ALTER se conserva por
@@ -65,9 +68,12 @@ CREATE TABLE IF NOT EXISTS job_offers (
     min_experience_years INTEGER,
     location VARCHAR(150),
     work_mode VARCHAR(50),
+    salary_range VARCHAR(50),
     status VARCHAR(20) NOT NULL DEFAULT 'active' CHECK (status IN ('active','inactive')),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+ALTER TABLE job_offers ADD COLUMN IF NOT EXISTS salary_range VARCHAR(50);
 
 -- ===== HABILIDADES REQUERIDAS POR CADA VACANTE (ERD, N:M con peso) =====
 CREATE TABLE IF NOT EXISTS offer_skills (
