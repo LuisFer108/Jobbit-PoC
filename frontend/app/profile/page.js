@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import LogoutButton from "../components/LogoutButton";
+import styles from "./page.module.css";
 
 export default function ProfilePage() {
 
@@ -22,6 +24,7 @@ export default function ProfilePage() {
     const [catalog, setCatalog] = useState([]);
     const [selectedSkills, setSelectedSkills] = useState([]);
     const [message, setMessage] = useState("");
+
 
     // Protección de ruta: si no hay token al cargar la página, se redirige al
     // login. Esto impide el acceso directo por URL tras cerrar sesión (SCRUM-71).
@@ -105,166 +108,190 @@ export default function ProfilePage() {
         }
     }
 
+    // ===== PRESENTACIÓN NUEVA =====
     return (
-        <main>
+        <main className={styles.page}>
+            <div className={styles.card}>
 
-            <h1>Crea tu perfil laboral</h1>
+                {/* Barra superior con logo + título */}
+                <header className={styles.topbar}>
+                    <div className={styles.brand}>
+                        <Image
+                            src="/Logo-jobbit.svg"
+                            alt="Jobbit"
+                            width={130}
+                            height={40}
+                            priority
+                            unoptimized
+                        />
+                    </div>
+                    <div className={styles.topbarTitle}>
+                        <span className={styles.userIcon} aria-hidden="true">
+                            <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor">
+                                <path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-4 0-8 2-8 6v2h16v-2c0-4-4-6-8-6Z"/>
+                            </svg>
+                        </span>
+                        Mi perfil
+                    </div>
+                </header>
 
-            <p>
-                Completa esta información para personalizar
-                tus futuras recomendaciones de empleo.
-            </p>
+                {/* Cuerpo */}
+                <div className={styles.body}>
+                    <h1 className={styles.welcome}>Crea tu perfil laboral</h1>
+                    <p className={styles.subtitle}>
+                        Completa esta información para personalizar
+                        tus futuras recomendaciones de empleo.
+                    </p>
 
-            <form onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmit} className={styles.form}>
 
-                <label>Campo profesional</label>
+                        <div className={styles.field}>
+                            <label className={styles.label} htmlFor="field">Campo profesional</label>
+                            <input
+                                id="field"
+                                className={styles.input}
+                                type="text"
+                                name="field"
+                                placeholder="Ej: Desarrollo de software"
+                                value={form.field}
+                                onChange={handleChange}
+                            />
+                        </div>
 
-                <input
-                    type="text"
-                    name="field"
-                    placeholder="Ej: Desarrollo de software"
-                    value={form.field}
-                    onChange={handleChange}
-                />
+                        <div className={styles.field}>
+                            <label className={styles.label} htmlFor="experienceYears">Años de experiencia</label>
+                            <input
+                                id="experienceYears"
+                                className={styles.input}
+                                type="number"
+                                name="experienceYears"
+                                min="0"
+                                value={form.experienceYears}
+                                onChange={handleChange}
+                            />
+                        </div>
 
-                <br /><br />
+                        <div className={`${styles.field} ${styles.fullWidth}`}>
+                            <label className={styles.label} htmlFor="experience">Describe tu experiencia</label>
+                            <textarea
+                                id="experience"
+                                className={styles.textarea}
+                                name="experience"
+                                placeholder="Ej: He trabajado con Java, Python..."
+                                value={form.experience}
+                                onChange={handleChange}
+                            />
+                        </div>
 
-                <label>Años de experiencia</label>
+                        <div className={`${styles.field} ${styles.fullWidth}`}>
+                            <label className={styles.label} htmlFor="education">Educación</label>
+                            <textarea
+                                id="education"
+                                className={styles.textarea}
+                                name="education"
+                                placeholder="Ej: Estudié en..."
+                                value={form.education}
+                                onChange={handleChange}
+                            />
+                        </div>
 
-                <input
-                    type="number"
-                    name="experienceYears"
-                    min="0"
-                    value={form.experienceYears}
-                    onChange={handleChange}
-                />
+                        <div className={`${styles.field} ${styles.fullWidth}`}>
+                            <label className={styles.label} htmlFor="workPreferences">Preferencias laborales</label>
+                            <textarea
+                                id="workPreferences"
+                                className={styles.textarea}
+                                name="workPreferences"
+                                placeholder="Ej: Desarrollo backend, inteligencia artificial..."
+                                value={form.workPreferences}
+                                onChange={handleChange}
+                            />
+                        </div>
 
-                <br /><br />
+                        <div className={styles.field}>
+                            <label className={styles.label} htmlFor="preferredLocation">Ubicación preferida</label>
+                            <input
+                                id="preferredLocation"
+                                className={styles.input}
+                                type="text"
+                                name="preferredLocation"
+                                placeholder="Ej: Medellín o remoto"
+                                value={form.preferredLocation}
+                                onChange={handleChange}
+                            />
+                        </div>
 
-                <label>Describe tu experiencia</label>
+                        <div className={styles.field}>
+                            <label className={styles.label} htmlFor="workMode">Modalidad de trabajo</label>
+                            <select
+                                id="workMode"
+                                className={styles.input}
+                                name="workMode"
+                                value={form.workMode}
+                                onChange={handleChange}
+                            >
+                                <option value="">Selecciona una opción</option>
+                                <option value="remote">Remoto</option>
+                                <option value="hybrid">Híbrido</option>
+                                <option value="onsite">Presencial</option>
+                            </select>
+                        </div>
 
-                <textarea
-                    name="experience"
-                    placeholder="Ej: He trabajado con Java, Python..."
-                    value={form.experience}
-                    onChange={handleChange}
-                />
+                        <div className={`${styles.field} ${styles.fullWidth}`}>
+                            <label className={styles.label} htmlFor="salaryRange">Rango salarial esperado</label>
+                            <select
+                                id="salaryRange"
+                                className={styles.input}
+                                name="salaryRange"
+                                value={form.salaryRange}
+                                onChange={handleChange}
+                            >
+                                <option value="">Selecciona tu expectativa salarial</option>
+                                <option value="Menos de 2M">Menos de $2.000.000</option>
+                                <option value="2M - 5M">$2.000.000 - $5.000.000</option>
+                                <option value="Más de 5M">Más de $5.000.000</option>
+                            </select>
+                        </div>
 
-                <br /><br />
+                        {/* Habilidades */}
+                        <div className={`${styles.field} ${styles.fullWidth}`}>
+                            <div className={styles.skillsHeader}>
+                                <span className={styles.label}>Tus habilidades técnicas (máximo 5)</span>
+                                <span className={styles.counter}>{selectedSkills.length}/5 seleccionadas</span>
+                            </div>
 
-                <label>Educación</label>
+                            <div className={styles.skillsList}>
+                                {catalog.map((s) => {
+                                    const isSelected = selectedSkills.includes(s.id);
+                                    return (
+                                        <button
+                                            key={s.id}
+                                            type="button"
+                                            onClick={() => toggleSkill(s.id)}
+                                            className={`${styles.skillChip} ${isSelected ? styles.skillChipSelected : ""}`}
+                                            aria-pressed={isSelected}
+                                        >
+                                            {isSelected ? "✓ " : "+ "}{s.name}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
 
-                <textarea
-                    name="education"
-                    placeholder="Ej: Estudie en..."
-                    value={form.education}
-                    onChange={handleChange}
-                />
+                        <div className={`${styles.actions} ${styles.fullWidth}`}>
+                            <button className={styles.primaryButton} type="submit">
+                                Guardar perfil
+                            </button>
+                        </div>
+                    </form>
 
-                <br /><br />
+                    {message && <p className={styles.message} role="status">{message}</p>}
 
-
-                <label>Preferencias laborales</label>
-
-                <textarea
-                    name="workPreferences"
-                    placeholder="Ej: Desarrollo backend, inteligencia artificial..."
-                    value={form.workPreferences}
-                    onChange={handleChange}
-                />
-
-                <br /><br />
-
-                <label>Ubicación preferida</label>
-
-                <input
-                    type="text"
-                    name="preferredLocation"
-                    placeholder="Ej: Medellín o remoto"
-                    value={form.preferredLocation}
-                    onChange={handleChange}
-                />
-
-                <br /><br />
-
-                <label>Modalidad de trabajo</label>
-
-                <select
-                    name="workMode"
-                    value={form.workMode}
-                    onChange={handleChange}
-                >
-                    <option value="">
-                        Selecciona una opción
-                    </option>
-
-                    <option value="remote">
-                        Remoto
-                    </option>
-
-                    <option value="hybrid">
-                        Híbrido
-                    </option>
-
-                    <option value="onsite">
-                        Presencial
-                    </option>
-                </select>
-
-                <br /><br />
-
-                <label>Rango salarial esperado</label>
-
-                <select
-                    name="salaryRange"
-                    value={form.salaryRange}
-                    onChange={handleChange}
-                >
-                    <option value="">Selecciona tu expectativa salarial</option>
-                    <option value="Menos de 2M">Menos de $2.000.000</option>
-                    <option value="2M - 5M">$2.000.000 - $5.000.000</option>
-                    <option value="Más de 5M">Más de $5.000.000</option>
-                </select>
-
-                <br /><br />
-
-                <label>
-                    Tus habilidades técnicas (máximo 5) — {selectedSkills.length}/5 seleccionadas
-                </label>
-
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "8px" }}>
-                    {catalog.map((s) => (
-                        <button
-                            key={s.id}
-                            type="button"
-                            onClick={() => toggleSkill(s.id)}
-                            style={{
-                                padding: "6px 12px",
-                                borderRadius: 16,
-                                border: "1px solid #2563eb",
-                                background: selectedSkills.includes(s.id) ? "#2563eb" : "transparent",
-                                color: selectedSkills.includes(s.id) ? "#fff" : "inherit",
-                                cursor: "pointer",
-                                fontSize: "0.9rem"
-                            }}
-                        >
-                            {selectedSkills.includes(s.id) ? "✓ " : "+ "}{s.name}
-                        </button>
-                    ))}
+                    <div className={styles.logout}>
+                        <LogoutButton />
+                    </div>
                 </div>
 
-                <br /><br />
-
-                <button type="submit">
-                    Guardar perfil
-                </button>
-
-            </form>
-
-            {message && <p>{message}</p>}
-
-            <LogoutButton />
-
+            </div>
         </main>
     );
 }
