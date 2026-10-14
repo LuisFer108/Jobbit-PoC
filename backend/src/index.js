@@ -24,6 +24,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/jobs", jobsRoutes);
 app.use("/api/recommendations", recommendationRoutes);
 app.use("/api/skills", skillRoutes);
+app.use("/api/applications", applicationsRoutes);
 
 app.get("/", (req, res) => {
     res.send("Backend funcionando");
