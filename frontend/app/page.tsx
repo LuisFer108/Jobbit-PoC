@@ -1,28 +1,7 @@
-import Link from "next/link";
-import styles from "./page.module.css"
+import { redirect } from "next/navigation";
 
+// La raíz redirige al login rediseñado: al abrir http://localhost:3000 el
+// usuario cae directamente en /login (redirección en servidor, sin flash).
 export default function Home() {
-  return (
-    <main className={styles.container}>
-      <div className={styles.card}>
-        <h1>Jobbit</h1>
-
-        <p>
-          Encuentra oportunidades laborales según tu perfil.
-        </p>
-
-        <div>
-          <Link href="/login">
-          Iniciar sesión
-        </Link>
-
-        <br /><br />
-
-        <Link href="/register">
-          Crear cuenta
-        </Link>
-        </div>
-      </div>
-    </main>
-  );
+  redirect("/login");
 }

@@ -1,10 +1,15 @@
 CREATE DATABASE job_portal;
+
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(150) UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    role VARCHAR(20) NOT NULL DEFAULT 'candidate',
+    email_verified BOOLEAN NOT NULL DEFAULT FALSE,
+    verification_token_hash TEXT,
+    verification_expires TIMESTAMP
 );
 
 CREATE TABLE work_profiles (
@@ -21,8 +26,9 @@ CREATE TABLE work_profiles (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- ===== CORRECCIÓN: la columna role ya la usa el backend pero faltaba en el esquema =====
--- Si la tabla users ya existe sin la columna, ejecutar:
+-- ===== NOTA: la columna role ahora ya forma parte del CREATE TABLE users de arriba =====
+-- (la agregaron los cambios de autenticación en main). Este ALTER se conserva por
+-- compatibilidad para bases creadas antes de ese cambio; con IF NOT EXISTS es inofensivo.
 ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(20) NOT NULL DEFAULT 'candidate';
 -- (candidate | admin)
 
