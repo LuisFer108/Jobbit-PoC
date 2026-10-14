@@ -1,5 +1,8 @@
 const express = require("express");
 const cors = require("cors");
+const skillRoutes = require("./routes/skills");
+
+const recommendationRoutes = require("./routes/recommendations");
 
 const authRoutes = require("./routes/auth");
 const profileRoutes = require("./routes/profile");
@@ -18,6 +21,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/jobs", jobsRoutes);
+app.use("/api/recommendations", recommendationRoutes);
+app.use("/api/skills", skillRoutes);
 
 app.get("/", (req, res) => {
     res.send("Backend funcionando");

@@ -14,12 +14,15 @@ const initialForm = {
     education: "",
     workPreferences: "",
     preferredLocation: "",
-    workMode: ""
+    workMode: "",
+    salaryRange: ""
 };
 
 export default function EditProfilePage() {
     const router = useRouter();
     const [form, setForm] = useState(initialForm);
+    const [catalog, setCatalog] = useState([]);
+    const [selectedSkills, setSelectedSkills] = useState([]);
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(true);
@@ -35,14 +38,17 @@ export default function EditProfilePage() {
             }
 
             try {
-                const response = await fetch(
-                    "http://localhost:5001/api/profile",
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`
-                        }
-                    }
-                );
+                const [response, skillsCatRes, userSkillsRes] = await Promise.all([
+                    fetch("http://localhost:5001/api/profile", {
+                        headers: { Authorization: `Bearer ${token}` }
+                    }),
+                    fetch("http://localhost:5001/api/skills", {
+                        headers: { Authorization: `Bearer ${token}` }
+                    }),
+                    fetch("http://localhost:5001/api/skills/mine", {
+                        headers: { Authorization: `Bearer ${token}` }
+                    })
+                ]);
 
                 if (response.status === 401 ||
                     response.status === 403) {
@@ -73,8 +79,19 @@ export default function EditProfilePage() {
                     education: data.education ?? "",
                     workPreferences: data.work_preferences ?? "",
                     preferredLocation: data.preferred_location ?? "",
-                    workMode: data.work_mode ?? ""
+                    workMode: data.work_mode ?? "",
+                    salaryRange: data.salary_range ?? ""
                 });
+
+                if (skillsCatRes.ok) {
+                    const catData = await skillsCatRes.json();
+                    setCatalog(catData.skills || []);
+                }
+
+                if (userSkillsRes.ok) {
+                    const uData = await userSkillsRes.json();
+                    setSelectedSkills(uData.skillIds || []);
+                }
             } catch (err) {
                 setError(err.message || "Error al cargar el perfil");
             } finally {
@@ -84,6 +101,19 @@ export default function EditProfilePage() {
 
         loadProfile();
     }, [router]);
+
+    function toggleSkill(id) {
+        if (selectedSkills.includes(id)) {
+            setSelectedSkills(selectedSkills.filter((x) => x !== id));
+        } else {
+            if (selectedSkills.length >= 5) {
+                setError("Solo puedes seleccionar un máximo de 5 habilidades");
+                return;
+            }
+            setError("");
+            setSelectedSkills([...selectedSkills, id]);
+        }
+    }
 
     function handleChange(event) {
         const { name, value } = event.target;
@@ -109,29 +139,41 @@ export default function EditProfilePage() {
         }
 
         try {
-            const response = await fetch(
-                "http://localhost:5001/api/profile",
-                {
+            const [profileRes, skillsRes] = await Promise.all([
+                fetch("http://localhost:5001/api/profile", {
                     method: "PUT",
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`
                     },
                     body: JSON.stringify(form)
-                }
-            );
+                }),
+                fetch("http://localhost:5001/api/skills/mine", {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ skillIds: selectedSkills })
+                })
+            ]);
 
-            const data = await response.json();
+            const data = await profileRes.json();
 
-            if (!response.ok) {
+            if (!profileRes.ok) {
                 throw new Error(
                     data.message || "No se pudo actualizar el perfil"
                 );
             }
 
-           setForm(previous => ({
+            if (!skillsRes.ok) {
+                const sData = await skillsRes.json();
+                throw new Error(sData.message || "Error al actualizar habilidades");
+            }
+
+            setForm(previous => ({
                 ...previous,
-               ...(data.profile || {})
+                ...(data.profile || {})
             }));
 
             setMessage("Perfil actualizado correctamente.");
@@ -263,6 +305,47 @@ export default function EditProfilePage() {
                     <option value="hybrid">Híbrido</option>
                     <option value="onsite">Presencial</option>
                 </select>
+
+                <br /><br />
+
+                <label htmlFor="salaryRange">Rango salarial esperado</label>
+                <select
+                    id="salaryRange"
+                    name="salaryRange"
+                    value={form.salaryRange}
+                    onChange={handleChange}
+                >
+                    <option value="">Selecciona tu expectativa salarial</option>
+                    <option value="Menos de 2M">Menos de $2.000.000</option>
+                    <option value="2M - 5M">$2.000.000 - $5.000.000</option>
+                    <option value="Más de 5M">Más de $5.000.000</option>
+                </select>
+
+                <br /><br />
+
+                <label>
+                    Tus habilidades técnicas (máximo 5) — {selectedSkills.length}/5 seleccionadas
+                </label>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "8px" }}>
+                    {catalog.map((s) => (
+                        <button
+                            key={s.id}
+                            type="button"
+                            onClick={() => toggleSkill(s.id)}
+                            style={{
+                                padding: "6px 12px",
+                                borderRadius: 16,
+                                border: "1px solid #2563eb",
+                                background: selectedSkills.includes(s.id) ? "#2563eb" : "transparent",
+                                color: selectedSkills.includes(s.id) ? "#fff" : "inherit",
+                                cursor: "pointer",
+                                fontSize: "0.9rem"
+                            }}
+                        >
+                            {selectedSkills.includes(s.id) ? "✓ " : "+ "}{s.name}
+                        </button>
+                    ))}
+                </div>
 
                 <br /><br />
 
