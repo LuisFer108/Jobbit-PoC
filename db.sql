@@ -101,8 +101,28 @@ CREATE TABLE IF NOT EXISTS applications (
     offer_id INTEGER NOT NULL REFERENCES job_offers(id) ON DELETE CASCADE,
     status VARCHAR(30) NOT NULL DEFAULT 'postulado',
     cover_letter TEXT,
+    candidate_name VARCHAR(100),
+    candidate_email VARCHAR(150),
+    field VARCHAR(150),
+    experience_years INTEGER,
+    experience TEXT,
+    education TEXT,
+    work_preferences TEXT,
+    preferred_location VARCHAR(150),
+    work_mode VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Migraciones seguras para bases de datos existentes
+ALTER TABLE applications ADD COLUMN IF NOT EXISTS candidate_name VARCHAR(100);
+ALTER TABLE applications ADD COLUMN IF NOT EXISTS candidate_email VARCHAR(150);
+ALTER TABLE applications ADD COLUMN IF NOT EXISTS field VARCHAR(150);
+ALTER TABLE applications ADD COLUMN IF NOT EXISTS experience_years INTEGER;
+ALTER TABLE applications ADD COLUMN IF NOT EXISTS experience TEXT;
+ALTER TABLE applications ADD COLUMN IF NOT EXISTS education TEXT;
+ALTER TABLE applications ADD COLUMN IF NOT EXISTS work_preferences TEXT;
+ALTER TABLE applications ADD COLUMN IF NOT EXISTS preferred_location VARCHAR(150);
+ALTER TABLE applications ADD COLUMN IF NOT EXISTS work_mode VARCHAR(50);
 
 CREATE TABLE IF NOT EXISTS application_status_history (
     id SERIAL PRIMARY KEY,
@@ -111,6 +131,10 @@ CREATE TABLE IF NOT EXISTS application_status_history (
     note TEXT,
     changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Índice único para evitar postulaciones duplicadas del mismo usuario a la misma vacante
+CREATE UNIQUE INDEX IF NOT EXISTS idx_applications_user_offer
+    ON applications (user_id, offer_id);
 
 -- ===== NOTIFICACIONES Y RECUPERACIÓN DE CONTRASEÑA (ERD, release 2-3) — futuras =====
 CREATE TABLE IF NOT EXISTS notifications (

@@ -70,6 +70,16 @@ export default function DashboardPage() {
 
             <h2>Tu perfil laboral</h2>
 
+            {profile.is_complete ? (
+                <p style={{ color: "#16a34a", fontWeight: "bold" }}>
+                    ✓ Estado del perfil: Completo (Habilitado para postulación asistida)
+                </p>
+            ) : (
+                <p style={{ color: "#d97706", fontWeight: "bold" }}>
+                    ⚠️ Estado del perfil: Incompleto (Debes completarlo para postularte a vacantes)
+                </p>
+            )}
+
             <p>
                 <strong>Campo:</strong> {profile.field}
             </p>
