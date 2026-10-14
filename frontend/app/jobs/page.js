@@ -4,11 +4,12 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import LogoutButton from "../components/LogoutButton";
+import styles from "./page.module.css";
 
 export default function JobsPage() {
     const router = useRouter();
 
-    const [jobs, setJobs] = useState(null);   // null = cargando
+    const [jobs, setJobs] = useState(null);
     const [profile, setProfile] = useState(null);
     const [error, setError] = useState("");
 
@@ -20,35 +21,44 @@ export default function JobsPage() {
     const [showProfileWarning, setShowProfileWarning] = useState(false);
     const [confirmation, setConfirmation] = useState(null);
 
+    // Cargar vacantes y perfil del usuario
     useEffect(() => {
         async function loadData() {
             const token = localStorage.getItem("token");
 
-            // Vacantes solo con sesión iniciada
             if (!token) {
                 router.replace("/login");
                 return;
             }
 
             try {
-                // Cargar vacantes y perfil en paralelo
                 const [jobsRes, profileRes] = await Promise.all([
                     fetch("http://localhost:5001/api/jobs", {
-                        headers: { "Authorization": `Bearer ${token}` }
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
                     }),
                     fetch("http://localhost:5001/api/profile", {
-                        headers: { "Authorization": `Bearer ${token}` }
-                    })
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }),
                 ]);
 
-                if (jobsRes.status === 401 || jobsRes.status === 403 || profileRes.status === 401 || profileRes.status === 403) {
+                // Si la sesión no es válida, volver al login
+                if (
+                    [401, 403].includes(jobsRes.status) ||
+                    [401, 403].includes(profileRes.status)
+                ) {
                     localStorage.removeItem("token");
                     router.replace("/login");
                     return;
                 }
 
                 if (!jobsRes.ok) {
-                    setError("No pudimos cargar las vacantes. Intenta de nuevo en un momento.");
+                    setError(
+                        "No pudimos cargar las vacantes. Intenta de nuevo en un momento."
+                    );
                     return;
                 }
 
@@ -60,47 +70,82 @@ export default function JobsPage() {
                     setProfile(profileData);
                 } else if (profileRes.status === 404) {
                     setProfile(null);
+                } else {
+                    setProfile(null);
                 }
             } catch {
-                setError("No pudimos conectarnos. Revisa tu conexión e intenta otra vez.");
+                setError(
+                    "No pudimos conectarnos. Revisa tu conexión e intenta otra vez."
+                );
             }
         }
 
         loadData();
     }, [router]);
 
-    // Modalidad en texto amigable (sin tecnicismos)
+    // Convertir la modalidad a un texto amigable
     function modalidadTexto(mode) {
         if (mode === "remote") return "Remoto";
         if (mode === "hybrid") return "Híbrido";
         if (mode === "onsite") return "Presencial";
+
         return "Modalidad no especificada";
     }
 
-    // Verificar si el perfil está completo
+    // Verificar si el perfil laboral está completo
     function isProfileComplete() {
         if (!profile) return false;
-        if (typeof profile.is_complete === "boolean") return profile.is_complete;
-        // Validación de respaldo en cliente
-        const hasField = Boolean(profile.field && String(profile.field).trim());
-        const hasExpYears = profile.experience_years !== null && profile.experience_years !== undefined && profile.experience_years !== "";
-        const hasExp = Boolean(profile.experience && String(profile.experience).trim());
-        const hasEdu = Boolean(profile.education && String(profile.education).trim());
+
+        if (typeof profile.is_complete === "boolean") {
+            return profile.is_complete;
+        }
+
+        // Validación de respaldo en el cliente
+        const hasField = Boolean(
+            profile.field && String(profile.field).trim()
+        );
+
+        const hasExpYears =
+            profile.experience_years !== null &&
+            profile.experience_years !== undefined &&
+            profile.experience_years !== "";
+
+        const hasExp = Boolean(
+            profile.experience && String(profile.experience).trim()
+        );
+
+        const hasEdu = Boolean(
+            profile.education && String(profile.education).trim()
+        );
+
         return hasField && hasExpYears && hasExp && hasEdu;
     }
 
-    // Abrir flujo de postulación asistida
+    // Abrir el flujo de postulación asistida
     function handleOpenApply(job) {
         setApplyError("");
 
-        // 1. Validar que el usuario tenga perfil laboral completo antes de una postulación
+        // Validar que el perfil laboral esté completo
         if (!profile || !isProfileComplete()) {
             setShowProfileWarning(true);
             return;
         }
 
-        // Generar carta de presentación asistida por defecto utilizando los datos del perfil
-        const defaultLetter = `Estimado equipo de selección de ${job.company || "la empresa"},\n\nPresento mi postulación asistida a la vacante de ${job.title}. Cuento con experiencia en el campo de ${profile.field} (${profile.experience_years ?? 0} año(s) de experiencia) y formación en ${profile.education || "el área"}.\n\nQuedo a su disposición para cualquier inquietud o entrevista.\n\nAtentamente,\n${profile.name || "Candidato"}`;
+        // Generar una carta de presentación inicial
+        const defaultLetter = `Estimado equipo de selección de ${
+            job.company || "la empresa"
+        },
+
+Presento mi postulación asistida a la vacante de ${job.title}. Cuento con experiencia en el campo de ${
+            profile.field
+        } (${profile.experience_years ?? 0} año(s) de experiencia) y formación en ${
+            profile.education || "el área"
+        }.
+
+Quedo a su disposición para cualquier inquietud o entrevista.
+
+Atentamente,
+${profile.name || "Candidato"}`;
 
         setSelectedJob(job);
         setCoverLetter(defaultLetter);
@@ -109,484 +154,574 @@ export default function JobsPage() {
     // Enviar la postulación asistida
     async function handleConfirmApply(e) {
         e.preventDefault();
-        if (!selectedJob) return;
+
+        if (!selectedJob || submitting) return;
 
         setSubmitting(true);
         setApplyError("");
 
         const token = localStorage.getItem("token");
+
         if (!token) {
+            setSubmitting(false);
             router.replace("/login");
             return;
         }
 
         try {
-            const response = await fetch("http://localhost:5001/api/applications", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    offerId: selectedJob.id,
-                    coverLetter: coverLetter
-                })
-            });
+            const response = await fetch(
+                "http://localhost:5001/api/applications",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        offerId: selectedJob.id,
+                        coverLetter: coverLetter,
+                    }),
+                }
+            );
 
             const data = await response.json();
 
+            // Manejar una postulación duplicada
             if (response.status === 409) {
-                // Postulación duplicada detectada
-                setApplyError(data.message || "Ya te has postulado previamente a esta vacante.");
-                // Actualizar la lista para reflejar que ya está postulado
-                setJobs(prevJobs =>
-                    prevJobs.map(j =>
-                        j.id === selectedJob.id ? { ...j, application_status: "postulado" } : j
+                setApplyError(
+                    data.message ||
+                        "Ya te has postulado previamente a esta vacante."
+                );
+
+                setJobs((prevJobs) =>
+                    prevJobs.map((job) =>
+                        job.id === selectedJob.id
+                            ? {
+                                  ...job,
+                                  application_status: "postulado",
+                              }
+                            : job
                     )
                 );
+
                 return;
             }
 
             if (!response.ok) {
-                setApplyError(data.message || "Ocurrió un error al enviar la postulación.");
+                setApplyError(
+                    data.message ||
+                        "Ocurrió un error al enviar la postulación."
+                );
                 return;
             }
 
-            // Actualizar el estado de la vacante en la lista local para evitar duplicados
-            setJobs(prevJobs =>
-                prevJobs.map(j =>
-                    j.id === selectedJob.id
-                        ? { ...j, application_status: data.application.status, application_id: data.application.id, applied_at: data.application.created_at }
-                        : j
+            // Actualizar el estado de la vacante en la lista
+            setJobs((prevJobs) =>
+                prevJobs.map((job) =>
+                    job.id === selectedJob.id
+                        ? {
+                              ...job,
+                              application_status:
+                                  data.application.status,
+                              application_id: data.application.id,
+                              applied_at: data.application.created_at,
+                          }
+                        : job
                 )
             );
 
-            // Mostrar confirmación de postulación
+            // Mostrar la confirmación de postulación
             setConfirmation({
                 jobTitle: selectedJob.title,
                 company: selectedJob.company || "Empresa",
                 status: data.application.status,
-                date: new Date().toLocaleDateString("es-ES")
+                date: new Date().toLocaleDateString("es-ES"),
             });
 
             setSelectedJob(null);
         } catch {
-            setApplyError("No fue posible comunicarse con el servidor. Intenta de nuevo.");
+            setApplyError(
+                "No fue posible comunicarse con el servidor. Intenta de nuevo."
+            );
         } finally {
             setSubmitting(false);
         }
     }
 
     return (
-        <main style={{ padding: "2rem", maxWidth: "900px", margin: "0 auto" }}>
-            <h1>Vacantes disponibles</h1>
-            <p>Estas son las oportunidades que tenemos para ti ahora mismo.</p>
+        <main className={styles.page}>
+            <div className={styles.container}>
+                {/* Encabezado */}
+                <header className={styles.header}>
+                    <p className={styles.eyebrow}>
+                        Jobbit · Oportunidades laborales
+                    </p>
 
-            <div style={{ display: "flex", gap: "1.5rem", marginBottom: "1.5rem" }}>
-                <Link href="/dashboard">← Volver a mi inicio</Link>
-                <Link href="/applications" style={{ fontWeight: "bold" }}>📋 Ver mis postulaciones</Link>
-            </div>
+                    <h1 className={styles.title}>
+                        Vacantes disponibles
+                    </h1>
 
-            {/* Aviso si el perfil laboral está incompleto */}
-            {profile !== null && !isProfileComplete() && (
-                <div style={{
-                    backgroundColor: "#fef3c7",
-                    border: "1px solid #f59e0b",
-                    color: "#92400e",
-                    padding: "1rem",
-                    borderRadius: "8px",
-                    marginBottom: "1.5rem"
-                }}>
-                    <strong>⚠️ Perfil laboral incompleto:</strong> Para realizar postulaciones asistidas debes tener tu perfil laboral completo (campo profesional, experiencia, años de experiencia y educación).
-                    <div style={{ marginTop: "0.5rem" }}>
-                        <Link href="/profile/edit" style={{ fontWeight: "bold", color: "#b45309" }}>
-                            ✏️ Completar mi perfil laboral aquí →
-                        </Link>
+                    <p className={styles.subtitle}>
+                        Estas son las oportunidades que tenemos para ti
+                        ahora mismo.
+                    </p>
+                </header>
+
+                {/* Navegación */}
+                <nav className={styles.navigation}>
+                    <Link
+                        href="/dashboard"
+                        className={styles.backLink}
+                    >
+                        ← Volver a mi inicio
+                    </Link>
+
+                    <Link
+                        href="/applications"
+                        className={styles.applicationsLink}
+                    >
+                        📋 Ver mis postulaciones
+                    </Link>
+                </nav>
+
+                {/* Aviso si el perfil está incompleto */}
+                {profile !== null && !isProfileComplete() && (
+                    <div className={`${styles.notice} ${styles.warningNotice}`}>
+                        <strong className={styles.noticeTitle}>
+                            ⚠️ Perfil laboral incompleto
+                        </strong>
+
+                        Para realizar postulaciones asistidas debes
+                        tener tu perfil laboral completo: campo
+                        profesional, experiencia, años de experiencia
+                        y educación.
+
+                        <div>
+                            <Link
+                                href="/profile/edit"
+                                className={styles.noticeLink}
+                            >
+                                ✏️ Completar mi perfil laboral aquí →
+                            </Link>
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
 
-            {profile === null && jobs && (
-                <div style={{
-                    backgroundColor: "#fef2f2",
-                    border: "1px solid #ef4444",
-                    color: "#991b1b",
-                    padding: "1rem",
-                    borderRadius: "8px",
-                    marginBottom: "1.5rem"
-                }}>
-                    <strong>⚠️ Aún no has creado tu perfil laboral:</strong> Debes crearlo para postularte a las vacantes.
-                    <div style={{ marginTop: "0.5rem" }}>
-                        <Link href="/profile" style={{ fontWeight: "bold", color: "#dc2626" }}>
-                            Crear perfil laboral ahora →
-                        </Link>
+                {/* Aviso si todavía no existe un perfil */}
+                {profile === null && jobs && (
+                    <div className={`${styles.notice} ${styles.errorNotice}`}>
+                        <strong className={styles.noticeTitle}>
+                            ⚠️ Aún no has creado tu perfil laboral
+                        </strong>
+
+                        Debes crear tu perfil laboral para poder
+                        postularte a las vacantes.
+
+                        <div>
+                            <Link
+                                href="/profile"
+                                className={styles.noticeLink}
+                            >
+                                Crear perfil laboral ahora →
+                            </Link>
+                        </div> 
                     </div>
-                </div>
-            )}
+                )}
 
-            {error && <p role="status" style={{ color: "red" }}>{error}</p>}
+                {/* Error al cargar vacantes */}
+                {error && (
+                    <p className={styles.errorMessage} role="alert">
+                        {error}
+                    </p>
+                )}
 
-            {/* Estado: cargando */}
-            {!jobs && !error && <p>Cargando vacantes...</p>}
+                {/* Estado de carga */}
+                {!jobs && !error && (
+                    <p className={styles.loading} role="status">
+                        Cargando vacantes...
+                    </p>
+                )}
 
-            {/* Estado: no hay vacantes (lista vacía) */}
-            {jobs && jobs.length === 0 && (
-                <p>Por ahora no hay vacantes publicadas. ¡Vuelve pronto, estamos sumando nuevas!</p>
-            )}
+                {/* No hay vacantes */}
+                {jobs && jobs.length === 0 && (
+                    <div className={styles.emptyMessage}>
+                        <p>
+                            Por ahora no hay vacantes publicadas.
+                            ¡Vuelve pronto, estamos sumando nuevas!
+                        </p>
+                    </div>
+                )}
 
-            {/* Listado de vacantes (SCRUM-65 / SCRUM-66) */}
-            {jobs && jobs.length > 0 && (
-                <ul style={{ listStyle: "none", padding: 0 }}>
-                    {jobs.map((job) => (
-                        <li
-                            key={job.id}
-                            style={{
-                                border: job.application_status ? "2px solid #38bdf8" : "1px solid #ccc",
-                                borderRadius: "8px",
-                                padding: "1.25rem",
-                                marginBottom: "1.25rem",
-                                backgroundColor: job.application_status ? "#f0f9ff" : "white"
-                            }}
-                        >
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "0.5rem" }}>
-                                <h2 style={{ margin: "0 0 0.25rem" }}>{job.title}</h2>
-                                {job.application_status && (
-                                    <span style={{
-                                        backgroundColor: "#0284c7",
-                                        color: "white",
-                                        padding: "4px 10px",
-                                        borderRadius: "12px",
-                                        fontSize: "0.85rem",
-                                        fontWeight: "bold"
-                                    }}>
-                                        Estado: {job.application_status.toUpperCase()}
+                {/* Listado de vacantes */}
+                {jobs && jobs.length > 0 && (
+                    <ul className={styles.jobsList}>
+                        {jobs.map((job) => (
+                            <li
+                                key={job.id}
+                                className={`${styles.jobCard} ${
+                                    job.application_status
+                                        ? styles.jobCardApplied
+                                        : ""
+                                }`}
+                            >
+                                {/* Título y estado */}
+                                <div className={styles.jobHeader}>
+                                    <h2 className={styles.jobTitle}>
+                                        {job.title}
+                                    </h2>
+
+                                    {job.application_status && (
+                                        <span className={styles.statusBadge}>
+                                            Estado:{" "}
+                                            {job.application_status.toUpperCase()}
+                                        </span>
+                                    )}
+                                </div>
+
+                                {/* Empresa */}
+                                <p className={styles.company}>
+                                    {job.company || "Empresa confidencial"}
+                                </p>
+
+                                {/* Descripción */}
+                                <p className={styles.description}>
+                                    {job.description}
+                                </p>
+
+                                {/* Información de la vacante */}
+                                <div className={styles.metadata}>
+                                    <span className={styles.metaItem}>
+                                        📍{" "}
+                                        {job.location ||
+                                            "Ubicación por confirmar"}
                                     </span>
-                                )}
-                            </div>
 
-                            <p style={{ margin: "0 0 0.5rem", fontWeight: "bold", color: "#374151" }}>
-                                {job.company || "Empresa confidencial"}
-                            </p>
-                            <p style={{ margin: "0 0 0.5rem" }}>{job.description}</p>
-                            <p style={{ margin: "0 0 1rem", fontSize: "0.95rem", color: "#4b5563" }}>
-                                📍 {job.location || "Ubicación por confirmar"} ·
-                                {" "}{modalidadTexto(job.work_mode)} ·
-                                {" "}Experiencia mínima: {job.min_experience_years ?? 0} año(s)
-                            </p>
+                                    <span className={styles.metaItem}>
+                                        {modalidadTexto(job.work_mode)}
+                                    </span>
 
-                            {/* Acciones de postulación */}
-                            <div style={{ borderTop: "1px solid #e5e7eb", paddingTop: "0.75rem", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "0.5rem" }}>
-                                {job.application_status ? (
-                                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                                    <span className={styles.metaItem}>
+                                        Experiencia mínima:{" "}
+                                        {job.min_experience_years ?? 0} año(s)
+                                    </span>
+                                </div>
+
+                                {/* Acciones de postulación */}
+                                <div className={styles.jobActions}>
+                                    {job.application_status ? (
+                                        <div className={styles.appliedInfo}>
+                                            <button
+                                                type="button"
+                                                disabled
+                                                className={styles.appliedButton}
+                                            >
+                                                ✓ Ya te has postulado
+                                            </button>
+
+                                            <span className={styles.appliedText}>
+                                                Postulación registrada con éxito
+                                            </span>
+                                        </div>
+                                    ) : (
                                         <button
                                             type="button"
-                                            disabled
-                                            style={{
-                                                padding: "6px 14px",
-                                                borderRadius: "6px",
-                                                border: "1px solid #cbd5e1",
-                                                backgroundColor: "#e2e8f0",
-                                                color: "#475569",
-                                                cursor: "not-allowed",
-                                                fontWeight: "500"
-                                            }}
+                                            onClick={() =>
+                                                handleOpenApply(job)
+                                            }
+                                            className={styles.button}
                                         >
-                                            ✓ Ya te has postulado
+                                            Postulación asistida →
                                         </button>
-                                        <span style={{ fontSize: "0.85rem", color: "#0369a1" }}>
-                                            Postulación registrada con éxito
-                                        </span>
-                                    </div>
-                                ) : (
-                                    <button
-                                        type="button"
-                                        onClick={() => handleOpenApply(job)}
-                                        style={{
-                                            padding: "8px 18px",
-                                            borderRadius: "6px",
-                                            border: "none",
-                                            backgroundColor: "#0284c7",
-                                            color: "white",
-                                            fontWeight: "600",
-                                            cursor: "pointer"
-                                        }}
-                                    >
-                                        Postulación asistida →
-                                    </button>
-                                )}
-                            </div>
-                        </li>
-                    ))}
-                </ul>
-            )}
+                                    )}
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                )}
 
-            {/* MODAL: Aviso de perfil incompleto */}
-            {showProfileWarning && (
-                <div style={{
-                    position: "fixed",
-                    top: 0,
-                    left: 0,
-                    width: "100%",
-                    height: "100%",
-                    backgroundColor: "rgba(0,0,0,0.5)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    zIndex: 1000
-                }}>
-                    <div style={{
-                        backgroundColor: "white",
-                        borderRadius: "8px",
-                        padding: "2rem",
-                        maxWidth: "500px",
-                        width: "90%",
-                        boxShadow: "0 10px 25px rgba(0,0,0,0.2)"
-                    }}>
-                        <h2 style={{ marginTop: 0, color: "#92400e" }}>Perfil laboral incompleto</h2>
-                        <p>
-                            Para realizar una <strong>postulación asistida</strong>, el sistema requiere que tu perfil laboral contenga información profesional completa.
-                        </p>
-                        <p style={{ fontSize: "0.95rem", color: "#4b5563" }}>
-                            Revisa que hayas diligenciado: campo profesional, experiencia, años de experiencia y educación.
-                        </p>
-                        <div style={{ display: "flex", justifyContent: "flex-end", gap: "1rem", marginTop: "1.5rem" }}>
-                            <button
-                                type="button"
-                                onClick={() => setShowProfileWarning(false)}
-                                style={{
-                                    padding: "8px 16px",
-                                    borderRadius: "6px",
-                                    border: "1px solid #ccc",
-                                    background: "#f9fafb",
-                                    cursor: "pointer"
-                                }}
+                {/* Modal: perfil incompleto */}
+                {showProfileWarning && (
+                    <div
+                        className={styles.modalOverlay}
+                        role="presentation"
+                    >
+                        <section
+                            className={styles.modal}
+                            role="dialog"
+                            aria-modal="true"
+                            aria-labelledby="profileWarningTitle"
+                        >
+                            <h2
+                                id="profileWarningTitle"
+                                className={`${styles.modalTitle} ${styles.warningTitle}`}
                             >
-                                Cancelar
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => router.push(profile ? "/profile/edit" : "/profile")}
-                                style={{
-                                    padding: "8px 16px",
-                                    borderRadius: "6px",
-                                    border: "none",
-                                    background: "#0284c7",
-                                    color: "white",
-                                    fontWeight: "600",
-                                    cursor: "pointer"
-                                }}
-                            >
-                                Completar mi perfil ahora
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+                                Perfil laboral incompleto
+                            </h2>
 
-            {/* MODAL: Postulación asistida */}
-            {selectedJob && profile && (
-                <div style={{
-                    position: "fixed",
-                    top: 0,
-                    left: 0,
-                    width: "100%",
-                    height: "100%",
-                    backgroundColor: "rgba(0,0,0,0.5)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    zIndex: 1000,
-                    padding: "1rem"
-                }}>
-                    <div style={{
-                        backgroundColor: "white",
-                        borderRadius: "8px",
-                        padding: "2rem",
-                        maxWidth: "650px",
-                        width: "100%",
-                        maxHeight: "90vh",
-                        overflowY: "auto",
-                        boxShadow: "0 10px 25px rgba(0,0,0,0.2)"
-                    }}>
-                        <h2 style={{ marginTop: 0, marginBottom: "0.25rem" }}>Postulación asistida</h2>
-                        <p style={{ margin: "0 0 1rem", color: "#4b5563" }}>
-                            Vacante: <strong>{selectedJob.title}</strong> · {selectedJob.company || "Empresa"}
-                        </p>
-
-                        {/* Resumen asistido del perfil */}
-                        <div style={{
-                            backgroundColor: "#f8fafc",
-                            border: "1px solid #e2e8f0",
-                            borderRadius: "6px",
-                            padding: "1rem",
-                            marginBottom: "1rem",
-                            fontSize: "0.9rem"
-                        }}>
-                            <h3 style={{ margin: "0 0 0.5rem", fontSize: "1rem" }}>
-                                👤 Información de tu perfil que se adjuntará:
-                            </h3>
-                            <ul style={{ margin: 0, paddingLeft: "1.25rem" }}>
-                                <li><strong>Nombre:</strong> {profile.name} ({profile.email})</li>
-                                <li><strong>Campo laboral:</strong> {profile.field}</li>
-                                <li><strong>Experiencia:</strong> {profile.experience_years} año(s) — {profile.experience}</li>
-                                <li><strong>Educación:</strong> {profile.education}</li>
-                                {profile.work_preferences && <li><strong>Preferencias:</strong> {profile.work_preferences}</li>}
-                                {profile.work_mode && <li><strong>Modalidad preferida:</strong> {modalidadTexto(profile.work_mode)}</li>}
-                            </ul>
-                        </div>
-
-                        {/* Carta de presentación asistida personalizable */}
-                        <form onSubmit={handleConfirmApply}>
-                            <label htmlFor="coverLetter" style={{ display: "block", fontWeight: "bold", marginBottom: "0.25rem" }}>
-                                Carta / Mensaje de presentación asistido:
-                            </label>
-                            <p style={{ fontSize: "0.85rem", color: "#6b7280", margin: "0 0 0.5rem" }}>
-                                Jobbit generó este texto con base en tu perfil. Puedes personalizarlo antes de enviar:
+                            <p className={styles.modalDescription}>
+                                Para realizar una{" "}
+                                <strong>postulación asistida</strong>, el
+                                sistema requiere que tu perfil laboral
+                                contenga información profesional completa.
                             </p>
-                            <textarea
-                                id="coverLetter"
-                                rows={6}
-                                value={coverLetter}
-                                onChange={(e) => setCoverLetter(e.target.value)}
-                                style={{
-                                    width: "100%",
-                                    padding: "0.75rem",
-                                    borderRadius: "6px",
-                                    border: "1px solid #cbd5e1",
-                                    fontFamily: "inherit",
-                                    fontSize: "0.95rem",
-                                    boxSizing: "border-box"
-                                }}
-                            />
 
-                            {applyError && (
-                                <p role="alert" style={{ color: "#dc2626", marginTop: "0.75rem", fontWeight: "500" }}>
-                                    {applyError}
-                                </p>
-                            )}
+                            <p className={styles.helpText}>
+                                Revisa que hayas diligenciado: campo
+                                profesional, experiencia, años de experiencia
+                                y educación.
+                            </p>
 
-                            <div style={{ display: "flex", justifyContent: "flex-end", gap: "1rem", marginTop: "1.5rem" }}>
+                            <div className={styles.modalActions}>
                                 <button
                                     type="button"
-                                    onClick={() => setSelectedJob(null)}
-                                    disabled={submitting}
-                                    style={{
-                                        padding: "8px 16px",
-                                        borderRadius: "6px",
-                                        border: "1px solid #ccc",
-                                        background: "#f9fafb",
-                                        cursor: submitting ? "not-allowed" : "pointer"
-                                    }}
+                                    onClick={() =>
+                                        setShowProfileWarning(false)
+                                    }
+                                    className={styles.secondaryButton}
                                 >
                                     Cancelar
                                 </button>
+
                                 <button
-                                    type="submit"
-                                    disabled={submitting}
-                                    style={{
-                                        padding: "8px 20px",
-                                        borderRadius: "6px",
-                                        border: "none",
-                                        background: submitting ? "#93c5fd" : "#0284c7",
-                                        color: "white",
-                                        fontWeight: "600",
-                                        cursor: submitting ? "not-allowed" : "pointer"
+                                    type="button"
+                                    onClick={() => {
+                                        setShowProfileWarning(false);
+                                        router.push(
+                                            profile
+                                                ? "/profile/edit"
+                                                : "/profile"
+                                        );
                                     }}
+                                    className={styles.button}
                                 >
-                                    {submitting ? "Enviando postulación..." : "Confirmar y postularme"}
+                                    Completar mi perfil ahora
                                 </button>
                             </div>
-                        </form>
+                        </section>
                     </div>
-                </div>
-            )}
+                )}
 
-            {/* MODAL: Confirmación de postulación */}
-            {confirmation && (
-                <div style={{
-                    position: "fixed",
-                    top: 0,
-                    left: 0,
-                    width: "100%",
-                    height: "100%",
-                    backgroundColor: "rgba(0,0,0,0.5)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    zIndex: 1000,
-                    padding: "1rem"
-                }}>
-                    <div style={{
-                        backgroundColor: "white",
-                        borderRadius: "8px",
-                        padding: "2rem",
-                        maxWidth: "500px",
-                        width: "100%",
-                        boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
-                        textAlign: "center"
-                    }}>
-                        <div style={{ fontSize: "3rem", marginBottom: "0.5rem" }}>🎉</div>
-                        <h2 style={{ marginTop: 0, color: "#065f46" }}>¡Postulación confirmada!</h2>
-                        <p style={{ fontSize: "1.05rem", color: "#374151" }}>
-                            Te has postulado exitosamente a la vacante de <strong>{confirmation.jobTitle}</strong> en <strong>{confirmation.company}</strong>.
-                        </p>
-                        <div style={{
-                            backgroundColor: "#f0fdf4",
-                            border: "1px solid #bbf7d0",
-                            borderRadius: "6px",
-                            padding: "0.75rem",
-                            margin: "1rem 0",
-                            textAlign: "left",
-                            fontSize: "0.95rem"
-                        }}>
-                            <p style={{ margin: "0 0 0.25rem" }}>
-                                <strong>Estado actual:</strong> <span style={{ color: "#16a34a", fontWeight: "bold" }}>{confirmation.status.toUpperCase()}</span>
-                            </p>
-                            <p style={{ margin: 0 }}>
-                                <strong>Fecha:</strong> {confirmation.date}
-                            </p>
-                        </div>
-                        <p style={{ fontSize: "0.9rem", color: "#6b7280" }}>
-                            Tu perfil laboral fue compartido con los reclutadores. Puedes consultar el progreso en la sección de postulaciones.
-                        </p>
-                        <div style={{ display: "flex", justifyContent: "center", gap: "1rem", marginTop: "1.5rem" }}>
-                            <button
-                                type="button"
-                                onClick={() => setConfirmation(null)}
-                                style={{
-                                    padding: "8px 16px",
-                                    borderRadius: "6px",
-                                    border: "1px solid #ccc",
-                                    background: "#f9fafb",
-                                    cursor: "pointer"
-                                }}
+                {/* Modal: postulación asistida */}
+                {selectedJob && profile && (
+                    <div
+                        className={styles.modalOverlay}
+                        role="presentation"
+                    >
+                        <section
+                            className={`${styles.modal} ${styles.applyModal}`}
+                            role="dialog"
+                            aria-modal="true"
+                            aria-labelledby="applyModalTitle"
+                        >
+                            <h2
+                                id="applyModalTitle"
+                                className={styles.modalTitle}
                             >
-                                Seguir viendo vacantes
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setConfirmation(null);
-                                    router.push("/applications");
-                                }}
-                                style={{
-                                    padding: "8px 18px",
-                                    borderRadius: "6px",
-                                    border: "none",
-                                    background: "#0284c7",
-                                    color: "white",
-                                    fontWeight: "600",
-                                    cursor: "pointer"
-                                }}
+                                Postulación asistida
+                            </h2>
+
+                            <p className={styles.modalDescription}>
+                                Vacante:{" "}
+                                <strong>{selectedJob.title}</strong>
+                                {" · "}
+                                {selectedJob.company || "Empresa"}
+                            </p>
+
+                            {/* Resumen del perfil */}
+                            <div className={styles.profileSummary}>
+                                <h3 className={styles.summaryTitle}>
+                                    👤 Información de tu perfil que se adjuntará
+                                </h3>
+
+                                <ul className={styles.profileDetails}>
+                                    <li>
+                                        <strong>Nombre:</strong>{" "}
+                                        {profile.name || "No especificado"}
+                                        {profile.email
+                                            ? ` (${profile.email})`
+                                            : ""}
+                                    </li>
+
+                                    <li>
+                                        <strong>Campo laboral:</strong>{" "}
+                                        {profile.field}
+                                    </li>
+
+                                    <li>
+                                        <strong>Experiencia:</strong>{" "}
+                                        {profile.experience_years} año(s)
+                                        {" — "}
+                                        {profile.experience}
+                                    </li>
+
+                                    <li>
+                                        <strong>Educación:</strong>{" "}
+                                        {profile.education}
+                                    </li>
+
+                                    {profile.work_preferences && (
+                                        <li>
+                                            <strong>Preferencias:</strong>{" "}
+                                            {profile.work_preferences}
+                                        </li>
+                                    )}
+
+                                    {profile.work_mode && (
+                                        <li>
+                                            <strong>Modalidad preferida:</strong>{" "}
+                                            {modalidadTexto(profile.work_mode)}
+                                        </li>
+                                    )}
+                                </ul>
+                            </div>
+
+                            {/* Carta de presentación */}
+                            <form
+                                onSubmit={handleConfirmApply}
+                                className={styles.form}
                             >
-                                Ver mis postulaciones
-                            </button>
-                        </div>
+                                <label
+                                    htmlFor="coverLetter"
+                                    className={styles.label}
+                                >
+                                    Carta / Mensaje de presentación asistido
+                                </label>
+
+                                <p className={styles.helpText}>
+                                    Jobbit generó este texto con base en tu
+                                    perfil. Puedes personalizarlo antes de
+                                    enviar.
+                                </p>
+
+                                <textarea
+                                    id="coverLetter"
+                                    rows={6}
+                                    value={coverLetter}
+                                    onChange={(e) =>
+                                        setCoverLetter(e.target.value)
+                                    }
+                                    className={styles.textarea}
+                                    required
+                                />
+
+                                {/* Error al enviar la postulación */}
+                                {applyError && (
+                                    <p
+                                        className={styles.applyError}
+                                        role="alert"
+                                    >
+                                        {applyError}
+                                    </p>
+                                )}
+
+                                <div className={styles.modalActions}>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            if (!submitting) {
+                                                setSelectedJob(null);
+                                                setApplyError("");
+                                            }
+                                        }}
+                                        disabled={submitting}
+                                        className={styles.secondaryButton}
+                                    >
+                                        Cancelar
+                                    </button>
+
+                                    <button
+                                        type="submit"
+                                        disabled={submitting}
+                                        className={styles.button}
+                                    >
+                                        {submitting
+                                            ? "Enviando postulación..."
+                                            : "Confirmar y postularme"}
+                                    </button>
+                                </div>
+                            </form>
+                        </section>
                     </div>
-                </div>
-            )}
+                )}
 
-            <LogoutButton />
+                {/* Modal: confirmación de postulación */}
+                {confirmation && (
+                    <div
+                        className={styles.modalOverlay}
+                        role="presentation"
+                    >
+                        <section
+                            className={`${styles.modal} ${styles.confirmationModal}`}
+                            role="dialog"
+                            aria-modal="true"
+                            aria-labelledby="confirmationTitle"
+                        >
+                            <div className={styles.confirmationIcon}>
+                                🎉
+                            </div>
+
+                            <h2
+                                id="confirmationTitle"
+                                className={styles.confirmationTitle}
+                            >
+                                ¡Postulación confirmada!
+                            </h2>
+
+                            <p className={styles.confirmationText}>
+                                Te has postulado exitosamente a la vacante de{" "}
+                                <strong>{confirmation.jobTitle}</strong> en{" "}
+                                <strong>{confirmation.company}</strong>.
+                            </p>
+
+                            <div className={styles.confirmationDetails}>
+                                <p>
+                                    <strong>Estado actual:</strong>{" "}
+                                    <span className={styles.confirmationStatus}>
+                                        {confirmation.status.toUpperCase()}
+                                    </span>
+                                </p>
+
+                                <p>
+                                    <strong>Fecha:</strong>{" "}
+                                    {confirmation.date}
+                                </p>
+                            </div>
+
+                            <p className={styles.confirmationNote}>
+                                Tu perfil laboral fue compartido con los
+                                reclutadores. Puedes consultar el progreso
+                                en la sección de postulaciones.
+                            </p>
+
+                            <div className={styles.confirmationActions}>
+                                <button
+                                    type="button"
+                                    onClick={() => setConfirmation(null)}
+                                    className={styles.secondaryButton}
+                                >
+                                    Seguir viendo vacantes
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setConfirmation(null);
+                                        router.push("/applications");
+                                    }}
+                                    className={styles.button}
+                                >
+                                    Ver mis postulaciones
+                                </button>
+                            </div>
+                        </section>
+                    </div>
+                )}
+
+                {/* Cerrar sesión */}
+                <footer className={styles.footer}>
+                    <LogoutButton />
+                </footer>
+            </div>
         </main>
     );
 }
