@@ -1,0 +1,803 @@
+/* ===== Página principal ===== */
+.page {
+    min-height: 100vh;
+    padding: 36px 24px;
+    background: #faf3e5;
+    color: #16182e;
+    font-family: var(--font-poppins), system-ui, sans-serif;
+}
+
+.container {
+    width: 100%;
+    max-width: 860px;
+    margin: 0 auto;
+}
+
+/* ===== Cabecera ===== */
+.header {
+    margin-bottom: 28px;
+    padding: 28px 32px;
+    background: #16182e;
+    color: #ffffff;
+    border-radius: 16px;
+    border-bottom: 4px solid #f59f32;
+    box-shadow: 0 8px 24px rgba(22, 24, 46, 0.12);
+}
+
+.goback {
+    display: inline-block;
+    margin-bottom: 24px;
+    color: #f5c477;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.goback:hover {
+    color: #ffffff;
+    text-decoration: underline;
+}
+
+.eyebrow {
+    margin: 0 0 8px;
+    color: #f59f32;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 1.3px;
+    text-transform: uppercase;
+}
+
+.title {
+    margin: 0;
+    color: #ffffff;
+    font-size: 1.85rem;
+    font-weight: 700;
+    line-height: 1.35;
+}
+
+.subtitle {
+    max-width: 680px;
+    margin: 14px 0 0;
+    color: #d1d5db;
+    font-size: 0.95rem;
+    line-height: 1.8;
+}
+
+/* ===== Contenido ===== */
+.content {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+.sectionTitle {
+    margin: 0;
+    color: #16182e;
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.sectionDescription {
+    margin: 6px 0 0;
+    color: #6b7280;
+    font-size: 0.88rem;
+    line-height: 1.6;
+}
+
+/* ===== Sección de habilidades ===== */
+.skillsCard {
+    padding: 24px;
+    background: #ffffff;
+    border: 1px solid #eee5d5;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(22, 24, 46, 0.06);
+}
+
+.skillsHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.counter {
+    padding: 7px 12px;
+    background: #fff1dc;
+    color: #8a460e;
+    border: 1px solid #f8d5a0;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.skillsList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 22px;
+}
+
+.skillChip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 9px 14px;
+    background: #ffffff;
+    color: #16182e;
+    border: 1px solid #d1d5db;
+    border-radius: 24px;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s,
+        border-color 0.2s, transform 0.15s;
+}
+
+.skillChip:hover {
+    border-color: #f59f32;
+    background: #fffaf1;
+    transform: translateY(-1px);
+}
+
+.skillChipSelected {
+    background: #16182e;
+    color: #ffffff;
+    border-color: #16182e;
+}
+
+.skillChipSelected:hover {
+    background: #292c4b;
+    color: #ffffff;
+    border-color: #292c4b;
+}
+
+.skillChip:focus-visible {
+    outline: 3px solid rgba(245, 159, 50, 0.45);
+    outline-offset: 3px;
+}
+
+.skillsFooter {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #eee5d5;
+}
+
+.helperText {
+    flex: 1;
+    min-width: 180px;
+    margin: 0;
+    color: #6b7280;
+    font-size: 0.82rem;
+    line-height: 1.6;
+}
+
+/* ===== Botones ===== */
+.primaryButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 18px;
+    background: #f59f32;
+    color: #16182e;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s,
+        transform 0.1s, box-shadow 0.2s;
+}
+
+.primaryButton:hover:not(:disabled) {
+    background: #eb5e34;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(235, 94, 52, 0.18);
+}
+
+.primaryButton:active:not(:disabled) {
+    transform: translateY(1px);
+}
+
+.primaryButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.primaryButton:focus-visible {
+    outline: 3px solid rgba(245, 159, 50, 0.4);
+    outline-offset: 3px;
+}
+
+/* ===== Mensajes ===== */
+.message {
+    margin: 18px 0 0;
+    padding: 12px 14px;
+    border: 1px solid;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.successMessage {
+    background: #f0fdf4;
+    color: #166534;
+    border-color: #bbf7d0;
+}
+
+.errorMessage {
+    background: #fef2f2;
+    color: #b91c1c;
+    border-color: #fecaca;
+}
+
+.loadingText,
+.emptyText {
+    color: #6b7280;
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+/* ===== Resultados ===== */
+.recommendations {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.resultsHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 2px;
+}
+
+.resultsCount {
+    flex-shrink: 0;
+    padding: 7px 12px;
+    background: #ffffff;
+    color: #16182e;
+    border: 1px solid #e5e7eb;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* ===== Estado vacío y carga ===== */
+.emptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 36px 24px;
+    background: #ffffff;
+    border: 1px dashed #d6cbb9;
+    border-radius: 16px;
+    text-align: center;
+}
+
+.emptyState h3 {
+    margin: 0;
+    color: #16182e;
+    font-size: 1.1rem;
+}
+
+.emptyState p {
+    max-width: 440px;
+    margin: 0 0 6px;
+    color: #6b7280;
+    font-size: 0.9rem;
+    line-height: 1.7;
+}
+
+.emptyIcon,
+.loadingIcon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 54px;
+    height: 54px;
+    background: #fff1dc;
+    border-radius: 50%;
+    font-size: 1.5rem;
+}
+
+.loadingIcon {
+    color: #b45309;
+}
+
+/* ===== Tarjetas de vacantes ===== */
+.jobCard {
+    min-width: 0;
+    padding: 24px;
+    background: #ffffff;
+    border: 1px solid #eee5d5;
+    border-radius: 16px;
+    box-shadow: 0 5px 18px rgba(22, 24, 46, 0.055);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.jobCard:hover {
+    border-color: #e9c78f;
+    box-shadow: 0 8px 24px rgba(22, 24, 46, 0.09);
+}
+
+.jobHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.jobInfo {
+    flex: 1;
+    min-width: 0;
+}
+
+.jobNumber {
+    display: inline-block;
+    margin-bottom: 8px;
+    color: #a16207;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.jobTitle {
+    margin: 0;
+    color: #16182e;
+    font-size: 1.2rem;
+    font-weight: 700;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+.company {
+    margin: 6px 0 0;
+    color: #6b7280;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* ===== Porcentaje y categoría ===== */
+.scoreContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    flex-shrink: 0;
+    max-width: 180px;
+}
+
+.score {
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+}
+
+.scoreBadge {
+    display: inline-block;
+    padding: 5px 9px;
+    border: 1px solid;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-align: center;
+}
+
+/* ===== Barra de progreso ===== */
+.progressTrack {
+    height: 8px;
+    margin: 20px 0 16px;
+    overflow: hidden;
+    background: #eee9e1;
+    border-radius: 10px;
+}
+
+.progressFill {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.4s ease-in-out;
+}
+
+/* ===== Descripción ===== */
+.description {
+    margin: 0 0 18px;
+    color: #4b5563;
+    font-size: 0.9rem;
+    line-height: 1.75;
+    overflow-wrap: anywhere;
+}
+
+/* ===== Metadatos ===== */
+.metadata {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 16px 0;
+    border-top: 1px solid #eee5d5;
+    border-bottom: 1px solid #eee5d5;
+}
+
+.metaItem {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: 7px;
+    max-width: 100%;
+    color: #4b5563;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.metaItem > span:first-child {
+    flex-shrink: 0;
+}
+
+/* ===== Habilidades requeridas ===== */
+.requiredSkills {
+    margin-top: 20px;
+}
+
+.subsectionTitle {
+    margin: 0 0 12px;
+    color: #16182e;
+    font-size: 0.88rem;
+    font-weight: 700;
+}
+
+.requiredSkillsList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.requiredSkill {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 3px;
+    max-width: 100%;
+    padding: 6px 10px;
+    border: 1px solid;
+    border-radius: 20px;
+    font-size: 0.76rem;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.requiredSkill > span {
+    font-size: 0.7rem;
+}
+
+.matchedSkill {
+    background: #f0fdf4;
+    color: #166534;
+    border-color: #bbf7d0;
+}
+
+.unmatchedSkill {
+    background: #faf3e5;
+    color: #6b7280;
+    border-color: #e5d8c4;
+}
+
+/* ===== Desglose de compatibilidad ===== */
+.breakdown {
+    margin-top: 22px;
+    padding: 16px;
+    background: #faf8f3;
+    border: 1px solid #eee5d5;
+    border-radius: 12px;
+}
+
+.breakdownGrid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.breakdownItem {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+    padding: 10px;
+    background: #ffffff;
+    border: 1px solid #eee5d5;
+    border-radius: 9px;
+}
+
+.breakdownItem > span {
+    color: #6b7280;
+    font-size: 0.73rem;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.breakdownItem > strong {
+    color: #16182e;
+    font-size: 1rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ===== Pie de página ===== */
+.footer {
+    display: flex;
+    justify-content: center;
+    margin-top: 8px;
+    padding: 24px 0 8px;
+    border-top: 1px solid #e9dfce;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 700px) {
+    .page {
+        padding: 24px 16px;
+    }
+
+    .header {
+        padding: 24px;
+    }
+
+    .title {
+        font-size: 1.55rem;
+    }
+
+    .skillsCard,
+    .jobCard {
+        padding: 20px;
+    }
+
+    .breakdownGrid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .skillsFooter {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .skillsFooter .primaryButton {
+        width: 100%;
+        box-sizing: border-box;
+    }
+}
+
+@media (max-width: 480px) {
+    .page {
+        padding: 16px 10px;
+    }
+
+    .header {
+        padding: 22px 18px;
+        border-radius: 13px;
+    }
+
+    .goback {
+        margin-bottom: 20px;
+    }
+
+    .title {
+        font-size: 1.35rem;
+    }
+
+    .subtitle {
+        font-size: 0.88rem;
+    }
+
+    .skillsCard,
+    .jobCard {
+        padding: 16px;
+        border-radius: 13px;
+    }
+
+    .skillsHeader {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .resultsHeader {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .jobHeader {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .scoreContainer {
+        align-items: flex-start;
+        max-width: 100%;
+    }
+
+    .score {
+        font-size: 1.8rem;
+    }
+
+    .metadata {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .breakdownGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .emptyState {
+        padding: 28px 18px;
+    }
+}
+
+/* ===== Accesibilidad ===== */
+@media (prefers-reduced-motion: reduce) {
+    .skillChip,
+    .primaryButton,
+    .jobCard,
+    .progressFill {
+        transition: none;
+    }
+
+    .skillChip:hover,
+    .primaryButton:active {
+        transform: none;
+    }
+}
+/* ===== Añadir al final de compatibilidad/page.module.css ===== */
+/* Si ya tienes estas clases en el CSS de la página de vacantes, puedes copiarlas de allí. */
+
+.applicationsLink {
+    display: inline-block;
+    margin-top: 12px;
+    font-weight: 600;
+    color: #1d4ed8;
+    text-decoration: none;
+}
+.applicationsLink:hover { text-decoration: underline; }
+
+.jobCardApplied { border-color: #86efac; background: #f0fdf4; }
+
+.statusBadge {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #15803d;
+    background: #dcfce7;
+    border: 1px solid #86efac;
+}
+
+.jobActions { margin-top: 16px; display: flex; justify-content: flex-end; }
+.appliedInfo { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.appliedButton {
+    padding: 10px 18px;
+    border-radius: 10px;
+    border: 1px solid #86efac;
+    background: #dcfce7;
+    color: #15803d;
+    font-weight: 600;
+    cursor: not-allowed;
+}
+.appliedText { font-size: 0.85rem; color: #166534; }
+
+/* Avisos */
+.notice {
+    padding: 16px 18px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+.warningNotice { background: #fffbeb; border: 1px solid #fcd34d; color: #92400e; }
+.noticeTitle { display: block; margin-bottom: 4px; }
+.noticeLink { display: inline-block; margin-top: 8px; font-weight: 600; color: inherit; }
+
+/* Modales */
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(15, 23, 42, 0.55);
+}
+.modal {
+    width: 100%;
+    max-width: 480px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 24px;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+}
+.applyModal { max-width: 640px; }
+.confirmationModal { text-align: center; }
+
+.modalTitle { margin: 0 0 8px; font-size: 1.35rem; }
+.warningTitle { color: #b45309; }
+.modalDescription { margin: 0 0 12px; color: #334155; }
+.helpText { margin: 0 0 8px; font-size: 0.85rem; color: #64748b; }
+.modalActions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+
+.secondaryButton {
+    padding: 10px 18px;
+    border-radius: 10px;
+    border: 1px solid #cbd5e1;
+    background: #fff;
+    color: #334155;
+    font-weight: 600;
+    cursor: pointer;
+}
+.secondaryButton:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* Resumen de perfil y formulario */
+.profileSummary {
+    margin: 14px 0;
+    padding: 14px;
+    border-radius: 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+}
+.summaryTitle { margin: 0 0 8px; font-size: 0.95rem; }
+.profileDetails { margin: 0; padding-left: 18px; font-size: 0.9rem; color: #334155; }
+.profileDetails li { margin-bottom: 4px; }
+
+.form { display: flex; flex-direction: column; }
+.label { font-weight: 600; margin-bottom: 4px; }
+.textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #cbd5e1;
+    font: inherit;
+    resize: vertical;
+}
+.applyError {
+    margin: 10px 0 0;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #b91c1c;
+    font-size: 0.9rem;
+}
+
+/* Confirmación */
+.confirmationIcon { font-size: 3rem; }
+.confirmationTitle { margin: 8px 0; color: #15803d; }
+.confirmationText { color: #334155; }
+.confirmationDetails {
+    margin: 14px 0;
+    padding: 12px;
+    border-radius: 12px;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    text-align: left;
+}
+.confirmationDetails p { margin: 4px 0; }
+.confirmationStatus { font-weight: 700; color: #15803d; }
+.confirmationNote { font-size: 0.85rem; color: #64748b; }
+.confirmationActions { display: flex; justify-content: center; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
