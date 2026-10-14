@@ -1,6 +1,7 @@
 const express = require("express");
 const pool = require("../db");
 const authenticateToken = require("../middleware/authMiddleware");
+const { validateWorkProfileCompleteness } = require("../utils/profileValidation");
 
 const router = express.Router();
 
@@ -86,7 +87,14 @@ router.get("/", authenticateToken, async (req, res) => {
             });
         }
 
-        res.json(result.rows[0]);
+        const profileData = result.rows[0];
+        const completeness = validateWorkProfileCompleteness(profileData);
+
+        res.json({
+            ...profileData,
+            is_complete: completeness.isComplete,
+            missing_fields: completeness.missingFields
+        });
 
     } catch (error) {
         res.status(500).json({
