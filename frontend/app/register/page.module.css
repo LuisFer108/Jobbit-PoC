@@ -1,79 +1,180 @@
+/* ===== Página principal ===== */
 .container {
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 24px;
+    background: #faf3e5;
+    font-family: var(--font-poppins), system-ui, sans-serif;
 }
 
+/* ===== Tarjeta ===== */
 .card {
     width: 100%;
-    max-width: 420px;
-    background: white;
-    padding: 40px;
+    max-width: 480px;
+    padding: 36px 40px 40px;
+    background: #ffffff;
     border-radius: 18px;
-    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 12px 40px rgba(22, 24, 46, 0.15);
+    border-top: 5px solid #f59f32;
 }
 
+/* ===== Enlace para volver ===== */
+.goback {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 28px;
+    color: #16182e;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    opacity: 0.75;
+    transition: color 0.2s, opacity 0.2s;
+}
+
+.goback::before {
+    content: "←";
+    font-size: 1.1rem;
+}
+
+.goback:hover {
+    color: #eb5e34;
+    opacity: 1;
+}
+
+/* ===== Título ===== */
 .title {
+    margin: 0 0 28px;
+    color: #16182e;
+    font-size: 1.9rem;
+    font-weight: 700;
+    line-height: 1.3;
     text-align: center;
-    margin-top: 0;
-    margin-bottom: 10px;
-    font-size: 2rem;
 }
 
-.subtitle {
-    text-align: center;
-    color: #6b7280;
-    margin-bottom: 30px;
+.title::after {
+    content: "";
+    display: block;
+    width: 48px;
+    height: 4px;
+    margin: 12px auto 0;
+    background: #f59f32;
+    border-radius: 4px;
 }
 
+/* ===== Formulario ===== */
 .form {
     display: flex;
     flex-direction: column;
     gap: 16px;
+    width: 100%;
 }
 
 .input {
-    padding: 13px;
+    display: block;
     width: 100%;
+    box-sizing: border-box;
+    padding: 14px 16px;
+    background: #ffffff;
+    color: #16182e;
     border: 1px solid #d1d5db;
-    border-radius: 8px;
+    border-radius: 10px;
     outline: none;
+    font-family: inherit;
+    font-size: 0.95rem;
+    transition: border-color 0.2s, box-shadow 0.2s,
+                background 0.2s;
+}
+
+.input::placeholder {
+    color: #9ca3af;
+}
+
+.input:hover {
+    border-color: #9ca3af;
 }
 
 .input:focus {
-    border-color: #2563eb;
+    border-color: #f59f32;
+    box-shadow: 0 0 0 3px rgba(245, 159, 50, 0.2);
 }
 
+.input:focus-visible {
+    outline: none;
+}
+
+/* ===== Botón de registro ===== */
 .button {
-    padding: 13px;
+    width: 100%;
+    margin-top: 8px;
+    padding: 14px 20px;
+    background: #f59f32;
+    color: #16182e;
     border: none;
-    border-radius: 8px;
-    background: #2563eb;
-    color: white;
-    font-weight: bold;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
     cursor: pointer;
+    transition: background 0.2s, color 0.2s,
+                transform 0.1s, box-shadow 0.2s;
 }
 
 .button:hover {
-    background: #1d4ed8;
+    background: #eb5e34;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(235, 94, 52, 0.2);
 }
 
+.button:active {
+    transform: translateY(1px);
+}
+
+.button:focus-visible {
+    outline: 3px solid rgba(245, 159, 50, 0.4);
+    outline-offset: 3px;
+}
+
+/* ===== Mensajes ===== */
 .message {
-    color: #dc2626;
-    text-align: center;
-    margin-top: 16px;
+    margin: 20px 0 0;
+    padding: 12px 14px;
+    background: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
 }
 
-.goback {
-    width: 100%;
-    padding: 8px;
-    margin-top: 5px;
-    background: #152b5c;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
+/* ===== Responsive ===== */
+@media (max-width: 520px) {
+    .container {
+        padding: 20px 14px;
+    }
+
+    .card {
+        padding: 28px 22px 30px;
+        border-radius: 15px;
+    }
+
+    .title {
+        font-size: 1.65rem;
+    }
+
+    .input {
+        padding: 13px 14px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .goback,
+    .input,
+    .button {
+        transition: none;
+    }
 }
