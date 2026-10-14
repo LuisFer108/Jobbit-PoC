@@ -9,20 +9,26 @@ const router = express.Router();
 // Corresponde a GestorOfertas.listarOfertas() del diagrama de clases.
 router.get("/", authenticateToken, async (req, res) => {
     try {
+        const userId = req.user.userId;
         const result = await pool.query(
             `SELECT
-                id,
-                title,
-                company,
-                description,
-                min_experience_years,
-                location,
-                work_mode,
-                created_at
-             FROM job_offers
-             WHERE status = 'active'
-             ORDER BY created_at DESC
-             LIMIT 100`
+                j.id,
+                j.title,
+                j.company,
+                j.description,
+                j.min_experience_years,
+                j.location,
+                j.work_mode,
+                j.created_at,
+                a.id AS application_id,
+                a.status AS application_status,
+                a.created_at AS applied_at
+             FROM job_offers j
+             LEFT JOIN applications a ON a.offer_id = j.id AND a.user_id = $1
+             WHERE j.status = 'active'
+             ORDER BY j.created_at DESC
+             LIMIT 100`,
+            [userId]
         );
 
         res.json(result.rows);
