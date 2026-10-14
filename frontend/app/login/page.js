@@ -4,9 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./page.module.css";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function LoginPage() {
-
     const router = useRouter();
 
     const [email, setEmail] = useState("");
@@ -14,8 +14,8 @@ export default function LoginPage() {
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
 
+    // ===== LÓGICA SIN CAMBIOS (no tocar) =====
     async function handleSubmit(e) {
-
         e.preventDefault();
         setMessage("");
         setLoading(true);
@@ -33,7 +33,6 @@ export default function LoginPage() {
                 return;
             }
 
-            // Guardar token
             localStorage.setItem("token", data.token);
 
             if (data.user.role === "admin") {
@@ -50,8 +49,9 @@ export default function LoginPage() {
         }
     }
 
+    // ===== PRESENTACIÓN NUEVA =====
     return (
-        <main className={styles.container}>
+        <main className={styles.page}>
             <div className={styles.card}>
                 <Link href="./" className={styles.goback}>Volver a inicio</Link>
                 <h1 className={styles.title}>Iniciar sesión</h1>
