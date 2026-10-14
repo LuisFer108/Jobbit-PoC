@@ -88,6 +88,12 @@ export default function DashboardPage() {
                 </Link>
             </p>
 
+            <p>
+                <Link href="/jobs">
+                    Ver vacantes disponibles
+                </Link>
+            </p>
+
             <LogoutButton />
 
         </main>
