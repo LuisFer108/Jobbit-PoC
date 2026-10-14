@@ -1,0 +1,256 @@
+.page {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 32px 24px;
+    background: #faf3e5; /* crema de marca */
+}
+
+.card {
+    width: 100%;
+    max-width: 760px;
+    background: #ffffff;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 12px 40px rgba(22, 24, 46, 0.15);
+}
+
+/* ===== Barra superior ===== */
+.topbar {
+    background: #16182e; /* azul noche de marca */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    background: #faf3e5;
+    padding: 6px 12px;
+    border-radius: 10px;
+}
+
+.topbarTitle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 1.1rem;
+    font-family: var(--font-poppins), system-ui, sans-serif;
+}
+
+.userIcon {
+    display: inline-flex;
+    color: #f59f32; /* ámbar de marca */
+}
+
+/* ===== Cuerpo ===== */
+.body {
+    padding: 32px 40px 40px;
+}
+
+.welcome {
+    margin: 0 0 4px;
+    font-size: 1.9rem;
+    text-align: center;
+    color: #16182e;
+    font-family: var(--font-poppins), system-ui, sans-serif;
+    font-weight: 700;
+}
+
+.subtitle {
+    margin: 0 0 28px;
+    text-align: center;
+    color: #6b7280;
+}
+
+/* ===== Formulario ===== */
+.form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 20px;
+    text-align: left;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.fullWidth {
+    grid-column: 1 / -1;
+}
+
+.label {
+    font-size: 0.9rem;
+    color: #16182e;
+    font-weight: 600;
+}
+
+.input,
+.textarea {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    outline: none;
+    font-size: 1rem;
+    font-family: inherit;
+    background: #ffffff;
+    color: #16182e;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.textarea {
+    min-height: 96px;
+    resize: vertical;
+}
+
+.input:focus,
+.textarea:focus {
+    border-color: #f59f32; /* foco ámbar */
+    box-shadow: 0 0 0 3px rgba(245, 159, 50, 0.2);
+}
+
+/* ===== Habilidades ===== */
+.skillsHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.counter {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #16182e;
+    background: #faf3e5;
+    padding: 4px 10px;
+    border-radius: 999px;
+}
+
+.skillsList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.skillChip {
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid #f59f32;
+    background: transparent;
+    color: #16182e;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.skillChip:hover {
+    background: rgba(245, 159, 50, 0.15);
+}
+
+.skillChipSelected {
+    background: #f59f32;
+    color: #16182e;
+}
+
+.skillChipSelected:hover {
+    background: #eb5e34;
+    border-color: #eb5e34;
+    color: #ffffff;
+}
+
+/* ===== Acciones ===== */
+.actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+.primaryButton {
+    padding: 14px 28px;
+    background: #f59f32;
+    color: #16182e;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.05s;
+    font-family: var(--font-poppins), system-ui, sans-serif;
+}
+
+.primaryButton:hover {
+    background: #eb5e34;
+    color: #ffffff;
+}
+
+.primaryButton:active {
+    transform: translateY(1px);
+}
+
+.primaryButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.message {
+    margin-top: 16px;
+    text-align: center;
+    color: #dc2626;
+    font-weight: 600;
+}
+
+.logout {
+    margin-top: 28px;
+    text-align: center;
+}
+
+/* ===== Responsivo ===== */
+@media (max-width: 600px) {
+    .page { padding: 16px 12px; }
+    .body { padding: 24px 20px 32px; }
+    .form { grid-template-columns: 1fr; }
+    .actions { flex-direction: column-reverse; align-items: stretch; }
+    .cancelLink { text-align: center; }
+    .primaryButton { width: 100%; }
+    .topbarTitle { font-size: 0.95rem; }
+}
+
+/* ===== Específicos de edición ===== */
+.cancelLink {
+    color: #16182e;
+    text-decoration: none;
+    font-size: 0.9rem;
+    opacity: 0.75;
+}
+
+.cancelLink:hover {
+    opacity: 1;
+    text-decoration: underline;
+}
+
+.successMessage {
+    margin-top: 16px;
+    text-align: center;
+    color: #15803d;
+    font-weight: 600;
+}
+
+.loadingText {
+    align-self: center;
+    color: #16182e;
+    font-weight: 600;
+}
