@@ -341,19 +341,16 @@ export default function EditProfilePage() {
                         </div>
 
                         <div className={`${styles.field} ${styles.fullWidth}`}>
-                            <label className={styles.label} htmlFor="salaryRange">Rango salarial esperado</label>
-                            <select
+                            <label className={styles.label} htmlFor="salaryRange">Salario mínimo esperado (COP)</label>
+                            <input
                                 id="salaryRange"
                                 className={styles.input}
+                                type="text"
                                 name="salaryRange"
+                                placeholder="Ej: 2500000 o $2.500.000"
                                 value={form.salaryRange}
                                 onChange={handleChange}
-                            >
-                                <option value="">Selecciona tu expectativa salarial</option>
-                                <option value="Menos de 2M">Menos de $2.000.000</option>
-                                <option value="2M - 5M">$2.000.000 - $5.000.000</option>
-                                <option value="Más de 5M">Más de $5.000.000</option>
-                            </select>
+                            />
                         </div>
 
                         {/* Habilidades */}
