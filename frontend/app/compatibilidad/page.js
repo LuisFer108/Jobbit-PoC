@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import LogoutButton from "../components/LogoutButton";
 import styles from "./page.module.css";
 
@@ -369,9 +370,25 @@ ${profile.name || "Candidato"}`;
         }
     }
 
+    // ===== PRESENTACIÓN NUEVA =====
     return (
         <main className={styles.page}>
             <div className={styles.container}>
+
+                {/* Barra superior con logo + título */}
+                <div className={styles.topbar}>
+                    <div className={styles.brand}>
+                        <Image src="/Logo-jobbit.svg" alt="Jobbit" width={130} height={40} priority unoptimized />
+                    </div>
+                    <div className={styles.topbarTitle}>
+                        <span className={styles.userIcon} aria-hidden="true">
+                            <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor">
+                                <path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-4 0-8 2-8 6v2h16v-2c0-4-4-6-8-6Z"/>
+                            </svg>
+                        </span>
+                        Compatibilidad
+                    </div>
+                </div>
 
                 {/* Cabecera */}
                 <header className={styles.header}>
