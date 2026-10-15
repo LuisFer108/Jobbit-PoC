@@ -162,7 +162,7 @@ export default function DashboardPage() {
                     </div>
 
                     <div className={styles.detail}>
-                        <span className={styles.detailLabel}>Rango salarial esperado</span>
+                        <span className={styles.detailLabel}>Salario mínimo esperado</span>
                         <span className={styles.detailValue}>
                             {profile.salary_range || "No especificado"}
                         </span>
