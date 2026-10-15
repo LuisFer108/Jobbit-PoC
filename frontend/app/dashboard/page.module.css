@@ -1,0 +1,310 @@
+/* ===== Página principal ===== */
+.page {
+    min-height: 100vh;
+    padding: 40px 24px;
+    background: #faf3e5;
+    color: #16182e;
+    font-family: var(--font-poppins), system-ui, sans-serif;
+}
+
+.card {
+    width: 100%;
+    max-width: 850px;
+    margin: 0 auto;
+    background: #ffffff;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 12px 40px rgba(22, 24, 46, 0.12);
+}
+
+/* ===== Cabecera ===== */
+.header {
+    padding: 28px 36px;
+    background: #16182e;
+    color: #ffffff;
+    border-bottom: 4px solid #f59f32;
+}
+
+.eyebrow {
+    margin: 0 0 8px;
+    color: #f59f32;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.title {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.title span {
+    color: #f59f32;
+}
+
+.headerDescription {
+    margin: 10px 0 0;
+    color: #d1d5db;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+/* ===== Contenido ===== */
+.body {
+    padding: 32px 36px 36px;
+}
+
+.sectionTitle {
+    margin: 0 0 20px;
+    color: #16182e;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.sectionTitle::after {
+    content: "";
+    display: block;
+    width: 42px;
+    height: 3px;
+    margin-top: 8px;
+    border-radius: 4px;
+    background: #f59f32;
+}
+
+/* ===== Estado del perfil ===== */
+.status {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 28px;
+    padding: 16px 18px;
+    border: 1px solid;
+    border-radius: 12px;
+    font-size: 0.92rem;
+    line-height: 1.6;
+}
+
+.statusComplete {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+    color: #166534;
+}
+
+.statusIncomplete {
+    background: #fffbeb;
+    border-color: #fde68a;
+    color: #92400e;
+}
+
+.statusIcon {
+    flex-shrink: 0;
+    font-size: 1.2rem;
+}
+
+.statusTitle {
+    display: block;
+    margin-bottom: 2px;
+    font-weight: 700;
+}
+
+.statusText {
+    margin: 0;
+}
+
+/* ===== Datos del perfil ===== */
+.detailsGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 28px;
+}
+
+.detail {
+    min-width: 0;
+    padding: 16px;
+    background: #faf3e5;
+    border: 1px solid #eee5d5;
+    border-radius: 12px;
+    transition: border-color 0.2s, transform 0.2s;
+}
+
+.detail:hover {
+    border-color: #f59f32;
+    transform: translateY(-2px);
+}
+
+.detailLabel {
+    display: block;
+    margin-bottom: 7px;
+    color: #6b7280;
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
+.detailValue {
+    display: block;
+    color: #16182e;
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.fullWidth {
+    grid-column: 1 / -1;
+}
+
+/* ===== Habilidades ===== */
+.skillsSection {
+    margin-bottom: 32px;
+}
+
+.skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.skill {
+    display: inline-flex;
+    align-items: center;
+    padding: 7px 12px;
+    background: #fff1dc;
+    color: #8a460e;
+    border: 1px solid #f8d5a0;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.emptySkills {
+    margin: 12px 0 0;
+    padding: 14px;
+    background: #f9fafb;
+    border: 1px dashed #d1d5db;
+    border-radius: 10px;
+    color: #6b7280;
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+/* ===== Acciones ===== */
+.actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-top: 24px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.primaryButton,
+.secondaryButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 18px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    text-align: center;
+    text-decoration: none;
+    font-family: var(--font-poppins), system-ui, sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s,
+                border-color 0.2s, transform 0.1s;
+}
+
+.primaryButton {
+    background: #f59f32;
+    color: #16182e;
+}
+
+.primaryButton:hover {
+    background: #eb5e34;
+    color: #ffffff;
+}
+
+.secondaryButton {
+    background: #ffffff;
+    color: #16182e;
+    border-color: #d1d5db;
+}
+
+.secondaryButton:hover {
+    background: #faf3e5;
+    border-color: #f59f32;
+}
+
+.primaryButton:active,
+.secondaryButton:active {
+    transform: translateY(1px);
+}
+
+.primaryButton:focus-visible,
+.secondaryButton:focus-visible {
+    outline: 3px solid rgba(245, 159, 50, 0.4);
+    outline-offset: 3px;
+}
+
+/* ===== Cierre de sesión ===== */
+.logout {
+    display: flex;
+    justify-content: center;
+    margin-top: 28px;
+    padding-top: 22px;
+    border-top: 1px solid #e5e7eb;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 600px) {
+    .page {
+        padding: 20px 12px;
+    }
+
+    .header {
+        padding: 24px 20px;
+    }
+
+    .title {
+        font-size: 1.5rem;
+    }
+
+    .body {
+        padding: 24px 20px 28px;
+    }
+
+    .detailsGrid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .fullWidth {
+        grid-column: auto;
+    }
+
+    .detail {
+        padding: 14px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .detail,
+    .primaryButton,
+    .secondaryButton {
+        transition: none;
+    }
+
+    .detail:hover,
+    .primaryButton:active,
+    .secondaryButton:active {
+        transform: none;
+    }
+}

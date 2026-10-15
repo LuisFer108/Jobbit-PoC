@@ -1,79 +1,127 @@
-.container {
+.page {
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 24px;
+    background: #faf3e5; /* crema de marca */
 }
 
 .card {
     width: 100%;
-    max-width: 420px;
-    background: white;
-    padding: 40px;
+    max-width: 640px;
+    background: #ffffff;
     border-radius: 18px;
-    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    box-shadow: 0 12px 40px rgba(22, 24, 46, 0.15);
 }
 
-.title {
-    text-align: center;
-    margin-top: 0;
-    margin-bottom: 10px;
-    font-size: 2rem;
+/* ===== Barra superior ===== */
+.topbar {
+    background: #16182e; /* azul noche */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px;
 }
 
-.subtitle {
-    text-align: center;
-    color: #6b7280;
-    margin-bottom: 30px;
+.brand {
+    display: flex;
+    align-items: center;
+    background: #faf3e5;
+    padding: 6px 12px;
+    border-radius: 10px;
 }
+
+.topbarTitle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 1.1rem;
+    font-family: var(--font-poppins), system-ui, sans-serif;
+}
+
+.userIcon { display: inline-flex; color: #f59f32; }
+
+/* ===== Cuerpo ===== */
+.body { padding: 32px 40px 40px; text-align: center; }
+
+.welcome {
+    margin: 0 0 4px;
+    font-size: 1.9rem;
+    color: #16182e;
+    font-family: var(--font-poppins), system-ui, sans-serif;
+    font-weight: 700;
+}
+
+.subtitle { margin: 0 0 24px; color: #6b7280; }
 
 .form {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 10px;
+    text-align: left;
+    max-width: 440px;
+    margin: 0 auto;
 }
 
+.label { font-size: 0.9rem; color: #16182e; font-weight: 600; margin-top: 6px; }
+
 .input {
-    padding: 13px;
     width: 100%;
+    padding: 14px;
     border: 1px solid #d1d5db;
-    border-radius: 8px;
+    border-radius: 10px;
     outline: none;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .input:focus {
-    border-color: #2563eb;
+    border-color: #f59f32;
+    box-shadow: 0 0 0 3px rgba(245, 159, 50, 0.2);
 }
 
-.button {
-    padding: 13px;
+.actions { display: flex; justify-content: flex-end; margin-top: 18px; }
+
+.primaryButton {
+    padding: 14px 28px;
+    background: #f59f32;
+    color: #16182e;
     border: none;
-    border-radius: 8px;
-    background: #2563eb;
-    color: white;
-    font-weight: bold;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 1rem;
     cursor: pointer;
+    transition: background 0.2s, transform 0.05s;
+    font-family: var(--font-poppins), system-ui, sans-serif;
 }
+.primaryButton:hover { background: #eb5e34; color: #ffffff; }
+.primaryButton:active { transform: translateY(1px); }
 
-.button:hover {
-    background: #1d4ed8;
-}
+.link { color: #eb5e34; text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+.link:hover { text-decoration: underline; }
 
-.message {
-    color: #dc2626;
-    text-align: center;
-    margin-top: 16px;
-}
+.loginLine { margin: 18px 0 0; text-align: center; color: #6b7280; font-size: 0.95rem; }
+
+.message { margin-top: 16px; text-align: center; color: #dc2626; font-weight: 600; }
 
 .goback {
-    width: 100%;
-    padding: 8px;
-    margin-top: 5px;
-    background: #152b5c;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
+    display: inline-block;
+    margin-top: 24px;
+    color: #16182e;
+    text-decoration: none;
+    font-size: 0.9rem;
+    opacity: 0.75;
+}
+.goback:hover { opacity: 1; text-decoration: underline; }
+
+/* ===== Responsivo ===== */
+@media (max-width: 520px) {
+    .body { padding: 24px 20px 32px; }
+    .actions { justify-content: stretch; }
+    .primaryButton { width: 100%; }
+    .topbarTitle { font-size: 0.95rem; }
 }

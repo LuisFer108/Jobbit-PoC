@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import LogoutButton from "../components/LogoutButton";
+import styles from "./page.module.css";
 
 export default function ApplicationsPage() {
     const router = useRouter();
@@ -99,302 +101,191 @@ export default function ApplicationsPage() {
         }
     }
 
+    // Estilo dinámico del badge de estado
+    function badgeStyle(status) {
+        const c = badgeColor(status);
+        return { backgroundColor: c.bg, color: c.color, borderColor: c.border };
+    }
+
+    // ===== PRESENTACIÓN NUEVA =====
     return (
-        <main style={{ padding: "2rem", maxWidth: "900px", margin: "0 auto" }}>
-            <h1>Mis postulaciones</h1>
-            <p>Consulta aquí el estado en tiempo real de todas tus postulaciones a vacantes laborales.</p>
+        <main className={styles.page}>
+            <div className={styles.card}>
+                <header className={styles.topbar}>
+                    <div className={styles.brand}>
+                        <Image src="/Logo-jobbit.svg" alt="Jobbit" width={130} height={40} priority unoptimized />
+                    </div>
+                    <div className={styles.topbarTitle}>
+                        <span className={styles.userIcon} aria-hidden="true">
+                            <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor">
+                                <path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-4 0-8 2-8 6v2h16v-2c0-4-4-6-8-6Z"/>
+                            </svg>
+                        </span>
+                        Postulaciones
+                    </div>
+                </header>
 
-            <div style={{ display: "flex", gap: "1.5rem", marginBottom: "1.5rem" }}>
-                <Link href="/jobs">← Volver a vacantes disponibles</Link>
-                <Link href="/dashboard">Ir a mi inicio</Link>
-            </div>
-
-            {error && <p role="status" style={{ color: "red" }}>{error}</p>}
-
-            {/* Estado: cargando */}
-            {!applications && !error && <p>Cargando tus postulaciones...</p>}
-
-            {/* Estado: sin postulaciones */}
-            {applications && applications.length === 0 && (
-                <div style={{
-                    border: "1px dashed #cbd5e1",
-                    borderRadius: "8px",
-                    padding: "2rem",
-                    textAlign: "center",
-                    backgroundColor: "#f8fafc"
-                }}>
-                    <p style={{ margin: "0 0 1rem", fontSize: "1.1rem", color: "#475569" }}>
-                        Aún no te has postulado a ninguna vacante.
+                <div className={styles.body}>
+                    <h1 className={styles.welcome}>Mis postulaciones</h1>
+                    <p className={styles.subtitle}>
+                        Consulta aquí el estado en tiempo real de todas tus postulaciones a vacantes laborales.
                     </p>
-                    <Link
-                        href="/jobs"
-                        style={{
-                            display: "inline-block",
-                            padding: "8px 16px",
-                            backgroundColor: "#0284c7",
-                            color: "white",
-                            textDecoration: "none",
-                            borderRadius: "6px",
-                            fontWeight: "bold"
-                        }}
-                    >
-                        Explorar vacantes disponibles
-                    </Link>
-                </div>
-            )}
 
-            {/* Listado de postulaciones */}
-            {applications && applications.length > 0 && (
-                <ul style={{ listStyle: "none", padding: 0 }}>
-                    {applications.map((app) => {
-                        const style = badgeColor(app.status);
-                        const fecha = new Date(app.created_at).toLocaleDateString("es-ES", {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric"
-                        });
+                    <nav className={styles.nav}>
+                        <Link href="/jobs" className={styles.link}>← Volver a vacantes disponibles</Link>
+                        <Link href="/dashboard" className={styles.link}>Ir a mi inicio</Link>
+                    </nav>
 
-                        return (
-                            <li
-                                key={app.id}
-                                style={{
-                                    border: "1px solid #e2e8f0",
-                                    borderRadius: "8px",
-                                    padding: "1.25rem",
-                                    marginBottom: "1.25rem",
-                                    backgroundColor: "white",
-                                    boxShadow: "0 1px 3px rgba(0,0,0,0.05)"
-                                }}
-                            >
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "0.5rem" }}>
-                                    <h2 style={{ margin: "0 0 0.25rem" }}>{app.job_title}</h2>
-                                    <span style={{
-                                        backgroundColor: style.bg,
-                                        color: style.color,
-                                        border: `1px solid ${style.border}`,
-                                        padding: "4px 12px",
-                                        borderRadius: "16px",
-                                        fontWeight: "bold",
-                                        fontSize: "0.85rem"
-                                    }}>
-                                        Estado: {app.status.toUpperCase()}
-                                    </span>
-                                </div>
+                    {error && <p role="status" className={styles.message}>{error}</p>}
 
-                                <p style={{ margin: "0 0 0.5rem", fontWeight: "bold", color: "#374151" }}>
-                                    {app.job_company || "Empresa confidencial"}
-                                </p>
+                    {/* Estado: cargando */}
+                    {!applications && !error && <p className={styles.loading}>Cargando tus postulaciones...</p>}
 
-                                <p style={{ margin: "0 0 0.5rem", fontSize: "0.95rem", color: "#4b5563" }}>
-                                    📍 {app.job_location || "Ubicación por confirmar"} ·
-                                    {" "}{modalidadTexto(app.job_work_mode)} ·
-                                    {" "}Exp. mínima: {app.job_min_experience_years ?? 0} año(s)
-                                </p>
+                    {/* Estado: sin postulaciones */}
+                    {applications && applications.length === 0 && (
+                        <div className={styles.empty}>
+                            <p>Aún no te has postulado a ninguna vacante.</p>
+                            <Link href="/jobs" className={styles.primaryButton}>
+                                Explorar vacantes disponibles
+                            </Link>
+                        </div>
+                    )}
 
-                                <p style={{ margin: "0 0 0.75rem", fontSize: "0.85rem", color: "#6b7280" }}>
-                                    📅 Postulado el {fecha}
-                                </p>
+                    {/* Listado de postulaciones */}
+                    {applications && applications.length > 0 && (
+                        <ul className={styles.list}>
+                            {applications.map((app) => {
+                                const fecha = new Date(app.created_at).toLocaleDateString("es-ES", {
+                                    year: "numeric",
+                                    month: "long",
+                                    day: "numeric"
+                                });
 
-                                {(app.field || app.candidate_name) && (
-                                    <div style={{
-                                        backgroundColor: "#f0fdf4",
-                                        padding: "0.75rem",
-                                        borderRadius: "6px",
-                                        border: "1px solid #bbf7d0",
-                                        fontSize: "0.85rem",
-                                        marginBottom: "0.75rem",
-                                        color: "#166534"
-                                    }}>
-                                        <strong>📋 Datos del perfil registrados en la postulación:</strong>
-                                        <p style={{ margin: "0.25rem 0 0" }}>
-                                            <strong>Candidato:</strong> {app.candidate_name} ({app.candidate_email}) · <strong>Área:</strong> {app.field} · <strong>Experiencia:</strong> {app.experience_years ?? 0} año(s)
+                                return (
+                                    <li key={app.id} className={styles.appCard}>
+                                        <div className={styles.appHeader}>
+                                            <h2 className={styles.appTitle}>{app.job_title}</h2>
+                                            <span className={styles.badge} style={badgeStyle(app.status)}>
+                                                Estado: {app.status.toUpperCase()}
+                                            </span>
+                                        </div>
+
+                                        <p className={styles.company}>
+                                            {app.job_company || "Empresa confidencial"}
                                         </p>
-                                        {app.education && (
-                                            <p style={{ margin: "0.25rem 0 0" }}>
-                                                <strong>Educación:</strong> {app.education}
-                                            </p>
-                                        )}
-                                        {app.experience && (
-                                            <p style={{ margin: "0.25rem 0 0" }}>
-                                                <strong>Experiencia descrita:</strong> {app.experience}
-                                            </p>
-                                        )}
-                                        {app.work_preferences && (
-                                            <p style={{ margin: "0.25rem 0 0" }}>
-                                                <strong>Preferencias:</strong> {app.work_preferences}
-                                            </p>
-                                        )}
-                                        {app.work_mode && (
-                                            <p style={{ margin: "0.25rem 0 0" }}>
-                                                <strong>Modalidad preferida:</strong> {modalidadTexto(app.work_mode)}
-                                            </p>
-                                        )}
-                                    </div>
-                                )}
 
-                                {app.cover_letter && (
-                                    <div style={{
-                                        backgroundColor: "#f8fafc",
-                                        padding: "0.75rem",
-                                        borderRadius: "6px",
-                                        border: "1px solid #e2e8f0",
-                                        fontSize: "0.9rem",
-                                        marginBottom: "0.75rem",
-                                        whiteSpace: "pre-line",
-                                        color: "#334155"
-                                    }}>
-                                        <strong>Mensaje / Carta enviada:</strong>
-                                        <p style={{ margin: "0.25rem 0 0" }}>{app.cover_letter}</p>
-                                    </div>
-                                )}
+                                        <p className={styles.meta}>
+                                            📍 {app.job_location || "Ubicación por confirmar"} ·
+                                            {" "}{modalidadTexto(app.job_work_mode)} ·
+                                            {" "}Exp. mínima: {app.job_min_experience_years ?? 0} año(s)
+                                        </p>
 
-                                <div style={{ display: "flex", gap: "1rem", marginTop: "0.5rem" }}>
-                                    <button
-                                        type="button"
-                                        onClick={() => handleViewHistory(app.id)}
-                                        disabled={loadingHistory}
-                                        style={{
-                                            padding: "6px 14px",
-                                            borderRadius: "6px",
-                                            border: "1px solid #cbd5e1",
-                                            background: "#f1f5f9",
-                                            color: "#1e293b",
-                                            fontSize: "0.85rem",
-                                            fontWeight: "500",
-                                            cursor: "pointer"
-                                        }}
-                                    >
-                                        🔍 Ver trazabilidad / historial de estado
-                                    </button>
-                                </div>
-                            </li>
-                        );
-                    })}
-                </ul>
-            )}
+                                        <p className={styles.meta}>📅 Postulado el {fecha}</p>
+
+                                        {(app.field || app.candidate_name) && (
+                                            <div className={`${styles.box} ${styles.profileBox}`}>
+                                                <strong>📋 Datos del perfil registrados en la postulación:</strong>
+                                                <p>
+                                                    <strong>Candidato:</strong> {app.candidate_name} ({app.candidate_email}) · <strong>Área:</strong> {app.field} · <strong>Experiencia:</strong> {app.experience_years ?? 0} año(s)
+                                                </p>
+                                                {app.education && (
+                                                    <p><strong>Educación:</strong> {app.education}</p>
+                                                )}
+                                                {app.experience && (
+                                                    <p><strong>Experiencia descrita:</strong> {app.experience}</p>
+                                                )}
+                                                {app.work_preferences && (
+                                                    <p><strong>Preferencias:</strong> {app.work_preferences}</p>
+                                                )}
+                                                {app.work_mode && (
+                                                    <p><strong>Modalidad preferida:</strong> {modalidadTexto(app.work_mode)}</p>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {app.cover_letter && (
+                                            <div className={`${styles.box} ${styles.letterBox}`}>
+                                                <strong>Mensaje / Carta enviada:</strong>
+                                                <p>{app.cover_letter}</p>
+                                            </div>
+                                        )}
+
+                                        <button
+                                            type="button"
+                                            onClick={() => handleViewHistory(app.id)}
+                                            disabled={loadingHistory}
+                                            className={styles.secondaryButton}
+                                        >
+                                            🔍 Ver trazabilidad / historial de estado
+                                        </button>
+                                    </li>
+                                );
+                            })}
+                        </ul>
+                    )}
+
+                    <div className={styles.logout}>
+                        <LogoutButton />
+                    </div>
+                </div>
+            </div>
 
             {/* MODAL: Historial de estados de la postulación */}
             {selectedHistory && (
-                <div style={{
-                    position: "fixed",
-                    top: 0,
-                    left: 0,
-                    width: "100%",
-                    height: "100%",
-                    backgroundColor: "rgba(0,0,0,0.5)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    zIndex: 1000,
-                    padding: "1rem"
-                }}>
-                    <div style={{
-                        backgroundColor: "white",
-                        borderRadius: "8px",
-                        padding: "2rem",
-                        maxWidth: "550px",
-                        width: "100%",
-                        maxHeight: "85vh",
-                        overflowY: "auto",
-                        boxShadow: "0 10px 25px rgba(0,0,0,0.2)"
-                    }}>
-                        <h2 style={{ marginTop: 0 }}>Historial de la postulación</h2>
-                        <p style={{ margin: "0 0 1rem", color: "#475569" }}>
+                <div className={styles.overlay}>
+                    <div className={styles.modal}>
+                        <h2 className={styles.modalTitle}>Historial de la postulación</h2>
+                        <p className={styles.meta}>
                             Vacante: <strong>{selectedHistory.application.job_title}</strong> ({selectedHistory.application.job_company})
                         </p>
 
-                        <div style={{ marginBottom: "1.5rem" }}>
-                            <p style={{ margin: "0 0 0.5rem" }}>
-                                <strong>Estado actual:</strong>{" "}
-                                <span style={{
-                                    backgroundColor: badgeColor(selectedHistory.application.status).bg,
-                                    color: badgeColor(selectedHistory.application.status).color,
-                                    padding: "3px 8px",
-                                    borderRadius: "12px",
-                                    fontWeight: "bold",
-                                    fontSize: "0.85rem"
-                                }}>
-                                    {selectedHistory.application.status.toUpperCase()}
-                                </span>
-                            </p>
-                        </div>
+                        <p>
+                            <strong>Estado actual:</strong>{" "}
+                            <span className={styles.badge} style={badgeStyle(selectedHistory.application.status)}>
+                                {selectedHistory.application.status.toUpperCase()}
+                            </span>
+                        </p>
 
                         {selectedHistory.application.field && (
-                            <div style={{
-                                backgroundColor: "#f8fafc",
-                                border: "1px solid #e2e8f0",
-                                borderRadius: "6px",
-                                padding: "0.75rem",
-                                marginBottom: "1.25rem",
-                                fontSize: "0.85rem",
-                                color: "#334155"
-                            }}>
-                                <strong style={{ color: "#0f172a" }}>Datos registrados en la postulación:</strong>
-                                <p style={{ margin: "0.25rem 0 0" }}>
+                            <div className={`${styles.box} ${styles.letterBox}`}>
+                                <strong>Datos registrados en la postulación:</strong>
+                                <p>
                                     <strong>Candidato:</strong> {selectedHistory.application.candidate_name} ({selectedHistory.application.candidate_email})
                                 </p>
-                                <p style={{ margin: "0.25rem 0 0" }}>
+                                <p>
                                     <strong>Área y experiencia:</strong> {selectedHistory.application.field} — {selectedHistory.application.experience_years ?? 0} año(s)
                                 </p>
                                 {selectedHistory.application.education && (
-                                    <p style={{ margin: "0.25rem 0 0" }}>
-                                        <strong>Educación:</strong> {selectedHistory.application.education}
-                                    </p>
+                                    <p><strong>Educación:</strong> {selectedHistory.application.education}</p>
                                 )}
                                 {selectedHistory.application.experience && (
-                                    <p style={{ margin: "0.25rem 0 0" }}>
-                                        <strong>Detalle de experiencia:</strong> {selectedHistory.application.experience}
-                                    </p>
+                                    <p><strong>Detalle de experiencia:</strong> {selectedHistory.application.experience}</p>
                                 )}
                             </div>
                         )}
 
-                        <h3 style={{ fontSize: "1rem", marginBottom: "0.5rem" }}>Línea de tiempo de estados:</h3>
-                        <div style={{ borderLeft: "2px solid #0284c7", paddingLeft: "1rem", marginLeft: "0.5rem" }}>
+                        <h3 className={styles.timelineTitle}>Línea de tiempo de estados:</h3>
+                        <div className={styles.timeline}>
                             {selectedHistory.history && selectedHistory.history.length > 0 ? (
                                 selectedHistory.history.map((item, idx) => (
-                                    <div key={item.id || idx} style={{ marginBottom: "1rem", position: "relative" }}>
-                                        <div style={{
-                                            position: "absolute",
-                                            left: "-1.4rem",
-                                            top: "0.2rem",
-                                            width: "10px",
-                                            height: "10px",
-                                            borderRadius: "50%",
-                                            backgroundColor: "#0284c7"
-                                        }} />
-                                        <p style={{ margin: 0, fontWeight: "bold" }}>
-                                            Estado: {item.status.toUpperCase()}
-                                        </p>
-                                        <p style={{ margin: "0.25rem 0 0", fontSize: "0.85rem", color: "#64748b" }}>
+                                    <div key={item.id || idx} className={styles.timelineItem}>
+                                        <strong>Estado: {item.status.toUpperCase()}</strong>
+                                        <span className={styles.timelineDate}>
                                             {new Date(item.changed_at).toLocaleString("es-ES")}
-                                        </p>
-                                        {item.note && (
-                                            <p style={{ margin: "0.25rem 0 0", fontSize: "0.9rem", color: "#334155" }}>
-                                                Nota: {item.note}
-                                            </p>
-                                        )}
+                                        </span>
+                                        {item.note && <span>Nota: {item.note}</span>}
                                     </div>
                                 ))
                             ) : (
-                                <p style={{ fontSize: "0.9rem", color: "#64748b" }}>
-                                    Sin cambios adicionales registrados.
-                                </p>
+                                <p className={styles.meta}>Sin cambios adicionales registrados.</p>
                             )}
                         </div>
 
-                        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "1.5rem" }}>
+                        <div className={styles.modalActions}>
                             <button
                                 type="button"
                                 onClick={() => setSelectedHistory(null)}
-                                style={{
-                                    padding: "8px 16px",
-                                    borderRadius: "6px",
-                                    border: "1px solid #ccc",
-                                    background: "#f9fafb",
-                                    cursor: "pointer",
-                                    fontWeight: "bold"
-                                }}
+                                className={styles.primaryButton}
                             >
                                 Cerrar
                             </button>
@@ -402,8 +293,6 @@ export default function ApplicationsPage() {
                     </div>
                 </div>
             )}
-
-            <LogoutButton />
         </main>
     );
 }

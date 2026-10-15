@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import LogoutButton from "../components/LogoutButton";
+import styles from "./page.module.css";
 
 export default function JobsPage() {
     const router = useRouter();
@@ -177,204 +179,144 @@ export default function JobsPage() {
         }
     }
 
+    // ===== PRESENTACIÓN NUEVA =====
     return (
-        <main style={{ padding: "2rem", maxWidth: "900px", margin: "0 auto" }}>
-            <h1>Vacantes disponibles</h1>
-            <p>Estas son las oportunidades que tenemos para ti ahora mismo.</p>
-
-            <div style={{ display: "flex", gap: "1.5rem", marginBottom: "1.5rem" }}>
-                <Link href="/dashboard">← Volver a mi inicio</Link>
-                <Link href="/applications" style={{ fontWeight: "bold" }}>📋 Ver mis postulaciones</Link>
-            </div>
-
-            {/* Aviso si el perfil laboral está incompleto */}
-            {profile !== null && !isProfileComplete() && (
-                <div style={{
-                    backgroundColor: "#fef3c7",
-                    border: "1px solid #f59e0b",
-                    color: "#92400e",
-                    padding: "1rem",
-                    borderRadius: "8px",
-                    marginBottom: "1.5rem"
-                }}>
-                    <strong>⚠️ Perfil laboral incompleto:</strong> Para realizar postulaciones asistidas debes tener tu perfil laboral completo (campo profesional, experiencia, años de experiencia y educación).
-                    <div style={{ marginTop: "0.5rem" }}>
-                        <Link href="/profile/edit" style={{ fontWeight: "bold", color: "#b45309" }}>
-                            ✏️ Completar mi perfil laboral aquí →
-                        </Link>
+        <main className={styles.page}>
+            <div className={styles.card}>
+                <header className={styles.topbar}>
+                    <div className={styles.brand}>
+                        <Image src="/Logo-jobbit.svg" alt="Jobbit" width={130} height={40} priority unoptimized />
                     </div>
-                </div>
-            )}
-
-            {profile === null && jobs && (
-                <div style={{
-                    backgroundColor: "#fef2f2",
-                    border: "1px solid #ef4444",
-                    color: "#991b1b",
-                    padding: "1rem",
-                    borderRadius: "8px",
-                    marginBottom: "1.5rem"
-                }}>
-                    <strong>⚠️ Aún no has creado tu perfil laboral:</strong> Debes crearlo para postularte a las vacantes.
-                    <div style={{ marginTop: "0.5rem" }}>
-                        <Link href="/profile" style={{ fontWeight: "bold", color: "#dc2626" }}>
-                            Crear perfil laboral ahora →
-                        </Link>
+                    <div className={styles.topbarTitle}>
+                        <span className={styles.userIcon} aria-hidden="true">
+                            <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor">
+                                <path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-4 0-8 2-8 6v2h16v-2c0-4-4-6-8-6Z"/>
+                            </svg>
+                        </span>
+                        Vacantes
                     </div>
-                </div>
-            )}
+                </header>
 
-            {error && <p role="status" style={{ color: "red" }}>{error}</p>}
+                <div className={styles.body}>
+                    <h1 className={styles.welcome}>Vacantes disponibles</h1>
+                    <p className={styles.subtitle}>Estas son las oportunidades que tenemos para ti ahora mismo.</p>
 
-            {/* Estado: cargando */}
-            {!jobs && !error && <p>Cargando vacantes...</p>}
+                    <nav className={styles.nav}>
+                        <Link href="/dashboard" className={styles.link}>← Volver a mi inicio</Link>
+                        <Link href="/applications" className={styles.link}>📋 Ver mis postulaciones</Link>
+                    </nav>
 
-            {/* Estado: no hay vacantes (lista vacía) */}
-            {jobs && jobs.length === 0 && (
-                <p>Por ahora no hay vacantes publicadas. ¡Vuelve pronto, estamos sumando nuevas!</p>
-            )}
-
-            {/* Listado de vacantes (SCRUM-65 / SCRUM-66) */}
-            {jobs && jobs.length > 0 && (
-                <ul style={{ listStyle: "none", padding: 0 }}>
-                    {jobs.map((job) => (
-                        <li
-                            key={job.id}
-                            style={{
-                                border: job.application_status ? "2px solid #38bdf8" : "1px solid #ccc",
-                                borderRadius: "8px",
-                                padding: "1.25rem",
-                                marginBottom: "1.25rem",
-                                backgroundColor: job.application_status ? "#f0f9ff" : "white"
-                            }}
-                        >
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "0.5rem" }}>
-                                <h2 style={{ margin: "0 0 0.25rem" }}>{job.title}</h2>
-                                {job.application_status && (
-                                    <span style={{
-                                        backgroundColor: "#0284c7",
-                                        color: "white",
-                                        padding: "4px 10px",
-                                        borderRadius: "12px",
-                                        fontSize: "0.85rem",
-                                        fontWeight: "bold"
-                                    }}>
-                                        Estado: {job.application_status.toUpperCase()}
-                                    </span>
-                                )}
+                    {/* Aviso si el perfil laboral está incompleto */}
+                    {profile !== null && !isProfileComplete() && (
+                        <div className={`${styles.notice} ${styles.warningNotice}`}>
+                            <strong>⚠️ Perfil laboral incompleto:</strong> Para realizar postulaciones asistidas debes tener tu perfil laboral completo (campo profesional, experiencia, años de experiencia y educación).
+                            <div>
+                                <Link href="/profile/edit" className={styles.noticeLink}>
+                                    ✏️ Completar mi perfil laboral aquí →
+                                </Link>
                             </div>
+                        </div>
+                    )}
 
-                            <p style={{ margin: "0 0 0.5rem", fontWeight: "bold", color: "#374151" }}>
-                                {job.company || "Empresa confidencial"}
-                            </p>
-                            <p style={{ margin: "0 0 0.5rem" }}>{job.description}</p>
-                            <p style={{ margin: "0 0 1rem", fontSize: "0.95rem", color: "#4b5563" }}>
-                                📍 {job.location || "Ubicación por confirmar"} ·
-                                {" "}{modalidadTexto(job.work_mode)} ·
-                                {" "}Experiencia mínima: {job.min_experience_years ?? 0} año(s)
-                            </p>
+                    {profile === null && jobs && (
+                        <div className={`${styles.notice} ${styles.errorNotice}`}>
+                            <strong>⚠️ Aún no has creado tu perfil laboral:</strong> Debes crearlo para postularte a las vacantes.
+                            <div>
+                                <Link href="/profile" className={styles.noticeLink}>
+                                    Crear perfil laboral ahora →
+                                </Link>
+                            </div>
+                        </div>
+                    )}
 
-                            {/* Acciones de postulación */}
-                            <div style={{ borderTop: "1px solid #e5e7eb", paddingTop: "0.75rem", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "0.5rem" }}>
-                                {job.application_status ? (
-                                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                                        <button
-                                            type="button"
-                                            disabled
-                                            style={{
-                                                padding: "6px 14px",
-                                                borderRadius: "6px",
-                                                border: "1px solid #cbd5e1",
-                                                backgroundColor: "#e2e8f0",
-                                                color: "#475569",
-                                                cursor: "not-allowed",
-                                                fontWeight: "500"
-                                            }}
-                                        >
-                                            ✓ Ya te has postulado
-                                        </button>
-                                        <span style={{ fontSize: "0.85rem", color: "#0369a1" }}>
-                                            Postulación registrada con éxito
-                                        </span>
+                    {error && <p role="status" className={styles.message}>{error}</p>}
+
+                    {/* Estado: cargando */}
+                    {!jobs && !error && <p className={styles.loading}>Cargando vacantes...</p>}
+
+                    {/* Estado: no hay vacantes (lista vacía) */}
+                    {jobs && jobs.length === 0 && (
+                        <div className={styles.empty}>
+                            <p>Por ahora no hay vacantes publicadas. ¡Vuelve pronto, estamos sumando nuevas!</p>
+                        </div>
+                    )}
+
+                    {/* Listado de vacantes (SCRUM-65 / SCRUM-66) */}
+                    {jobs && jobs.length > 0 && (
+                        <ul className={styles.list}>
+                            {jobs.map((job) => (
+                                <li
+                                    key={job.id}
+                                    className={`${styles.jobCard} ${job.application_status ? styles.jobCardApplied : ""}`}
+                                >
+                                    <div className={styles.jobHeader}>
+                                        <h2 className={styles.jobTitle}>{job.title}</h2>
+                                        {job.application_status && (
+                                            <span className={styles.statusBadge}>
+                                                Estado: {job.application_status.toUpperCase()}
+                                            </span>
+                                        )}
                                     </div>
-                                ) : (
-                                    <button
-                                        type="button"
-                                        onClick={() => handleOpenApply(job)}
-                                        style={{
-                                            padding: "8px 18px",
-                                            borderRadius: "6px",
-                                            border: "none",
-                                            backgroundColor: "#0284c7",
-                                            color: "white",
-                                            fontWeight: "600",
-                                            cursor: "pointer"
-                                        }}
-                                    >
-                                        Postulación asistida →
-                                    </button>
-                                )}
-                            </div>
-                        </li>
-                    ))}
-                </ul>
-            )}
+
+                                    <p className={styles.company}>{job.company || "Empresa confidencial"}</p>
+                                    <p className={styles.description}>{job.description}</p>
+                                    <p className={styles.meta}>
+                                        📍 {job.location || "Ubicación por confirmar"} ·
+                                        {" "}{modalidadTexto(job.work_mode)} ·
+                                        {" "}Experiencia mínima: {job.min_experience_years ?? 0} año(s)
+                                    </p>
+
+                                    {/* Acciones de postulación */}
+                                    <div className={styles.jobActions}>
+                                        {job.application_status ? (
+                                            <div className={styles.appliedInfo}>
+                                                <button type="button" disabled className={styles.appliedButton}>
+                                                    ✓ Ya te has postulado
+                                                </button>
+                                                <span className={styles.appliedText}>
+                                                    Postulación registrada con éxito
+                                                </span>
+                                            </div>
+                                        ) : (
+                                            <button
+                                                type="button"
+                                                onClick={() => handleOpenApply(job)}
+                                                className={styles.primaryButton}
+                                            >
+                                                Postulación asistida →
+                                            </button>
+                                        )}
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+
+                    <div className={styles.logout}>
+                        <LogoutButton />
+                    </div>
+                </div>
+            </div>
 
             {/* MODAL: Aviso de perfil incompleto */}
             {showProfileWarning && (
-                <div style={{
-                    position: "fixed",
-                    top: 0,
-                    left: 0,
-                    width: "100%",
-                    height: "100%",
-                    backgroundColor: "rgba(0,0,0,0.5)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    zIndex: 1000
-                }}>
-                    <div style={{
-                        backgroundColor: "white",
-                        borderRadius: "8px",
-                        padding: "2rem",
-                        maxWidth: "500px",
-                        width: "90%",
-                        boxShadow: "0 10px 25px rgba(0,0,0,0.2)"
-                    }}>
-                        <h2 style={{ marginTop: 0, color: "#92400e" }}>Perfil laboral incompleto</h2>
+                <div className={styles.overlay}>
+                    <div className={styles.modal}>
+                        <h2 className={`${styles.modalTitle} ${styles.warningTitle}`}>Perfil laboral incompleto</h2>
                         <p>
                             Para realizar una <strong>postulación asistida</strong>, el sistema requiere que tu perfil laboral contenga información profesional completa.
                         </p>
-                        <p style={{ fontSize: "0.95rem", color: "#4b5563" }}>
+                        <p className={styles.helpText}>
                             Revisa que hayas diligenciado: campo profesional, experiencia, años de experiencia y educación.
                         </p>
-                        <div style={{ display: "flex", justifyContent: "flex-end", gap: "1rem", marginTop: "1.5rem" }}>
-                            <button
-                                type="button"
-                                onClick={() => setShowProfileWarning(false)}
-                                style={{
-                                    padding: "8px 16px",
-                                    borderRadius: "6px",
-                                    border: "1px solid #ccc",
-                                    background: "#f9fafb",
-                                    cursor: "pointer"
-                                }}
-                            >
+                        <div className={styles.modalActions}>
+                            <button type="button" onClick={() => setShowProfileWarning(false)} className={styles.secondaryButton}>
                                 Cancelar
                             </button>
                             <button
                                 type="button"
                                 onClick={() => router.push(profile ? "/profile/edit" : "/profile")}
-                                style={{
-                                    padding: "8px 16px",
-                                    borderRadius: "6px",
-                                    border: "none",
-                                    background: "#0284c7",
-                                    color: "white",
-                                    fontWeight: "600",
-                                    cursor: "pointer"
-                                }}
+                                className={styles.primaryButton}
                             >
                                 Completar mi perfil ahora
                             </button>
@@ -385,47 +327,17 @@ export default function JobsPage() {
 
             {/* MODAL: Postulación asistida */}
             {selectedJob && profile && (
-                <div style={{
-                    position: "fixed",
-                    top: 0,
-                    left: 0,
-                    width: "100%",
-                    height: "100%",
-                    backgroundColor: "rgba(0,0,0,0.5)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    zIndex: 1000,
-                    padding: "1rem"
-                }}>
-                    <div style={{
-                        backgroundColor: "white",
-                        borderRadius: "8px",
-                        padding: "2rem",
-                        maxWidth: "650px",
-                        width: "100%",
-                        maxHeight: "90vh",
-                        overflowY: "auto",
-                        boxShadow: "0 10px 25px rgba(0,0,0,0.2)"
-                    }}>
-                        <h2 style={{ marginTop: 0, marginBottom: "0.25rem" }}>Postulación asistida</h2>
-                        <p style={{ margin: "0 0 1rem", color: "#4b5563" }}>
+                <div className={styles.overlay}>
+                    <div className={`${styles.modal} ${styles.wideModal}`}>
+                        <h2 className={styles.modalTitle}>Postulación asistida</h2>
+                        <p className={styles.meta}>
                             Vacante: <strong>{selectedJob.title}</strong> · {selectedJob.company || "Empresa"}
                         </p>
 
                         {/* Resumen asistido del perfil */}
-                        <div style={{
-                            backgroundColor: "#f8fafc",
-                            border: "1px solid #e2e8f0",
-                            borderRadius: "6px",
-                            padding: "1rem",
-                            marginBottom: "1rem",
-                            fontSize: "0.9rem"
-                        }}>
-                            <h3 style={{ margin: "0 0 0.5rem", fontSize: "1rem" }}>
-                                👤 Información de tu perfil que se adjuntará:
-                            </h3>
-                            <ul style={{ margin: 0, paddingLeft: "1.25rem" }}>
+                        <div className={styles.profileSummary}>
+                            <h3 className={styles.summaryTitle}>👤 Información de tu perfil que se adjuntará:</h3>
+                            <ul>
                                 <li><strong>Nombre:</strong> {profile.name} ({profile.email})</li>
                                 <li><strong>Campo laboral:</strong> {profile.field}</li>
                                 <li><strong>Experiencia:</strong> {profile.experience_years} año(s) — {profile.experience}</li>
@@ -436,11 +348,11 @@ export default function JobsPage() {
                         </div>
 
                         {/* Carta de presentación asistida personalizable */}
-                        <form onSubmit={handleConfirmApply}>
-                            <label htmlFor="coverLetter" style={{ display: "block", fontWeight: "bold", marginBottom: "0.25rem" }}>
+                        <form onSubmit={handleConfirmApply} className={styles.form}>
+                            <label htmlFor="coverLetter" className={styles.label}>
                                 Carta / Mensaje de presentación asistido:
                             </label>
-                            <p style={{ fontSize: "0.85rem", color: "#6b7280", margin: "0 0 0.5rem" }}>
+                            <p className={styles.helpText}>
                                 Jobbit generó este texto con base en tu perfil. Puedes personalizarlo antes de enviar:
                             </p>
                             <textarea
@@ -448,51 +360,21 @@ export default function JobsPage() {
                                 rows={6}
                                 value={coverLetter}
                                 onChange={(e) => setCoverLetter(e.target.value)}
-                                style={{
-                                    width: "100%",
-                                    padding: "0.75rem",
-                                    borderRadius: "6px",
-                                    border: "1px solid #cbd5e1",
-                                    fontFamily: "inherit",
-                                    fontSize: "0.95rem",
-                                    boxSizing: "border-box"
-                                }}
+                                className={styles.textarea}
                             />
 
-                            {applyError && (
-                                <p role="alert" style={{ color: "#dc2626", marginTop: "0.75rem", fontWeight: "500" }}>
-                                    {applyError}
-                                </p>
-                            )}
+                            {applyError && <p role="alert" className={styles.applyError}>{applyError}</p>}
 
-                            <div style={{ display: "flex", justifyContent: "flex-end", gap: "1rem", marginTop: "1.5rem" }}>
+                            <div className={styles.modalActions}>
                                 <button
                                     type="button"
                                     onClick={() => setSelectedJob(null)}
                                     disabled={submitting}
-                                    style={{
-                                        padding: "8px 16px",
-                                        borderRadius: "6px",
-                                        border: "1px solid #ccc",
-                                        background: "#f9fafb",
-                                        cursor: submitting ? "not-allowed" : "pointer"
-                                    }}
+                                    className={styles.secondaryButton}
                                 >
                                     Cancelar
                                 </button>
-                                <button
-                                    type="submit"
-                                    disabled={submitting}
-                                    style={{
-                                        padding: "8px 20px",
-                                        borderRadius: "6px",
-                                        border: "none",
-                                        background: submitting ? "#93c5fd" : "#0284c7",
-                                        color: "white",
-                                        fontWeight: "600",
-                                        cursor: submitting ? "not-allowed" : "pointer"
-                                    }}
-                                >
+                                <button type="submit" disabled={submitting} className={styles.primaryButton}>
                                     {submitting ? "Enviando postulación..." : "Confirmar y postularme"}
                                 </button>
                             </div>
@@ -503,64 +385,24 @@ export default function JobsPage() {
 
             {/* MODAL: Confirmación de postulación */}
             {confirmation && (
-                <div style={{
-                    position: "fixed",
-                    top: 0,
-                    left: 0,
-                    width: "100%",
-                    height: "100%",
-                    backgroundColor: "rgba(0,0,0,0.5)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    zIndex: 1000,
-                    padding: "1rem"
-                }}>
-                    <div style={{
-                        backgroundColor: "white",
-                        borderRadius: "8px",
-                        padding: "2rem",
-                        maxWidth: "500px",
-                        width: "100%",
-                        boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
-                        textAlign: "center"
-                    }}>
-                        <div style={{ fontSize: "3rem", marginBottom: "0.5rem" }}>🎉</div>
-                        <h2 style={{ marginTop: 0, color: "#065f46" }}>¡Postulación confirmada!</h2>
-                        <p style={{ fontSize: "1.05rem", color: "#374151" }}>
+                <div className={styles.overlay}>
+                    <div className={`${styles.modal} ${styles.centered}`}>
+                        <div className={styles.confirmationIcon}>🎉</div>
+                        <h2 className={styles.confirmationTitle}>¡Postulación confirmada!</h2>
+                        <p>
                             Te has postulado exitosamente a la vacante de <strong>{confirmation.jobTitle}</strong> en <strong>{confirmation.company}</strong>.
                         </p>
-                        <div style={{
-                            backgroundColor: "#f0fdf4",
-                            border: "1px solid #bbf7d0",
-                            borderRadius: "6px",
-                            padding: "0.75rem",
-                            margin: "1rem 0",
-                            textAlign: "left",
-                            fontSize: "0.95rem"
-                        }}>
-                            <p style={{ margin: "0 0 0.25rem" }}>
-                                <strong>Estado actual:</strong> <span style={{ color: "#16a34a", fontWeight: "bold" }}>{confirmation.status.toUpperCase()}</span>
+                        <div className={styles.confirmationDetails}>
+                            <p>
+                                <strong>Estado actual:</strong> <span className={styles.confirmationStatus}>{confirmation.status.toUpperCase()}</span>
                             </p>
-                            <p style={{ margin: 0 }}>
-                                <strong>Fecha:</strong> {confirmation.date}
-                            </p>
+                            <p><strong>Fecha:</strong> {confirmation.date}</p>
                         </div>
-                        <p style={{ fontSize: "0.9rem", color: "#6b7280" }}>
+                        <p className={styles.helpText}>
                             Tu perfil laboral fue compartido con los reclutadores. Puedes consultar el progreso en la sección de postulaciones.
                         </p>
-                        <div style={{ display: "flex", justifyContent: "center", gap: "1rem", marginTop: "1.5rem" }}>
-                            <button
-                                type="button"
-                                onClick={() => setConfirmation(null)}
-                                style={{
-                                    padding: "8px 16px",
-                                    borderRadius: "6px",
-                                    border: "1px solid #ccc",
-                                    background: "#f9fafb",
-                                    cursor: "pointer"
-                                }}
-                            >
+                        <div className={`${styles.modalActions} ${styles.centerActions}`}>
+                            <button type="button" onClick={() => setConfirmation(null)} className={styles.secondaryButton}>
                                 Seguir viendo vacantes
                             </button>
                             <button
@@ -569,15 +411,7 @@ export default function JobsPage() {
                                     setConfirmation(null);
                                     router.push("/applications");
                                 }}
-                                style={{
-                                    padding: "8px 18px",
-                                    borderRadius: "6px",
-                                    border: "none",
-                                    background: "#0284c7",
-                                    color: "white",
-                                    fontWeight: "600",
-                                    cursor: "pointer"
-                                }}
+                                className={styles.primaryButton}
                             >
                                 Ver mis postulaciones
                             </button>
@@ -585,8 +419,6 @@ export default function JobsPage() {
                     </div>
                 </div>
             )}
-
-            <LogoutButton />
         </main>
     );
 }

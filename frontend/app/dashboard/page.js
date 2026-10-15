@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import LogoutButton from "../components/LogoutButton";
+import styles from "./page.module.css";
 
 export default function DashboardPage() {
 
@@ -65,112 +66,169 @@ export default function DashboardPage() {
     }
 
     return (
-        <main style={{ padding: "2rem", maxWidth: "800px", margin: "0 auto" }}>
-            <h1>Bienvenido/a {profile.name}</h1>
+    <main className={styles.page}>
+        <div className={styles.card}>
 
-            <h2>Tu perfil laboral</h2>
+            {/* Cabecera */}
+            <header className={styles.header}>
+                <p className={styles.eyebrow}>Jobbit · Mi cuenta</p>
 
-            {profile.is_complete ? (
-                <p style={{ color: "#16a34a", fontWeight: "bold" }}>
-                    ✓ Estado del perfil: Completo (Habilitado para postulación asistida)
+                <h1 className={styles.title}>
+                    ¡Bienvenido/a, <span>{profile.name}</span>!
+                </h1>
+
+                <p className={styles.headerDescription}>
+                    Consulta tu perfil laboral y encuentra oportunidades
+                    que se adapten a ti.
                 </p>
-            ) : (
-                <p style={{ color: "#d97706", fontWeight: "bold" }}>
-                    ⚠️ Estado del perfil: Incompleto (Debes completarlo para postularte a vacantes)
-                </p>
-            )}
+            </header>
 
-            <p>
-                <strong>Campo:</strong> {profile.field}
-            </p>
+            {/* Contenido */}
+            <div className={styles.body}>
+                <h2 className={styles.sectionTitle}>
+                    Tu perfil laboral
+                </h2>
 
-            <p>
-                <strong>Experiencia:</strong> {profile.experience || "No especificada"}
-            </p>
-
-            <p>
-                <strong>Años:</strong> {profile.experience_years ?? 0}
-            </p>
-
-            <p>
-                <strong>Educación:</strong> {profile.education || "No especificada"}
-            </p>
-
-            <p>
-                <strong>Preferencias:</strong> {profile.work_preferences || "No especificadas"}
-            </p>
-
-            <p>
-                <strong>Ubicación preferida:</strong> {profile.preferred_location || "No especificada"}
-            </p>
-
-            <p>
-                <strong>Modalidad:</strong> {modalidadTexto(profile.work_mode)}
-            </p>
-
-            <p>
-                <strong>Rango salarial esperado:</strong> {profile.salary_range || "No especificado"}
-            </p>
-
-            <div>
-                <strong>Habilidades:</strong>{" "}
-                {userSkills.length > 0 ? (
-                    <span style={{ display: "inline-flex", flexWrap: "wrap", gap: "6px", marginLeft: "6px" }}>
-                        {userSkills.map((s) => (
-                            <span
-                                key={s.id}
-                                style={{
-                                    background: "#e0e7ff",
-                                    color: "#1e40af",
-                                    padding: "2px 8px",
-                                    borderRadius: "12px",
-                                    fontSize: "0.85rem"
-                                }}
-                            >
-                                {s.name}
-                            </span>
-                        ))}
+                {/* Estado */}
+                <div
+                    className={`${styles.status} ${
+                        profile.is_complete
+                            ? styles.statusComplete
+                            : styles.statusIncomplete
+                    }`}
+                    role="status"
+                >
+                    <span className={styles.statusIcon} aria-hidden="true">
+                        {profile.is_complete ? "✓" : "⚠"}
                     </span>
-                ) : (
-                    <span>No has seleccionado habilidades (puedes elegir hasta 5)</span>
-                )}
-            </div>
 
-            <div style={{ marginTop: "1.5rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                <div>
+                    <div>
+                        <span className={styles.statusTitle}>
+                            {profile.is_complete
+                                ? "Perfil completo"
+                                : "Perfil incompleto"}
+                        </span>
+
+                        <p className={styles.statusText}>
+                            {profile.is_complete
+                                ? "Tu perfil está habilitado para la postulación asistida."
+                                : "Completa tu perfil para poder postularte a vacantes."}
+                        </p>
+                    </div>
+                </div>
+
+                {/* Información */}
+                <div className={styles.detailsGrid}>
+                    <div className={styles.detail}>
+                        <span className={styles.detailLabel}>Campo profesional</span>
+                        <span className={styles.detailValue}>
+                            {profile.field}
+                        </span>
+                    </div>
+
+                    <div className={styles.detail}>
+                        <span className={styles.detailLabel}>Experiencia</span>
+                        <span className={styles.detailValue}>
+                            {profile.experience || "No especificada"}
+                        </span>
+                    </div>
+
+                    <div className={styles.detail}>
+                        <span className={styles.detailLabel}>Años de experiencia</span>
+                        <span className={styles.detailValue}>
+                            {profile.experience_years ?? 0}
+                        </span>
+                    </div>
+
+                    <div className={styles.detail}>
+                        <span className={styles.detailLabel}>Educación</span>
+                        <span className={styles.detailValue}>
+                            {profile.education || "No especificada"}
+                        </span>
+                    </div>
+
+                    <div className={styles.detail}>
+                        <span className={styles.detailLabel}>Modalidad de trabajo</span>
+                        <span className={styles.detailValue}>
+                            {modalidadTexto(profile.work_mode)}
+                        </span>
+                    </div>
+
+                    <div className={styles.detail}>
+                        <span className={styles.detailLabel}>Ubicación preferida</span>
+                        <span className={styles.detailValue}>
+                            {profile.preferred_location || "No especificada"}
+                        </span>
+                    </div>
+
+                    <div className={styles.detail}>
+                        <span className={styles.detailLabel}>Rango salarial esperado</span>
+                        <span className={styles.detailValue}>
+                            {profile.salary_range || "No especificado"}
+                        </span>
+                    </div>
+
+                    <div className={styles.detail}>
+                        <span className={styles.detailLabel}>Preferencias laborales</span>
+                        <span className={styles.detailValue}>
+                            {profile.work_preferences || "No especificadas"}
+                        </span>
+                    </div>
+                </div>
+
+                {/* Habilidades */}
+                <section className={styles.skillsSection}>
+                    <h2 className={styles.sectionTitle}>
+                        Tus habilidades
+                    </h2>
+
+                    {userSkills.length > 0 ? (
+                        <div className={styles.skills}>
+                            {userSkills.map((s) => (
+                                <span key={s.id} className={styles.skill}>
+                                    {s.name}
+                                </span>
+                            ))}
+                        </div>
+                    ) : (
+                        <p className={styles.emptySkills}>
+                            Aún no has seleccionado habilidades.
+                            Puedes elegir hasta 5 para mejorar la
+                            compatibilidad con las vacantes.
+                        </p>
+                    )}
+                </section>
+
+                {/* Acciones */}
+                <nav className={styles.actions} aria-label="Acciones del perfil">
                     <Link
                         href="/compatibilidad"
-                        style={{
-                            display: "inline-block",
-                            background: "#2563eb",
-                            color: "#ffffff",
-                            padding: "10px 18px",
-                            borderRadius: "6px",
-                            textDecoration: "none",
-                            fontWeight: "bold",
-                            boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
-                        }}
+                        className={styles.primaryButton}
                     >
                         🎯 Ver compatibilidad con vacantes
                     </Link>
+
+                    <Link
+                        href="/jobs"
+                        className={styles.secondaryButton}
+                    >
+                        Explorar vacantes disponibles
+                    </Link>
+
+                    <Link
+                        href="/profile/edit"
+                        className={styles.secondaryButton}
+                    >
+                        ✎ Actualizar perfil laboral
+                    </Link>
+                </nav>
+
+                {/* Cerrar sesión */}
+                <div className={styles.logout}>
+                    <LogoutButton />
                 </div>
-
-                <p style={{ margin: 0 }}>
-                    <Link href="/jobs">
-                        Ver todas las vacantes disponibles
-                    </Link>
-                </p>
-
-                <p style={{ margin: 0 }}>
-                    <Link href="/profile/edit">
-                        Actualizar perfil laboral
-                    </Link>
-                </p>
             </div>
-
-            <div style={{ marginTop: "2rem" }}>
-                <LogoutButton />
-            </div>
-        </main>
-    );
+        </div>
+    </main>
+);
 }
