@@ -28,6 +28,7 @@ CREATE TABLE work_profiles (
 );
 
 ALTER TABLE work_profiles ADD COLUMN IF NOT EXISTS salary_range VARCHAR(50);
+ALTER TABLE work_profiles ADD COLUMN IF NOT EXISTS min_salary NUMERIC;
 
 -- ===== NOTA: la columna role ahora ya forma parte del CREATE TABLE users de arriba =====
 -- (la agregaron los cambios de autenticación en main). Este ALTER se conserva por
@@ -74,6 +75,7 @@ CREATE TABLE IF NOT EXISTS job_offers (
 );
 
 ALTER TABLE job_offers ADD COLUMN IF NOT EXISTS salary_range VARCHAR(50);
+ALTER TABLE job_offers ADD COLUMN IF NOT EXISTS min_salary NUMERIC;
 
 -- ===== HABILIDADES REQUERIDAS POR CADA VACANTE (ERD, N:M con peso) =====
 CREATE TABLE IF NOT EXISTS offer_skills (
