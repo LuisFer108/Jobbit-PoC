@@ -18,7 +18,9 @@ router.post("/", authenticateToken, async (req, res) => {
             preferredLocation,
             workMode,
             salaryRange,
-            salary_range
+            salary_range,
+            minSalary,
+            min_salary
         } = req.body;
 
         const userId = req.user.userId;
@@ -29,7 +31,7 @@ router.post("/", authenticateToken, async (req, res) => {
             });
         }
 
-        const chosenSalary = salaryRange || salary_range || null;
+        const chosenSalary = minSalary ?? min_salary ?? salaryRange ?? salary_range ?? null;
 
         const result = await pool.query(
             `INSERT INTO work_profiles
@@ -125,7 +127,9 @@ router.put("/", authenticateToken, async (req, res) => {
             preferredLocation,
             workMode,
             salaryRange,
-            salary_range
+            salary_range,
+            minSalary,
+            min_salary
         } = req.body;
 
     
@@ -198,9 +202,13 @@ router.put("/", authenticateToken, async (req, res) => {
         );
 
         const chosenSalary =
-            salaryRange !== undefined
-                ? (salaryRange || null)
-                : (salary_range !== undefined ? (salary_range || null) : null);
+            minSalary !== undefined
+                ? (minSalary || null)
+                : (min_salary !== undefined
+                    ? (min_salary || null)
+                    : (salaryRange !== undefined
+                        ? (salaryRange || null)
+                        : (salary_range !== undefined ? (salary_range || null) : null)));
 
         const result = await client.query(
             `UPDATE work_profiles
