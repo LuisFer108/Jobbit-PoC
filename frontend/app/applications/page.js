@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import LogoutButton from "../components/LogoutButton";
+import NotificationCenter from "../components/NotificationCenter";
 import styles from "./page.module.css";
 
 export default function ApplicationsPage() {
@@ -115,13 +116,16 @@ export default function ApplicationsPage() {
                     <div className={styles.brand}>
                         <Image src="/Logo-jobbit.svg" alt="Jobbit" width={130} height={40} priority unoptimized />
                     </div>
-                    <div className={styles.topbarTitle}>
-                        <span className={styles.userIcon} aria-hidden="true">
-                            <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor">
-                                <path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-4 0-8 2-8 6v2h16v-2c0-4-4-6-8-6Z"/>
-                            </svg>
-                        </span>
-                        Postulaciones
+                    <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                        <NotificationCenter />
+                        <div className={styles.topbarTitle}>
+                            <span className={styles.userIcon} aria-hidden="true">
+                                <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor">
+                                    <path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm0 2c-4 0-8 2-8 6v2h16v-2c0-4-4-6-8-6Z"/>
+                                </svg>
+                            </span>
+                            Postulaciones
+                        </div>
                     </div>
                 </header>
 

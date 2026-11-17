@@ -9,6 +9,7 @@ const profileRoutes = require("./routes/profile");
 const adminRoutes = require("./routes/admin");
 const jobsRoutes = require("./routes/jobs");
 const applicationsRoutes = require("./routes/applications");
+const notificationsRoutes = require("./routes/notifications");
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use("/api/jobs", jobsRoutes);
 app.use("/api/recommendations", recommendationRoutes);
 app.use("/api/skills", skillRoutes);
 app.use("/api/applications", applicationsRoutes);
+app.use("/api/notifications", notificationsRoutes);
 
 app.get("/", (req, res) => {
     res.send("Backend funcionando");

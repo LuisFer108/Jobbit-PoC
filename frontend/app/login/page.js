@@ -107,11 +107,9 @@ export default function LoginPage() {
                         />
 
                         <div className={styles.actions}>
-                            {/* Enlace visual inactivo: la pantalla /recuperar aún no existe.
-                                Se deja como texto no navegable para no mostrar un 404 en la demo. */}
-                            <span className={styles.linkDisabled} aria-disabled="true">
+                            <Link href="/forgot-password" className={styles.forgotLink}>
                                 ¿Olvidaste tu contraseña?
-                            </span>
+                            </Link>
                             <button className={styles.primaryButton} type="submit" disabled={loading}>
                                 {loading ? "Ingresando..." : "Ingresar"}
                             </button>

@@ -153,13 +153,18 @@
     text-decoration: underline;
 }
 
-/* Enlace visual inactivo (la pantalla /recuperar aún no existe) */
-.linkDisabled {
-    color: #9ca3af;
+/* Enlace de recuperación de contraseña */
+.forgotLink {
+    color: #4b5563;
     font-weight: 600;
     font-size: 0.9rem;
-    cursor: default;
-    user-select: none;
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.forgotLink:hover {
+    color: #eb5e34;
+    text-decoration: underline;
 }
 
 .registerLine {
