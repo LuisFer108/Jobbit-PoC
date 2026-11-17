@@ -3,7 +3,7 @@ const express = require("express");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const rateLimit = require("express-rate-limit");
-const { sendVerificationEmail } = require("../utils/mailer")
+const { sendVerificationEmail, sendPasswordResetEmail } = require("../utils/mailer");
 const pool = require("../db");
 const authenticateToken = require("../middleware/authMiddleware");
 
@@ -251,6 +251,166 @@ router.get("/me", authenticateToken, async (req, res) => {
         return res.status(500).json({
             message: "Error al consultar la sesión"
         });
+    }
+});
+
+// ===== RECUPERACIÓN DE CONTRASEÑA =====
+
+const forgotPasswordLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 5,
+    message: { message: "Demasiadas solicitudes de recuperación. Intenta de nuevo en 15 minutos" }
+});
+
+// SOLICITAR RECUPERACIÓN DE CONTRASEÑA
+router.post("/forgot-password", forgotPasswordLimiter, async (req, res) => {
+    try {
+        const email = String(req.body.email || "").trim().toLowerCase();
+
+        if (!email) {
+            return res.status(400).json({ message: "Ingresa tu correo electrónico" });
+        }
+        if (!EMAIL_REGEX.test(email)) {
+            return res.status(400).json({ message: "Ingresa un correo electrónico válido" });
+        }
+
+        const userResult = await pool.query(
+            "SELECT id, name, email FROM users WHERE LOWER(email) = $1",
+            [email]
+        );
+
+        // Por seguridad, si el correo no existe respondemos con éxito genérico para no filtrar cuentas
+        if (userResult.rows.length === 0) {
+            return res.json({
+                message: "Si tu correo está registrado, recibirás un enlace para restablecer tu contraseña en unos minutos."
+            });
+        }
+
+        const user = userResult.rows[0];
+
+        // Token seguro aleatorio
+        const resetToken = crypto.randomBytes(32).toString("hex");
+
+        // Invalidar tokens anteriores activos del usuario
+        await pool.query(
+            "UPDATE password_resets SET used = TRUE WHERE user_id = $1 AND used = FALSE",
+            [user.id]
+        );
+
+        // Guardar el nuevo token con vencimiento de 1 hora
+        await pool.query(
+            `INSERT INTO password_resets (user_id, token, expires_at, used)
+             VALUES ($1, $2, NOW() + INTERVAL '1 hour', FALSE)`,
+            [user.id, resetToken]
+        );
+
+        const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+        const resetLink = `${frontendUrl}/reset-password?token=${resetToken}`;
+
+        try {
+            await sendPasswordResetEmail(user.email, user.name, resetLink);
+        } catch (mailError) {
+            console.error("Error al enviar el correo de recuperación:", mailError);
+        }
+
+        return res.json({
+            message: "Si tu correo está registrado, recibirás un enlace para restablecer tu contraseña en unos minutos.",
+            resetLink: process.env.NODE_ENV !== "production" ? resetLink : undefined
+        });
+
+    } catch (error) {
+        console.error("Error en forgot-password:", error);
+        return res.status(500).json({ message: "Error al procesar la solicitud de recuperación" });
+    }
+});
+
+// VERIFICAR VALIDEZ DE TOKEN DE RECUPERACIÓN
+router.get("/verify-reset-token", async (req, res) => {
+    try {
+        const token = String(req.query.token || "").trim();
+
+        if (!token) {
+            return res.status(400).json({ valid: false, message: "El enlace no es válido" });
+        }
+
+        const result = await pool.query(
+            `SELECT id, user_id, expires_at, used
+             FROM password_resets
+             WHERE token = $1 AND used = FALSE AND expires_at > NOW()`,
+            [token]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(400).json({
+                valid: false,
+                message: "El enlace de recuperación no es válido o ha expirado. Por favor solicita uno nuevo."
+            });
+        }
+
+        return res.json({ valid: true });
+
+    } catch (error) {
+        console.error("Error en verify-reset-token:", error);
+        return res.status(500).json({ valid: false, message: "Error al validar el enlace" });
+    }
+});
+
+// RESTABLECER CONTRASEÑA
+router.post("/reset-password", async (req, res) => {
+    try {
+        const token = String(req.body.token || "").trim();
+        const password = String(req.body.password || "");
+
+        if (!token) {
+            return res.status(400).json({ message: "El token de recuperación es requerido" });
+        }
+
+        if (password.length < 8) {
+            return res.status(400).json({
+                message: "La contraseña debe tener al menos 8 caracteres"
+            });
+        }
+        if (password.length > 72) {
+            return res.status(400).json({
+                message: "La contraseña no puede superar los 72 caracteres"
+            });
+        }
+
+        const resetResult = await pool.query(
+            `SELECT id, user_id, expires_at, used
+             FROM password_resets
+             WHERE token = $1 AND used = FALSE AND expires_at > NOW()`,
+            [token]
+        );
+
+        if (resetResult.rows.length === 0) {
+            return res.status(400).json({
+                message: "El enlace de recuperación no es válido o ha expirado. Solicita uno nuevo."
+            });
+        }
+
+        const reset = resetResult.rows[0];
+        const passwordHash = await bcrypt.hash(password, 10);
+
+        // Actualizar contraseña del usuario
+        await pool.query(
+            "UPDATE users SET password_hash = $1 WHERE id = $2",
+            [passwordHash, reset.user_id]
+        );
+
+        // Marcar el token como utilizado
+        await pool.query(
+            "UPDATE password_resets SET used = TRUE WHERE id = $1",
+            [reset.id]
+        );
+
+        return res.json({
+            message: "¡Contraseña actualizada exitosamente! Ya puedes iniciar sesión con tu nueva contraseña."
+        });
+
+    } catch (error) {
+        console.error("Error en reset-password:", error);
+        return res.status(500).json({ message: "Error al restablecer la contraseña" });
     }
 });
 
