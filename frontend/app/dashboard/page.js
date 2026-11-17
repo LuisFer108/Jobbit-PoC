@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import LogoutButton from "../components/LogoutButton";
+import NotificationCenter from "../components/NotificationCenter";
 import styles from "./page.module.css";
 
 export default function DashboardPage() {
@@ -71,7 +72,10 @@ export default function DashboardPage() {
 
             {/* Cabecera */}
             <header className={styles.header}>
-                <p className={styles.eyebrow}>Jobbit · Mi cuenta</p>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <p className={styles.eyebrow}>Jobbit · Mi cuenta</p>
+                    <NotificationCenter />
+                </div>
 
                 <h1 className={styles.title}>
                     ¡Bienvenido/a, <span>{profile.name}</span>!
