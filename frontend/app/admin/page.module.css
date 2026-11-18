@@ -467,3 +467,84 @@
         padding-right: 20px;
     }
 }
+
+/* ===== Tabla de gestión de postulaciones (SCRUM-7 integrado) ===== */
+.tableWrapper {
+    overflow-x: auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+}
+
+.appsTable {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 0.9rem;
+}
+
+.appsTable thead tr {
+    background: #faf3e5;
+    color: #16182e;
+}
+
+.appsTable th {
+    padding: 12px 14px;
+    font-weight: 700;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    border-bottom: 2px solid #eee5d5;
+}
+
+.appsTable td {
+    padding: 14px;
+    border-bottom: 1px solid #f3f4f6;
+    color: #16182e;
+    vertical-align: middle;
+}
+
+.appsTable tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.candidateName {
+    display: block;
+    font-weight: 600;
+    color: #16182e;
+}
+
+.candidateEmail {
+    display: block;
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
+.statusBadge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    background: #f3f4f6;
+    color: #4b5563;
+}
+
+.status_postulado {
+    background: #fff1dc;
+    color: #8a460e;
+}
+
+.status_en_revision {
+    background: #fef9c3;
+    color: #854d0e;
+}
+
+.status_aceptada {
+    background: #ecfdf5;
+    color: #065f46;
+}
+
+.status_rechazada {
+    background: #fef2f2;
+    color: #dc2626;
+}

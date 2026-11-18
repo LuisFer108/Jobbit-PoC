@@ -33,6 +33,11 @@ export default function AdminPage() {
     const [creatingJob, setCreatingJob] = useState(false);
     const [jobFeedback, setJobFeedback] = useState(null);
 
+    // Gestión de postulaciones dentro del panel (SCRUM-7: integrado en la pestaña "postulaciones")
+    const [applications, setApplications] = useState([]);
+    const [loadingApps, setLoadingApps] = useState(true);
+    const [appsError, setAppsError] = useState("");
+
     const loadAdminPanel = useCallback(async () => {
         const token = localStorage.getItem("token");
 
@@ -84,6 +89,25 @@ export default function AdminPage() {
                 const skillsData = await skillsRes.json();
                 setSkillsCatalog(skillsData.skills || []);
             }
+
+            // Cargar todas las postulaciones del sistema (SCRUM-7: gestión de estados desde admin)
+            setLoadingApps(true);
+            setAppsError("");
+            try {
+                const appsRes = await fetch("http://localhost:5001/api/applications/all", {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (appsRes.ok) {
+                    const appsData = await appsRes.json();
+                    setApplications(Array.isArray(appsData) ? appsData : []);
+                } else {
+                    setAppsError("No fue posible cargar las postulaciones.");
+                }
+            } catch {
+                setAppsError("No fue posible cargar las postulaciones.");
+            } finally {
+                setLoadingApps(false);
+            }
         } catch {
             setAccessState("error");
             setAccessMessage("No fue posible conectar con el servidor. Verifica que el backend esté en ejecución.");
@@ -98,6 +122,60 @@ export default function AdminPage() {
         setSelectedSkills((prev) =>
             prev.includes(skillId) ? prev.filter((id) => id !== skillId) : [...prev, skillId]
         );
+    }
+
+    // Etiqueta amigable para cada estado de postulación
+    function estadoTexto(status) {
+        switch (status) {
+            case "postulado": return "Postulado";
+            case "en_revision": return "En revisión";
+            case "aceptada": return "Aceptada";
+            case "rechazada": return "Rechazada";
+            default: return status || "—";
+        }
+    }
+
+    async function handleStatusChange(applicationId, newStatus) {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            router.replace("/login");
+            return;
+        }
+
+        // Guardar el estado previo para poder revertir si falla
+        const previous = applications.find((a) => a.id === applicationId)?.status;
+
+        // Actualización optimista
+        setApplications((prev) =>
+            prev.map((app) => (app.id === applicationId ? { ...app, status: newStatus } : app))
+        );
+
+        try {
+            const res = await fetch(`http://localhost:5001/api/applications/${applicationId}/status`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    status: newStatus,
+                    note: `Actualizado por administración a: ${newStatus}`
+                })
+            });
+
+            if (!res.ok) {
+                // Revertir si el servidor rechaza el cambio
+                setApplications((prev) =>
+                    prev.map((app) => (app.id === applicationId ? { ...app, status: previous } : app))
+                );
+                setAppsError("No se pudo actualizar el estado de la postulación. Intenta de nuevo.");
+            }
+        } catch {
+            setApplications((prev) =>
+                prev.map((app) => (app.id === applicationId ? { ...app, status: previous } : app))
+            );
+            setAppsError("Error de conexión al actualizar el estado.");
+        }
     }
 
     async function handleCreateJob(e) {
@@ -577,7 +655,7 @@ export default function AdminPage() {
                         </section>
                     )}
 
-                    {/* PESTAÑA 3: GESTIÓN DE POSTULACIONES */}
+                    {/* PESTAÑA 3: GESTIÓN DE POSTULACIONES (SCRUM-7 integrado en el panel de SCRUM-21) */}
                     {activeTab === "postulaciones" && (
                         <section className={styles.section}>
                             <div className={styles.sectionHeaderRow}>
@@ -591,16 +669,66 @@ export default function AdminPage() {
                                 </button>
                             </div>
                             <p className={styles.sectionIntro}>
-                                Actualmente se han registrado{" "}
-                                <strong>{summary?.total_applications ?? 0} postulación(es)</strong> en la plataforma.
-                                Desde esta sección podrás filtrar, ordenar y actualizar el estado de las postulaciones
-                                de los candidatos (En revisión, Entrevista / Aceptado, Rechazado).
+                                Se han registrado{" "}
+                                <strong>{summary?.total_applications ?? applications.length} postulación(es)</strong> en la plataforma.
+                                Actualiza el estado de cada proceso para llevar a los candidatos rumbo a la entrevista.
                             </p>
-                            <div className={styles.placeholderBox}>
-                                <p>
-                                    Módulo de gestión de postulaciones habilitado en el panel administrativo.
-                                </p>
-                            </div>
+
+                            {appsError && (
+                                <div role="alert" className={styles.alertError}>
+                                    {appsError}
+                                </div>
+                            )}
+
+                            {loadingApps ? (
+                                <p className={styles.statusMessage}>Cargando postulaciones...</p>
+                            ) : applications.length === 0 ? (
+                                <div className={styles.placeholderBox}>
+                                    <p>Aún no hay postulaciones registradas en la plataforma.</p>
+                                </div>
+                            ) : (
+                                <div className={styles.tableWrapper}>
+                                    <table className={styles.appsTable}>
+                                        <thead>
+                                            <tr>
+                                                <th>Candidato</th>
+                                                <th>Vacante</th>
+                                                <th>Estado</th>
+                                                <th>Cambiar estado</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {applications.map((app) => (
+                                                <tr key={app.id}>
+                                                    <td>
+                                                        <span className={styles.candidateName}>{app.candidate_name}</span>
+                                                        <span className={styles.candidateEmail}>{app.candidate_email}</span>
+                                                    </td>
+                                                    <td>{app.job_title}</td>
+                                                    <td>
+                                                        <span className={`${styles.statusBadge} ${styles[`status_${app.status}`] || ""}`}>
+                                                            {estadoTexto(app.status)}
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <select
+                                                            value={app.status}
+                                                            onChange={(e) => handleStatusChange(app.id, e.target.value)}
+                                                            className={styles.select}
+                                                            aria-label={`Cambiar estado de la postulación de ${app.candidate_name}`}
+                                                        >
+                                                            <option value="postulado">Postulado</option>
+                                                            <option value="en_revision">En revisión</option>
+                                                            <option value="aceptada">Aceptada</option>
+                                                            <option value="rechazada">Rechazada</option>
+                                                        </select>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
                         </section>
                     )}
                 </div>
