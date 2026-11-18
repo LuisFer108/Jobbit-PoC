@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import LogoutButton from "../components/LogoutButton";
 
+
 export default function AdminPage() {
     const router = useRouter();
     const [summary, setSummary] = useState(null);
@@ -22,6 +23,10 @@ export default function AdminPage() {
     const [selectedSkills, setSelectedSkills] = useState([]);
     const [creatingJob, setCreatingJob] = useState(false);
     const [jobFeedback, setJobFeedback] = useState(null);
+    
+    // Estado para listar las postulaciones en el panel de admin
+    const [applications, setApplications] = useState([]);
+    const [loadingApps, setLoadingApps] = useState(true);
 
     useEffect(() => {
         let cancelled = false;
@@ -35,11 +40,14 @@ export default function AdminPage() {
             }
 
             try {
-                const [adminRes, skillsRes] = await Promise.all([
+                const [adminRes, skillsRes, appsRes] = await Promise.all([
                     fetch("http://localhost:5001/api/admin/summary", {
                         headers: { Authorization: `Bearer ${token}` }
                     }),
-                    fetch("http://localhost:5001/api/skills")
+                    fetch("http://localhost:5001/api/skills"),
+                    fetch("http://localhost:5001/api/applications/all", {
+                        headers: { Authorization: `Bearer ${token}` }
+                    })
                 ]);
 
                 if (cancelled) return;
@@ -69,8 +77,15 @@ export default function AdminPage() {
                     const skillsData = await skillsRes.json();
                     setSkillsCatalog(skillsData.skills || []);
                 }
+
+                if (appsRes.ok) {
+                    const appsData = await appsRes.json();
+                    setApplications(appsData || []);
+                }
             } catch {
                 if (!cancelled) setMessage("No fue posible conectar con el servidor.");
+            } finally {
+                setLoadingApps(false);
             }
         }
 
@@ -82,6 +97,32 @@ export default function AdminPage() {
         setSelectedSkills((prev) =>
             prev.includes(skillId) ? prev.filter((id) => id !== skillId) : [...prev, skillId]
         );
+    }
+
+    async function handleStatusChange(applicationId, newStatus) {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        try {
+            const res = await fetch(`http://localhost:5001/api/applications/${applicationId}/status`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({ status: newStatus, note: `Actualizado por administración a: ${newStatus}` })
+            });
+
+            if (res.ok) {
+                setApplications((prev) =>
+                    prev.map((app) => app.id === applicationId ? { ...app, status: newStatus } : app)
+                );
+            } else {
+                alert("No se pudo actualizar el estado.");
+            }
+        } catch (error) {
+            console.error("Error de conexión:", error);
+        }
     }
 
     async function handleCreateJob(e) {
@@ -339,6 +380,50 @@ export default function AdminPage() {
                         {creatingJob ? "Publicando y notificando candidatos..." : "Publicar vacante y notificar candidatos (>90%)"}
                     </button>
                 </form>
+            </section>
+
+            {/* Gestión de Postulaciones */}
+            <section style={{ background: "#ffffff", padding: "24px", borderRadius: "16px", border: "1px solid #e5e7eb", boxShadow: "0 6px 20px rgba(0,0,0,0.06)", marginTop: "24px" }}>
+                <h2 style={{ marginTop: 0, color: "#16182e", fontSize: "1.3rem" }}>Gestión de Postulaciones</h2>
+                {loadingApps ? (
+                    <p style={{ color: "#6b7280" }}>Cargando postulaciones...</p>
+                ) : applications.length === 0 ? (
+                    <p style={{ color: "#6b7280" }}>No hay postulaciones registradas.</p>
+                ) : (
+                    <div style={{ overflowX: "auto" }}>
+                        <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: "0.9rem" }}>
+                            <thead>
+                                <tr style={{ borderBottom: "2px solid #e5e7eb", color: "#374151" }}>
+                                    <th style={{ padding: "10px" }}>Candidato</th>
+                                    <th style={{ padding: "10px" }}>Vacante</th>
+                                    <th style={{ padding: "10px" }}>Estado</th>
+                                    <th style={{ padding: "10px" }}>Cambiar Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {applications.map((app) => (
+                                    <tr key={app.id} style={{ borderBottom: "1px solid #f3f4f6" }}>
+                                        <td style={{ padding: "12px 10px", fontWeight: "600" }}>{app.candidate_name}<br/><span style={{ fontSize: "0.8rem", color: "#6b7280" }}>{app.candidate_email}</span></td>
+                                        <td style={{ padding: "12px 10px" }}>{app.job_title}</td>
+                                        <td style={{ padding: "12px 10px" }}><span style={{ padding: "4px 10px", borderRadius: "12px", fontSize: "0.78rem", fontWeight: "700", backgroundColor: '#fffbeb', color: '#b45309' }}>{app.status}</span></td>
+                                        <td style={{ padding: "12px 10px" }}>
+                                            <select
+                                                value={app.status}
+                                                onChange={(e) => handleStatusChange(app.id, e.target.value)}
+                                                style={{ padding: "6px 10px", borderRadius: "6px", border: "1px solid #d1d5db" }}
+                                            >
+                                                <option value="postulado">Postulado</option>
+                                                <option value="en_revision">En revisión</option>
+                                                <option value="aceptada">Aceptada</option>
+                                                <option value="rechazada">Rechazada</option>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
             </section>
 
             <div style={{ marginTop: "24px" }}>
