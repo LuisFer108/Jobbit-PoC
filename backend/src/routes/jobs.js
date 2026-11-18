@@ -1,7 +1,7 @@
 const express = require("express");
 const pool = require("../db");
 const authenticateToken = require("../middleware/authMiddleware");
-const { jobQueue } = require("./queue/jobQueue");
+const { jobQueue } = require("../../queue/jobQueue");
 
 const router = express.Router();
 
