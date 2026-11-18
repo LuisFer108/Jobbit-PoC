@@ -1,12 +1,10 @@
 const { Queue } = require("bullmq");
 
-// Conexión básica a Redis (por defecto corre en el puerto 6379 de tu PC)
+// Pegas la URL completa que te da Redis Cloud (reemplaza los asteriscos con tu contraseña real si la copiaste)
 const connection = {
-    host: "localhost",
-    port: 6379
+    url: "redis://default:zSR6AlCW94xTLCpTZo1vP6efSbqUsum7@egg-afternoon-spa-31967.db.redis.io:12398"
 };
 
-// Creamos nuestra cola para procesar notificaciones o tareas pesadas
 const jobQueue = new Queue("jobbit-tasks", { connection });
 
 module.exports = { jobQueue, connection };

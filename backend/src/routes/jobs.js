@@ -1,13 +1,47 @@
 const express = require("express");
 const pool = require("../db");
 const authenticateToken = require("../middleware/authMiddleware");
-const { jobQueue } = require("../../queue/jobQueue"); // Importamos la cola creada
+const { jobQueue } = require("./queue/jobQueue");
 
 const router = express.Router();
 
+// LISTAR TODAS LAS VACANTES PARA ADMINISTRADOR (SCRUM-134)
+router.get("/admin", authenticateToken, async (req, res) => {
+    try {
+        const query = `
+            SELECT 
+                j.id,
+                j.title,
+                j.company,
+                j.description,
+                j.min_experience_years,
+                j.location,
+                j.work_mode,
+                j.salary_range,
+                j.status,
+                j.created_at,
+                (SELECT COUNT(*) FROM applications a WHERE a.offer_id = j.id) AS applications_count,
+                COALESCE(
+                    (SELECT json_agg(json_build_object('skill_id', s.id, 'name', s.name))
+                     FROM offer_skills os
+                     JOIN skills s ON s.id = os.skill_id
+                     WHERE os.offer_id = j.id), 
+                    '[]'
+                ) AS skills
+            FROM job_offers j
+            ORDER BY j.created_at DESC
+        `;
+        const result = await pool.query(query);
+        res.json(result.rows);
+    } catch (error) {
+        console.error("Error al listar vacantes para admin:", error);
+        res.status(500).json({
+            message: "No fue posible cargar el listado de vacantes."
+        });
+    }
+});
+
 // LISTAR VACANTES ACTIVAS (SCRUM-63 / SCRUM-64)
-// Requiere sesión iniciada: solo usuarios autenticados ven las vacantes.
-// Corresponde a GestorOfertas.listarOfertas() del diagrama de clases.
 router.get("/", authenticateToken, async (req, res) => {
     try {
         const userId = req.user.userId;
@@ -42,7 +76,7 @@ router.get("/", authenticateToken, async (req, res) => {
     }
 });
 
-// CREAR VACANTE NUEVA Y ENVIAR TAREA A LA COLA PARA NOTIFICAR A CANDIDATOS (>90%)
+// CREAR VACANTE NUEVA Y ENVIAR TAREA A LA COLA
 router.post("/", authenticateToken, async (req, res) => {
     let client;
     try {
@@ -80,10 +114,11 @@ router.post("/", authenticateToken, async (req, res) => {
                 salary_range || "2M - 5M"
             ]
         );
-
+        
+        // 1. Definimos newOffer correctamente antes de usarlo
         const newOffer = offerRes.rows[0];
 
-        // Asociar habilidades requeridas si vienen en el payload
+        // 2. Guardamos las habilidades asociadas a la oferta si existen
         if (Array.isArray(skills) && skills.length > 0) {
             for (const s of skills) {
                 const skillId = typeof s === "object" ? (s.skill_id || s.id) : parseInt(s, 10);
@@ -104,14 +139,14 @@ router.post("/", authenticateToken, async (req, res) => {
         client.release();
         client = null;
 
-        // Mandamos la tarea de evaluación y notificación a la cola de BullMQ en segundo plano
+        // 3. Enviamos la tarea a la cola de BullMQ en segundo plano de forma segura
         await jobQueue.add("evaluar-compatibilidad", {
             jobId: newOffer.id,
             offerTitle: newOffer.title
         });
 
         return res.status(201).json({
-            message: "Vacante creada exitosamente. La evaluación de candidatos se está procesando en segundo plano.",
+            message: "¡Vacante publicada con éxito! La compatibilidad se está evaluando en segundo plano.",
             job: newOffer
         });
 

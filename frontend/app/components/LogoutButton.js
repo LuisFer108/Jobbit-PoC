@@ -3,14 +3,14 @@
 import { useRouter } from "next/navigation";
 
 /**
- * Botón de cierre de sesión reutilizable.
+ * Botón de cierre de sesión reutilizable para el portal de candidatos
+ * y el panel administrativo (SCRUM-15 / SCRUM-23).
  *
- * Decisión de diseño (SCRUM-15): el logout es SOLO en cliente.
  * La autenticación de Jobbit usa JWT sin estado en el servidor, por lo que
- * eliminar el token del navegador cierra la sesión de forma efectiva. No se
- * usa un endpoint de backend ni revocación de tokens: innecesario para la PoC.
+ * eliminar el token del navegador e invalidar el estado en memoria de las
+ * instancias abiertas cierra la sesión de forma completa y segura.
  */
-export default function LogoutButton({ className }) {
+export default function LogoutButton({ className, onLogout, label = "Cerrar sesión" }) {
     const router = useRouter();
 
     function handleLogout() {
@@ -19,19 +19,28 @@ export default function LogoutButton({ className }) {
         );
         if (!confirmar) return;
 
-        // Limpieza completa de la sesión: en Jobbit la "sesión" es únicamente
-        // el token en localStorage. Sin token, ninguna petición protegida pasa
-        // el middleware del backend.
+        // 1. Eliminar el token de sesión (SCRUM-137)
         localStorage.removeItem("token");
 
-        // Se usa replace (no push) para que el botón "atrás" del navegador no
-        // regrese a una página privada después de cerrar sesión (SCRUM-71).
+        // 2. Notificar a la instancia actual y limpiar estados sensibles si se provee callback (SCRUM-139)
+        if (typeof onLogout === "function") {
+            onLogout();
+        }
+        window.dispatchEvent(new Event("jobbit:logout"));
+
+        // 3. Redireccionar al login reemplazando el historial (SCRUM-138 / SCRUM-139)
         router.replace("/login");
     }
 
     return (
-        <button type="button" className={className} onClick={handleLogout}>
-            Cerrar sesión
+        <button
+            type="button"
+            className={className}
+            onClick={handleLogout}
+            aria-label="Cerrar sesión de forma segura"
+        >
+            <span aria-hidden="true">⎋ </span>
+            {label}
         </button>
     );
 }

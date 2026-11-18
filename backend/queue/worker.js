@@ -1,5 +1,5 @@
 const { Worker } = require("bullmq");
-const { connection } = require("./jobQueue");
+const { connection } = require("./jobQueue"); // Importamos la conexión desde jobQueue
 const { notifyCandidatesForNewOffer } = require("../src/utils/notificationService");
 
 const worker = new Worker(
@@ -7,9 +7,8 @@ const worker = new Worker(
     async (job) => {
         if (job.name === "evaluar-compatibilidad") {
             const { jobId, offerTitle } = job.data;
-            console.log(`[Worker] Evaluando candidatos en segundo plano para la vacante: ${offerTitle} (ID: ${jobId})`);
+            console.log(`[Worker] Evaluando candidatos para la vacante: ${offerTitle} (ID: ${jobId})`);
             
-            // Ejecutamos la función real de compatibilidad y notificación
             await notifyCandidatesForNewOffer(jobId);
             
             console.log(`[Worker] ¡Proceso de la vacante ${jobId} finalizado con éxito!`);
