@@ -51,8 +51,8 @@ export default function ProfilePage() {
         if (selectedSkills.includes(id)) {
             setSelectedSkills(selectedSkills.filter((x) => x !== id));
         } else {
-            if (selectedSkills.length >= 5) {
-                setMessage("Solo puedes seleccionar un máximo de 5 habilidades");
+            if (selectedSkills.length >= 15) {
+                setMessage("Solo puedes seleccionar un máximo de 15 habilidades");
                 return;
             }
             setMessage("");
@@ -256,8 +256,8 @@ export default function ProfilePage() {
                                 catalog={catalog}
                                 selectedSkills={selectedSkills}
                                 onToggleSkill={toggleSkill}
-                                maxSkills={5}
-                                title="Tus habilidades profesionales (máximo 5)"
+                                maxSkills={15}
+                                title="Tus habilidades profesionales (máximo 15)"
                                 subtitle="Explora por categoría o busca habilidades de tu área laboral para mejorar tus recomendaciones"
                             />
                         </div>
