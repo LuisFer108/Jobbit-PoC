@@ -24,18 +24,63 @@ function normalizeMode(mode) {
     return "";
 }
 
-// Normaliza el rango salarial a un nivel ordinal:
-// 1 = Menos de 2 millones (< 2M)
-// 2 = De 2 a 5 millones (2M - 5M)
-// 3 = Más de 5 millones (> 5M)
-function normalizeSalary(val) {
-    if (!val) return 0;
+// Normaliza cualquier representación de salario a un valor numérico (en COP):
+// Permite números directos, valores con separadores ($2.500.000), notaciones abreviadas (3M)
+// o rangos heredados ("2M - 5M", "Menos de 2M", "Más de 5M").
+function parseSalary(val, isOffer = false) {
+    if (val === null || val === undefined || val === "") return 0;
+    if (typeof val === "number") return isNaN(val) ? 0 : val;
+
     const s = normalize(val);
-    if (s.includes("menos") || s.includes("<") || s.includes("1m") || s === "1") return 1;
-    if (s.includes("mas") || s.includes(">") || (s.includes("5m") && !s.includes("2")) || s === "3") return 3;
-    if (s.includes("2") || s.includes("5") || s === "2") return 2;
+    if (!s) return 0;
+
+    // Rango tipo "2M - 5M", "2 a 5 millones", etc.
+    const rangeMatch = s.match(/(\d+(?:[.,]\d+)?)\s*m?\s*(?:-|a|a\s+los?)\s*(\d+(?:[.,]\d+)?)\s*m?/);
+    if (rangeMatch) {
+        let low = parseFloat(rangeMatch[1].replace(",", "."));
+        let high = parseFloat(rangeMatch[2].replace(",", "."));
+        if (low < 1000) low *= 1000000;
+        if (high < 1000) high *= 1000000;
+        return isOffer ? high : low;
+    }
+
+    // "Menos de 2M" / "< 2M"
+    if (s.includes("menos") || s.includes("<")) {
+        const numMatch = s.match(/(\d+(?:[.,]\d+)?)/);
+        let num = numMatch ? parseFloat(numMatch[1].replace(",", ".")) : 2;
+        if (num < 1000) num *= 1000000;
+        return isOffer ? num : Math.round(num * 0.75);
+    }
+
+    // "Más de 5M" / "> 5M"
+    if (s.includes("mas") || s.includes(">")) {
+        const numMatch = s.match(/(\d+(?:[.,]\d+)?)/);
+        let num = numMatch ? parseFloat(numMatch[1].replace(",", ".")) : 5;
+        if (num < 1000) num *= 1000000;
+        return num;
+    }
+
+    // Notación con 'M' o millones (ej: "3M", "3.5 millones")
+    const millionMatch = s.match(/(\d+(?:[.,]\d+)?)\s*(?:m|millon|millones)/);
+    if (millionMatch) {
+        return Math.round(parseFloat(millionMatch[1].replace(",", ".")) * 1000000);
+    }
+
+    // Número plano o con separadores (ej: "2500000", "$2.500.000")
+    const cleanDigits = s.replace(/[^0-9]/g, "");
+    if (cleanDigits) {
+        const n = parseInt(cleanDigits, 10);
+        return isNaN(n) ? 0 : n;
+    }
+
     return 0;
 }
+
+// Alias para compatibilidad con llamadas anteriores
+function normalizeSalary(val, isOffer = false) {
+    return parseSalary(val, isOffer);
+}
+
 
 // SCRUM-96: habilidades (ponderadas por peso must = 2, nice = 1)
 function skillsScore(offerSkills, profileSkillIds) {
@@ -98,10 +143,13 @@ function salaryScore(profileSalary, offerSalary) {
 
 // SCRUM-101: score total
 function computeCompatibility(profile, offer, offerSkills, profileSkillIds) {
+    const profileSalary = profile.min_salary ?? profile.salary_min ?? profile.salary_range;
+    const offerSalary = offer.salary ?? offer.min_salary ?? offer.salary_min ?? offer.salary_range;
+
     const breakdown = {
         skills: Math.round(skillsScore(offerSkills, profileSkillIds)),
         experience: Math.round(experienceScore(profile.experience_years, offer.min_experience_years)),
-        salary: Math.round(salaryScore(profile.salary_range, offer.salary_range)),
+        salary: Math.round(salaryScore(profileSalary, offerSalary)),
         location: Math.round(locationScore(profile.preferred_location, offer.location, offer.work_mode)),
         mode: Math.round(modeScore(profile.work_mode, offer.work_mode))
     };
@@ -118,6 +166,7 @@ function computeCompatibility(profile, offer, offerSkills, profileSkillIds) {
 
     return { score, breakdown };
 }
+
 
 module.exports = {
     WEIGHTS,
