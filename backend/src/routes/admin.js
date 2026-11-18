@@ -11,7 +11,7 @@ router.get("/summary", authenticateToken, requireRole("admin"), async (req, res)
         const result = await pool.query(
             `SELECT
                 (SELECT COUNT(*)::int FROM users) AS total_users,
-                (SELECT COUNT(*)::int FROM users WHERE role = 'candidate') AS total_candidates,
+                (SELECT COUNT(*)::int FROM users WHERE role = 'user') AS total_candidates,
                 (SELECT COUNT(*)::int FROM work_profiles) AS total_profiles,
                 (SELECT COUNT(*)::int FROM job_offers WHERE status = 'active') AS active_jobs,
                 (SELECT COUNT(*)::int FROM job_offers WHERE status = 'inactive') AS inactive_jobs,
