@@ -31,12 +31,23 @@ async function ensureTables() {
 
             ALTER TABLE applications ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
         `);
-    } catch {
+
+        // Precargar y sincronizar catálogo integral de habilidades multirubro y vacantes
+        const { seedSkills } = require("./utils/seedSkillsCatalog");
+        await seedSkills(pool);
+
+        const { seedJobs } = require("./utils/seedJobs");
+        await seedJobs(pool);
+    } catch (err) {
         // En caso de que no haya conexión inicial aún, fallará silenciosamente hasta que conecte
+        if (err.message && !err.message.includes("Cannot use a pool after calling end")) {
+            console.error("Aviso en ensureTables:", err.message);
+        }
     }
 }
 
 ensureTables();
 
 module.exports = pool;
+
 

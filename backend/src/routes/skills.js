@@ -4,16 +4,43 @@ const authenticateToken = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-// Catálogo
+// Catálogo (soporta ?category=... para filtrar si se desea)
 router.get("/", authenticateToken, async (req, res) => {
     try {
-        const result = await pool.query(
-            "SELECT id, name, category FROM skills ORDER BY category, name"
-        );
+        const { category } = req.query;
+        let query = "SELECT id, name, category FROM skills";
+        const params = [];
+        if (category && category !== "all") {
+            query += " WHERE category = $1";
+            params.push(category);
+        }
+        query += " ORDER BY category, name";
+
+        const result = await pool.query(query, params);
         res.json({ skills: result.rows });
     } catch (error) {
         console.error("Error al cargar habilidades:", error);
         res.status(500).json({ message: "Error al cargar las habilidades" });
+    }
+});
+
+// Listar categorías disponibles con cantidad de habilidades
+router.get("/categories", authenticateToken, async (req, res) => {
+    try {
+        const result = await pool.query(
+            `SELECT category, COUNT(*)::int AS count
+             FROM skills
+             WHERE category IS NOT NULL
+             GROUP BY category
+             ORDER BY category`
+        );
+        res.json({
+            categories: result.rows.map(r => r.category),
+            details: result.rows
+        });
+    } catch (error) {
+        console.error("Error al cargar categorías de habilidades:", error);
+        res.status(500).json({ message: "Error al cargar las categorías" });
     }
 });
 
