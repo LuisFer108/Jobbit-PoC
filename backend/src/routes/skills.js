@@ -72,8 +72,8 @@ router.put("/mine", authenticateToken, async (req, res) => {
         const raw = Array.isArray(req.body?.skillIds) ? req.body.skillIds : [];
         const ids = [...new Set(raw.map(Number))].filter(Number.isInteger);
 
-        if (ids.length > 5) {
-            return res.status(400).json({ message: "Puedes seleccionar máximo 5 habilidades" });
+        if (ids.length > 15) {
+            return res.status(400).json({ message: "Puedes seleccionar máximo 15 habilidades" });
         }
 
         const profile = await client.query(
