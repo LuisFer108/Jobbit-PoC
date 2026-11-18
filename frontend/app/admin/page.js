@@ -101,6 +101,11 @@ export default function AdminPage() {
     const [savingEdit, setSavingEdit] = useState(false);
     const [editFeedback, setEditFeedback] = useState(null);
 
+    // Limpiar el mensaje de feedback al cambiar de pestaña para que no quede flotando
+    useEffect(() => {
+        setJobFeedback(null);
+    }, [activeTab]);
+
     const loadAdminPanel = useCallback(async () => {
         const token = localStorage.getItem("token");
 
@@ -144,7 +149,7 @@ export default function AdminPage() {
             setAccessState("authorized");
             setAccessMessage("");
 
-            // Cargar catálogo de habilidades enviando el token (solo cuando ya es admin)
+            // Cargar catálogo de habilidades enviando el token
             const skillsRes = await fetch("http://localhost:5001/api/skills", {
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -153,7 +158,7 @@ export default function AdminPage() {
                 setSkillsCatalog(skillsData.skills || []);
             }
 
-            // Cargar todas las postulaciones del sistema (SCRUM-7: gestión de estados desde admin)
+            // Cargar todas las postulaciones del sistema
             setLoadingApps(true);
             setAppsError("");
             try {
@@ -181,7 +186,7 @@ export default function AdminPage() {
                 setLoadingApps(false);
             }
 
-            // Cargar listado completo de vacantes para el administrador (SCRUM-134)
+            // Cargar listado completo de vacantes para el administrador
             setLoadingJobs(true);
             setJobsError("");
             try {
@@ -205,8 +210,6 @@ export default function AdminPage() {
         }
     }, [router]);
 
-    // SCRUM-23 (SCRUM-139): limpia inmediatamente todos los datos administrativos en memoria
-    // cuando se cierra sesión o se detecta pérdida de token.
     const clearAdminSessionState = useCallback(() => {
         setAccessState("loading");
         setAccessMessage("Sesión finalizada. Redirigiendo al inicio de sesión...");
@@ -284,7 +287,6 @@ export default function AdminPage() {
     // (otras pestañas abiertas o restauración desde caché al usar el botón "Atrás").
     useEffect(() => {
         function handleStorageOrLogout(event) {
-            // Si otra pestaña eliminó "token" de localStorage, cerrar esta instancia de inmediato
             if (event.type === "storage" && event.key === "token" && !event.newValue) {
                 clearAdminSessionState();
                 router.replace("/login");
@@ -297,7 +299,6 @@ export default function AdminPage() {
         }
 
         function handlePageShow() {
-            // Si el navegador intenta mostrar /admin al presionar "Atrás" después de cerrar sesión
             const currentToken = localStorage.getItem("token");
             if (!currentToken) {
                 clearAdminSessionState();
@@ -361,7 +362,6 @@ export default function AdminPage() {
         e.preventDefault();
         setEditFeedback(null);
 
-        // Validaciones en cliente (SCRUM-132)
         if (!editTitle.trim() || editTitle.trim().length < 3) {
             setEditFeedback({
                 error: true,
@@ -441,7 +441,6 @@ export default function AdminPage() {
                 return;
             }
 
-            // Mostrar mensaje de éxito en la pestaña de vacantes, cerrar modal y recargar datos desde BD
             setJobFeedback({
                 error: false,
                 text: `¡La vacante "${editTitle.trim()}" fue modificada y guardada correctamente en la base de datos!`
@@ -458,7 +457,6 @@ export default function AdminPage() {
         }
     }
 
-    // Etiqueta amigable para cada estado de postulación
     function estadoTexto(status) {
         switch (status) {
             case "postulado": return "Postulado";
@@ -476,10 +474,8 @@ export default function AdminPage() {
             return;
         }
 
-        // Guardar el estado previo para poder revertir si falla
         const previous = applications.find((a) => a.id === applicationId)?.status;
 
-        // Actualización optimista
         setApplications((prev) =>
             prev.map((app) => (app.id === applicationId ? { ...app, status: newStatus } : app))
         );
@@ -511,7 +507,6 @@ export default function AdminPage() {
             }
 
             if (!res.ok) {
-                // Revertir si el servidor rechaza el cambio
                 setApplications((prev) =>
                     prev.map((app) => (app.id === applicationId ? { ...app, status: previous } : app))
                 );
@@ -751,7 +746,6 @@ export default function AdminPage() {
         e.preventDefault();
         setJobFeedback(null);
 
-        // Validaciones de datos en cliente (criterio de aceptación: mensajes de error claros)
         if (!title.trim()) {
             setJobFeedback({
                 error: true,
@@ -822,10 +816,9 @@ export default function AdminPage() {
 
             setJobFeedback({
                 error: false,
-                text: `¡Vacante publicada con éxito! Se evaluó la compatibilidad con los candidatos y se notificó automáticamente a ${data.notifiedCandidatesCount} candidato(s) con más del 90% de afinidad.`
+                text: `¡Vacante publicada con éxito! Se evaluó la compatibilidad con los candidatos y se notificó automáticamente a ${data.notifiedCandidatesCount ?? 0} candidato(s) con más del 90% de afinidad.`
             });
 
-            // Limpiar formulario y refrescar métricas del resumen
             setTitle("");
             setCompany("");
             setDescription("");
@@ -842,7 +835,6 @@ export default function AdminPage() {
         }
     }
 
-    // 1. Vista mientras se verifican permisos
     if (accessState === "loading") {
         return (
             <main className={styles.page}>
@@ -859,7 +851,6 @@ export default function AdminPage() {
         );
     }
 
-    // 2. Vista de bloqueo para cuentas que NO son administrador (SCRUM-123, SCRUM-124)
     if (accessState === "forbidden") {
         return (
             <main className={styles.page}>
@@ -884,7 +875,6 @@ export default function AdminPage() {
         );
     }
 
-    // 3. Vista de error de conexión o servidor
     if (accessState === "error") {
         return (
             <main className={styles.page}>
@@ -913,11 +903,9 @@ export default function AdminPage() {
         );
     }
 
-    // 4. Vista principal autorizada para administradores (SCRUM-122, SCRUM-125, SCRUM-126)
     return (
         <main className={styles.page}>
             <div className={styles.card}>
-                {/* Cabecera del panel */}
                 <header className={styles.header}>
                     <div className={styles.headerTop}>
                         <div className={styles.brandRow}>
@@ -946,7 +934,6 @@ export default function AdminPage() {
                     </p>
                 </header>
 
-                {/* Barra de navegación del panel (SCRUM-125) */}
                 <nav className={styles.tabsNav} aria-label="Navegación del panel administrativo">
                     <button
                         type="button"
@@ -972,7 +959,6 @@ export default function AdminPage() {
                 </nav>
 
                 <div className={styles.body}>
-                    {/* PESTAÑA 1: RESUMEN Y OPCIONES ADMINISTRATIVAS (SCRUM-126) */}
                     {activeTab === "overview" && (
                         <>
                             <section className={styles.section}>
@@ -1056,7 +1042,6 @@ export default function AdminPage() {
                         </>
                     )}
 
-                    {/* PESTAÑA 2: GESTIÓN DE VACANTES */}
                     {activeTab === "vacantes" && (
                         <section className={styles.section}>
                             <div className={styles.sectionHeaderRow}>
@@ -1225,7 +1210,6 @@ export default function AdminPage() {
                                 </button>
                             </form>
 
-                            {/* LISTADO DE VACANTES PARA EL ADMINISTRADOR (SCRUM-134) */}
                             <div className={styles.sectionHeaderRow} style={{ marginTop: "32px" }}>
                                 <h2 className={styles.sectionTitle}>
                                     Vacantes registradas ({adminJobs.length})
@@ -1308,7 +1292,6 @@ export default function AdminPage() {
                         </section>
                     )}
 
-                    {/* PESTAÑA 3: GESTIÓN DE POSTULACIONES (SCRUM-7 integrado en el panel de SCRUM-21) */}
                     {activeTab === "postulaciones" && (
                         <section className={styles.section}>
                             <div className={styles.sectionHeaderRow}>
@@ -1548,7 +1531,6 @@ export default function AdminPage() {
                         </section>
                     )}
 
-                    {/* Pie de cierre de sesión seguro (SCRUM-23 / SCRUM-136) */}
                     <div className={styles.footerLogout}>
                         <LogoutButton
                             className={styles.secondaryButton}
@@ -1558,7 +1540,6 @@ export default function AdminPage() {
                 </div>
             </div>
 
-            {/* MODAL / FORMULARIO DE EDICIÓN DE VACANTE (SCRUM-130) */}
             {editingJobId !== null && (
                 <div className={styles.modalOverlay} role="dialog" aria-modal="true" aria-labelledby="edit-job-title">
                     <div className={styles.modalCard}>
