@@ -16,6 +16,120 @@ router.get("/all", authenticateToken, async (req, res) => {
             return res.status(403).json({ message: "No autorizado. Acceso restringido para administradores." });
         }
 
+        const {
+            status,
+            offerId,
+            workMode,
+            minExperience,
+            search,
+            sortBy = "date_desc"
+        } = req.query;
+
+        const conditions = [];
+        const params = [];
+
+        // 1. Filtro por estado (manejando equivalencia aceptada/aceptado y rechazada/rechazado)
+        if (status && status !== "all") {
+            if (status === "aceptada" || status === "aceptado") {
+                conditions.push(`a.status IN ('aceptada', 'aceptado')`);
+            } else if (status === "rechazada" || status === "rechazado") {
+                conditions.push(`a.status IN ('rechazada', 'rechazado')`);
+            } else {
+                params.push(status);
+                conditions.push(`a.status = $${params.length}`);
+            }
+        }
+
+        // 2. Filtro por vacante
+        if (offerId && offerId !== "all") {
+            const parsedOffer = parseInt(offerId, 10);
+            if (!isNaN(parsedOffer) && parsedOffer > 0) {
+                params.push(parsedOffer);
+                conditions.push(`a.offer_id = $${params.length}`);
+            }
+        }
+
+        // 3. Filtro por modalidad
+        if (workMode && workMode !== "all" && VALID_WORK_MODES.includes(workMode)) {
+            params.push(workMode);
+            conditions.push(`a.work_mode = $${params.length}`);
+        }
+
+        // 4. Filtro por años mínimos de experiencia
+        if (minExperience !== undefined && minExperience !== "" && minExperience !== null) {
+            const parsedMinExp = parseInt(minExperience, 10);
+            if (!isNaN(parsedMinExp) && parsedMinExp >= 0) {
+                params.push(parsedMinExp);
+                conditions.push(`COALESCE(a.experience_years, 0) >= $${params.length}`);
+            }
+        }
+
+        // 5. Filtro de búsqueda por texto (candidato, correo, campo, título de vacante o empresa)
+        if (typeof search === "string" && search.trim() !== "") {
+            params.push(`%${search.trim()}%`);
+            const idx = params.length;
+            conditions.push(
+                `(a.candidate_name ILIKE $${idx}
+                  OR a.candidate_email ILIKE $${idx}
+                  OR COALESCE(a.field, '') ILIKE $${idx}
+                  OR j.title ILIKE $${idx}
+                  OR COALESCE(j.company, '') ILIKE $${idx})`
+            );
+        }
+
+        const whereClause = conditions.length > 0
+            ? `WHERE ${conditions.join(" AND ")}`
+            : "";
+
+        // Ordenamiento por al menos 3 criterios: fecha (SCRUM-174), estado (SCRUM-175), experiencia y candidato
+        let orderByClause = "COALESCE(a.updated_at, a.created_at) DESC, a.id DESC";
+        switch (sortBy) {
+            case "date_asc":
+                orderByClause = "a.created_at ASC, a.id ASC";
+                break;
+            case "date_desc":
+                orderByClause = "COALESCE(a.updated_at, a.created_at) DESC, a.id DESC";
+                break;
+            case "status_asc":
+                orderByClause = `
+                    CASE a.status
+                        WHEN 'postulado' THEN 1
+                        WHEN 'en_revision' THEN 2
+                        WHEN 'aceptada' THEN 3
+                        WHEN 'aceptado' THEN 3
+                        WHEN 'rechazada' THEN 4
+                        WHEN 'rechazado' THEN 4
+                        ELSE 5
+                    END ASC,
+                    COALESCE(a.updated_at, a.created_at) DESC`;
+                break;
+            case "status_desc":
+                orderByClause = `
+                    CASE a.status
+                        WHEN 'aceptada' THEN 1
+                        WHEN 'aceptado' THEN 1
+                        WHEN 'rechazada' THEN 2
+                        WHEN 'rechazado' THEN 2
+                        WHEN 'en_revision' THEN 3
+                        WHEN 'postulado' THEN 4
+                        ELSE 5
+                    END ASC,
+                    COALESCE(a.updated_at, a.created_at) DESC`;
+                break;
+            case "exp_desc":
+                orderByClause = "COALESCE(a.experience_years, 0) DESC, a.created_at DESC";
+                break;
+            case "exp_asc":
+                orderByClause = "COALESCE(a.experience_years, 0) ASC, a.created_at DESC";
+                break;
+            case "candidate_asc":
+                orderByClause = "LOWER(COALESCE(a.candidate_name, '')) ASC, a.id DESC";
+                break;
+            default:
+                orderByClause = "COALESCE(a.updated_at, a.created_at) DESC, a.id DESC";
+                break;
+        }
+
         const result = await pool.query(
             `SELECT
                 a.id,
@@ -39,7 +153,9 @@ router.get("/all", authenticateToken, async (req, res) => {
                 j.location AS job_location
              FROM applications a
              JOIN job_offers j ON j.id = a.offer_id
-             ORDER BY COALESCE(a.updated_at, a.created_at) DESC, a.id DESC`
+             ${whereClause}
+             ORDER BY ${orderByClause}`,
+            params
         );
 
         res.json(result.rows);
