@@ -152,9 +152,57 @@ export default function AdminPage() {
         }
     }, [router]);
 
+    // SCRUM-23 (SCRUM-139): limpia inmediatamente todos los datos administrativos en memoria
+    // cuando se cierra sesión o se detecta pérdida de token.
+    const clearAdminSessionState = useCallback(() => {
+        setAccessState("loading");
+        setAccessMessage("Sesión finalizada. Redirigiendo al inicio de sesión...");
+        setAdminUser(null);
+        setSummary(null);
+        setAdminJobs([]);
+        setApplications([]);
+        setEditingJobId(null);
+    }, []);
+
     useEffect(() => {
         loadAdminPanel();
     }, [loadAdminPanel]);
+
+    // SCRUM-23 (SCRUM-139): Garantizar que la sesión no quede abierta en ninguna instancia
+    // (otras pestañas abiertas o restauración desde caché al usar el botón "Atrás").
+    useEffect(() => {
+        function handleStorageOrLogout(event) {
+            // Si otra pestaña eliminó "token" de localStorage, cerrar esta instancia de inmediato
+            if (event.type === "storage" && event.key === "token" && !event.newValue) {
+                clearAdminSessionState();
+                router.replace("/login");
+                return;
+            }
+            if (event.type === "jobbit:logout") {
+                clearAdminSessionState();
+                router.replace("/login");
+            }
+        }
+
+        function handlePageShow() {
+            // Si el navegador intenta mostrar /admin al presionar "Atrás" después de cerrar sesión
+            const currentToken = localStorage.getItem("token");
+            if (!currentToken) {
+                clearAdminSessionState();
+                router.replace("/login");
+            }
+        }
+
+        window.addEventListener("storage", handleStorageOrLogout);
+        window.addEventListener("jobbit:logout", handleStorageOrLogout);
+        window.addEventListener("pageshow", handlePageShow);
+
+        return () => {
+            window.removeEventListener("storage", handleStorageOrLogout);
+            window.removeEventListener("jobbit:logout", handleStorageOrLogout);
+            window.removeEventListener("pageshow", handlePageShow);
+        };
+    }, [clearAdminSessionState, router]);
 
     function toggleSkill(skillId) {
         setSelectedSkills((prev) =>
@@ -336,6 +384,19 @@ export default function AdminPage() {
                     note: `Actualizado por administración a: ${newStatus}`
                 })
             });
+
+            if (res.status === 401) {
+                localStorage.removeItem("token");
+                clearAdminSessionState();
+                router.replace("/login");
+                return;
+            }
+
+            if (res.status === 403) {
+                setAccessState("forbidden");
+                setAccessMessage("No tienes permisos de administrador para realizar esta acción.");
+                return;
+            }
 
             if (!res.ok) {
                 // Revertir si el servidor rechaza el cambio
@@ -535,7 +596,10 @@ export default function AdminPage() {
                             />
                             <span className={styles.adminBadge}>Administrador</span>
                         </div>
-                        <LogoutButton className={styles.headerLogoutBtn} />
+                        <LogoutButton
+                            className={styles.headerLogoutBtn}
+                            onLogout={clearAdminSessionState}
+                        />
                     </div>
 
                     <p className={styles.eyebrow}>Jobbit · Panel Administrativo</p>
@@ -986,6 +1050,14 @@ export default function AdminPage() {
                             )}
                         </section>
                     )}
+
+                    {/* Pie de cierre de sesión seguro (SCRUM-23 / SCRUM-136) */}
+                    <div className={styles.footerLogout}>
+                        <LogoutButton
+                            className={styles.secondaryButton}
+                            onLogout={clearAdminSessionState}
+                        />
+                    </div>
                 </div>
             </div>
 
