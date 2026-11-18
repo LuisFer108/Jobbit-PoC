@@ -1,7 +1,7 @@
 const express = require("express");
 const pool = require("../db");
 const authenticateToken = require("../middleware/authMiddleware");
-const { notifyCandidatesForNewOffer } = require("../utils/notificationService");
+const { jobQueue } = require("../../queue/jobQueue"); // Importamos la cola creada
 
 const router = express.Router();
 
@@ -42,7 +42,7 @@ router.get("/", authenticateToken, async (req, res) => {
     }
 });
 
-// CREAR VACANTE NUEVA Y NOTIFICAR AUTOMÁTICAMENTE A CANDIDATOS COMPATIBLES (>90%)
+// CREAR VACANTE NUEVA Y ENVIAR TAREA A LA COLA PARA NOTIFICAR A CANDIDATOS (>90%)
 router.post("/", authenticateToken, async (req, res) => {
     let client;
     try {
@@ -104,14 +104,15 @@ router.post("/", authenticateToken, async (req, res) => {
         client.release();
         client = null;
 
-        // Notificar en tiempo real a candidatos compatibles con > 90%
-        const notified = await notifyCandidatesForNewOffer(newOffer.id);
+        // Mandamos la tarea de evaluación y notificación a la cola de BullMQ en segundo plano
+        await jobQueue.add("evaluar-compatibilidad", {
+            jobId: newOffer.id,
+            offerTitle: newOffer.title
+        });
 
         return res.status(201).json({
-            message: "Vacante creada y candidatos notificados exitosamente",
-            job: newOffer,
-            notifiedCandidatesCount: notified.length,
-            notified
+            message: "Vacante creada exitosamente. La evaluación de candidatos se está procesando en segundo plano.",
+            job: newOffer
         });
 
     } catch (error) {
