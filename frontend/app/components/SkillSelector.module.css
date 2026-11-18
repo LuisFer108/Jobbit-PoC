@@ -1,0 +1,289 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: 100%;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.titleGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #13223a;
+}
+
+.subtitle {
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+.counter {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #13223a;
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    padding: 4px 10px;
+    border-radius: 999px;
+}
+
+.counterLimit {
+    background: #ecfdf5;
+    border-color: #00d461;
+    color: #047857;
+}
+
+/* Barra de búsqueda */
+.searchWrapper {
+    position: relative;
+    width: 100%;
+}
+
+.searchInput {
+    width: 100%;
+    padding: 10px 14px 10px 36px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    outline: none;
+    background: #ffffff;
+    color: #13223a;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.searchInput:focus {
+    border-color: #00d461;
+    box-shadow: 0 0 0 3px rgba(0, 212, 97, 0.15);
+}
+
+.searchIcon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.9rem;
+    color: #94a3b8;
+    pointer-events: none;
+}
+
+.clearSearchBtn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 4px;
+}
+
+.clearSearchBtn:hover {
+    color: #475569;
+}
+
+/* Pestañas de categorías */
+.categoriesBar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding-bottom: 4px;
+}
+
+.categoryTab {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    color: #475569;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+}
+
+.categoryTab:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+    border-color: #cbd5e1;
+}
+
+.categoryTabActive {
+    background: #13223a;
+    color: #ffffff;
+    border-color: #13223a;
+}
+
+.categoryTabActive:hover {
+    background: #1e3a5f;
+    color: #ffffff;
+    border-color: #1e3a5f;
+}
+
+.categoryBadge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    background: #00d461;
+    color: #13223a;
+}
+
+/* Franja de seleccionadas */
+.selectedStrip {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 10px;
+}
+
+.selectedStripLabel {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #166534;
+    margin-right: 4px;
+}
+
+.selectedBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #00d461;
+    color: #13223a;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: background 0.15s;
+}
+
+.selectedBadge:hover {
+    background: #00b853;
+    color: #ffffff;
+}
+
+.removeIcon {
+    font-size: 0.85rem;
+    font-weight: 800;
+}
+
+/* Grupos y Lista de habilidades */
+.groupsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    max-height: 420px;
+    overflow-y: auto;
+    padding: 4px 6px 4px 2px;
+}
+
+.categoryGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.groupHeader {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #0f172a;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 4px;
+}
+
+.groupCount {
+    font-size: 0.75rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.skillsGrid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.skillChip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 13px;
+    border-radius: 999px;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #1e293b;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.skillChip:hover {
+    border-color: #00d461;
+    background: rgba(0, 212, 97, 0.08);
+}
+
+.skillChipSelected {
+    background: #00d461;
+    border-color: #00d461;
+    color: #13223a;
+    font-weight: 700;
+}
+
+.skillChipSelected:hover {
+    background: #00b853;
+    border-color: #00b853;
+    color: #ffffff;
+}
+
+.emptyResults {
+    padding: 16px;
+    text-align: center;
+    color: #64748b;
+    font-size: 0.88rem;
+    background: #f8fafc;
+    border-radius: 10px;
+    border: 1px dashed #cbd5e1;
+}
+
+.feedbackAlert {
+    padding: 8px 12px;
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    color: #b45309;
+    font-size: 0.82rem;
+    font-weight: 600;
+}

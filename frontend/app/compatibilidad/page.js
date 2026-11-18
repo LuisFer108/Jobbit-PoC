@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import LogoutButton from "../components/LogoutButton";
 import NotificationCenter from "../components/NotificationCenter";
+import SkillSelector from "../components/SkillSelector";
 import styles from "./page.module.css";
 
 const API = "http://localhost:5001/api";
@@ -427,62 +428,19 @@ ${profile.name || "Candidato"}`;
 
                     {/* Selección de habilidades */}
                     <section className={styles.skillsCard}>
-                        <div className={styles.skillsHeader}>
-                            <div>
-                                <h2 className={styles.sectionTitle}>
-                                    Tus habilidades
-                                </h2>
-
-                                <p className={styles.sectionDescription}>
-                                    Selecciona hasta 5 habilidades para
-                                    mejorar tus recomendaciones.
-                                </p>
-                            </div>
-
-                            <span className={styles.counter}>
-                                {selected.length}/5 seleccionadas
-                            </span>
-                        </div>
-
                         {loading ? (
                             <p className={styles.loadingText}>
                                 Cargando catálogo de habilidades...
                             </p>
                         ) : (
-                            <div
-                                className={styles.skillsList}
-                                aria-label="Seleccionar habilidades"
-                            >
-                                {catalog.map((s) => {
-                                    const isSelected = selected.includes(s.id);
-
-                                    return (
-                                        <button
-                                            key={s.id}
-                                            type="button"
-                                            onClick={() => toggle(s.id)}
-                                            className={`${styles.skillChip} ${
-                                                isSelected
-                                                    ? styles.skillChipSelected
-                                                    : ""
-                                            }`}
-                                            aria-pressed={isSelected}
-                                        >
-                                            <span aria-hidden="true">
-                                                {isSelected ? "✓" : "+"}
-                                            </span>
-                                            {s.name}
-                                        </button>
-                                    );
-                                })}
-
-                                {catalog.length === 0 && (
-                                    <p className={styles.emptyText}>
-                                        No hay habilidades disponibles
-                                        para seleccionar.
-                                    </p>
-                                )}
-                            </div>
+                            <SkillSelector
+                                catalog={catalog}
+                                selectedSkills={selected}
+                                onToggleSkill={toggle}
+                                maxSkills={5}
+                                title="Tus habilidades profesionales"
+                                subtitle="Selecciona hasta 5 habilidades para encontrar y calcular tus vacantes más compatibles"
+                            />
                         )}
 
                         <div className={styles.skillsFooter}>
