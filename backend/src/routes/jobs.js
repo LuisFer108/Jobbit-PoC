@@ -1,6 +1,7 @@
 const express = require("express");
 const pool = require("../db");
 const authenticateToken = require("../middleware/authMiddleware");
+const requireRole = require("../middleware/requireRole");
 const { notifyCandidatesForNewOffer } = require("../utils/notificationService");
 
 const router = express.Router();
@@ -43,7 +44,7 @@ router.get("/", authenticateToken, async (req, res) => {
 });
 
 // CREAR VACANTE NUEVA Y NOTIFICAR AUTOMÁTICAMENTE A CANDIDATOS COMPATIBLES (>90%)
-router.post("/", authenticateToken, async (req, res) => {
+router.post("/", authenticateToken, requireRole("admin"), async (req, res) => {
     let client;
     try {
         const {
@@ -59,6 +60,15 @@ router.post("/", authenticateToken, async (req, res) => {
 
         if (!title || !title.trim()) {
             return res.status(400).json({ message: "El título de la vacante es obligatorio" });
+        }
+
+        const parsedExp = min_experience_years !== undefined && min_experience_years !== ""
+            ? Number(min_experience_years)
+            : 0;
+        if (!Number.isInteger(parsedExp) || parsedExp < 0 || parsedExp > 50) {
+            return res.status(400).json({
+                message: "Los años mínimos de experiencia deben ser un número entero entre 0 y 50"
+            });
         }
 
         client = await pool.connect();
