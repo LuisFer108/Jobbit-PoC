@@ -4,7 +4,7 @@
     justify-content: center;
     align-items: center;
     padding: 24px;
-    background: #faf3e5; /* crema de marca */
+    background: #f4f6f8; /* fondo neutro claro Magneto */
 }
 
 .card {
@@ -13,12 +13,12 @@
     background: #ffffff;
     border-radius: 18px;
     overflow: hidden; /* para que la barra superior respete las esquinas redondeadas */
-    box-shadow: 0 12px 40px rgba(22, 24, 46, 0.15);
+    box-shadow: 0 12px 40px rgba(19, 34, 58, 0.12);
 }
 
 /* ===== Barra superior ===== */
 .topbar {
-    background: #16182e; /* azul noche de marca */
+    background: #13223a; /* azul noche de marca Magneto */
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -28,9 +28,9 @@
 .brand {
     display: flex;
     align-items: center;
-    /* Chip claro detrás del logo: el texto "JOBBIT" del SVG es azul noche y sobre
-       la barra azul noche quedaría ilegible. El fondo crema lo hace resaltar. */
-    background: #faf3e5;
+    /* Chip claro detrás del logo: el texto del SVG es azul marino y sobre
+       la barra oscura resalta con fondo blanco */
+    background: #ffffff;
     padding: 6px 12px;
     border-radius: 10px;
 }
@@ -47,7 +47,7 @@
 
 .userIcon {
     display: inline-flex;
-    color: #f59f32; /* ámbar de marca */
+    color: #00d461; /* verde esmeralda Magneto */
 }
 
 /* ===== Cuerpo ===== */
@@ -59,7 +59,7 @@
 .welcome {
     margin: 0 0 4px;
     font-size: 1.9rem;
-    color: #16182e;
+    color: #13223a;
     font-family: var(--font-poppins), system-ui, sans-serif;
     font-weight: 700;
 }
@@ -71,7 +71,7 @@
 
 .hint {
     margin: 0 0 16px;
-    color: #16182e;
+    color: #13223a;
     font-weight: 600;
 }
 
@@ -86,7 +86,7 @@
 
 .label {
     font-size: 0.9rem;
-    color: #16182e;
+    color: #13223a;
     font-weight: 600;
     margin-top: 6px;
 }
@@ -102,8 +102,8 @@
 }
 
 .input:focus {
-    border-color: #f59f32; /* foco ámbar */
-    box-shadow: 0 0 0 3px rgba(245, 159, 50, 0.2);
+    border-color: #00d461; /* foco verde Magneto */
+    box-shadow: 0 0 0 3px rgba(0, 212, 97, 0.2);
 }
 
 .actions {
@@ -117,8 +117,8 @@
 
 .primaryButton {
     padding: 14px 28px;
-    background: #f59f32; /* ámbar de marca */
-    color: #16182e;
+    background: #00d461; /* verde esmeralda Magneto */
+    color: #13223a;
     border: none;
     border-radius: 10px;
     font-weight: 700;
@@ -129,7 +129,7 @@
 }
 
 .primaryButton:hover {
-    background: #eb5e34; /* terracota en hover */
+    background: #00b853; /* verde más oscuro en hover */
     color: #ffffff;
 }
 
@@ -143,7 +143,7 @@
 }
 
 .link {
-    color: #eb5e34;
+    color: #00b853;
     text-decoration: none;
     font-weight: 600;
     font-size: 0.9rem;
@@ -163,7 +163,7 @@
 }
 
 .forgotLink:hover {
-    color: #eb5e34;
+    color: #00b853;
     text-decoration: underline;
 }
 
@@ -184,7 +184,7 @@
 .goback {
     display: inline-block;
     margin-top: 24px;
-    color: #16182e;
+    color: #13223a;
     text-decoration: none;
     font-size: 0.9rem;
     opacity: 0.75;

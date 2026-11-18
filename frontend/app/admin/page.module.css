@@ -2,8 +2,8 @@
 .page {
     min-height: 100vh;
     padding: 40px 24px;
-    background: #faf3e5;
-    color: #16182e;
+    background: #f4f6f8;
+    color: #13223a;
     font-family: var(--font-poppins), system-ui, sans-serif;
 }
 
@@ -14,15 +14,15 @@
     background: #ffffff;
     border-radius: 18px;
     overflow: hidden;
-    box-shadow: 0 12px 40px rgba(22, 24, 46, 0.12);
+    box-shadow: 0 12px 40px rgba(19, 34, 58, 0.12);
 }
 
 /* ===== Cabecera ===== */
 .header {
     padding: 28px 36px;
-    background: #16182e;
+    background: #13223a;
     color: #ffffff;
-    border-bottom: 4px solid #f59f32;
+    border-bottom: 4px solid #00d461;
 }
 
 .headerTop {
@@ -44,9 +44,9 @@
     display: inline-flex;
     align-items: center;
     padding: 4px 12px;
-    background: rgba(245, 159, 50, 0.18);
-    border: 1px solid #f59f32;
-    color: #f59f32;
+    background: rgba(0, 212, 97, 0.18);
+    border: 1px solid #00d461;
+    color: #00d461;
     border-radius: 999px;
     font-size: 0.78rem;
     font-weight: 700;
@@ -67,13 +67,13 @@
 }
 
 .headerLogoutBtn:hover {
-    background: rgba(235, 94, 52, 0.2);
-    border-color: #eb5e34;
+    background: rgba(0, 212, 97, 0.2);
+    border-color: #00b853;
 }
 
 .eyebrow {
     margin: 0 0 6px;
-    color: #f59f32;
+    color: #00d461;
     font-size: 0.8rem;
     font-weight: 700;
     letter-spacing: 1.5px;
@@ -88,7 +88,7 @@
 }
 
 .title span {
-    color: #f59f32;
+    color: #00d461;
 }
 
 .headerDescription {
@@ -122,18 +122,18 @@
 }
 
 .tabButton:hover {
-    border-color: #f59f32;
-    color: #16182e;
+    border-color: #00d461;
+    color: #13223a;
 }
 
 .tabButtonActive {
-    background: #16182e;
+    background: #13223a;
     color: #ffffff;
-    border-color: #16182e;
+    border-color: #13223a;
 }
 
 .tabButtonActive:hover {
-    color: #f59f32;
+    color: #00d461;
 }
 
 /* ===== Cuerpo ===== */
@@ -160,7 +160,7 @@
 
 .sectionTitle {
     margin: 0 0 20px;
-    color: #16182e;
+    color: #13223a;
     font-size: 1.25rem;
     font-weight: 700;
 }
@@ -176,7 +176,7 @@
     height: 3px;
     margin-top: 8px;
     border-radius: 4px;
-    background: #f59f32;
+    background: #00d461;
 }
 
 .sectionIntro {
@@ -189,7 +189,7 @@
 .backTabLink {
     background: none;
     border: none;
-    color: #eb5e34;
+    color: #00b853;
     font-weight: 600;
     font-size: 0.9rem;
     cursor: pointer;
@@ -208,8 +208,8 @@
 
 .statCard {
     padding: 18px;
-    background: #faf3e5;
-    border: 1px solid #eee5d5;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
     border-radius: 14px;
     display: flex;
     flex-direction: column;
@@ -223,14 +223,14 @@
 }
 
 .statValue {
-    color: #16182e;
+    color: #13223a;
     font-size: 1.9rem;
     font-weight: 700;
     line-height: 1.1;
 }
 
 .statHint {
-    color: #8a460e;
+    color: #065f46;
     font-size: 0.78rem;
 }
 
@@ -250,15 +250,15 @@
     flex-direction: column;
     justify-content: space-between;
     gap: 18px;
-    box-shadow: 0 4px 14px rgba(22, 24, 46, 0.05);
+    box-shadow: 0 4px 14px rgba(19, 34, 58, 0.05);
 }
 
 .optionTag {
     display: inline-block;
     margin-bottom: 8px;
     padding: 4px 10px;
-    background: #fff1dc;
-    color: #8a460e;
+    background: #e6f9f0;
+    color: #065f46;
     border-radius: 999px;
     font-size: 0.76rem;
     font-weight: 700;
@@ -266,7 +266,7 @@
 
 .optionTitle {
     margin: 0 0 8px;
-    color: #16182e;
+    color: #13223a;
     font-size: 1.1rem;
     font-weight: 700;
 }
@@ -306,7 +306,7 @@
 .label {
     font-size: 0.88rem;
     font-weight: 600;
-    color: #16182e;
+    color: #13223a;
 }
 
 .input,
@@ -317,7 +317,7 @@
     border: 1px solid #d1d5db;
     border-radius: 10px;
     font-size: 0.95rem;
-    color: #16182e;
+    color: #13223a;
     background: #ffffff;
     outline: none;
     transition: border-color 0.2s, box-shadow 0.2s;
@@ -326,8 +326,8 @@
 .input:focus,
 .select:focus,
 .textarea:focus {
-    border-color: #f59f32;
-    box-shadow: 0 0 0 3px rgba(245, 159, 50, 0.2);
+    border-color: #00d461;
+    box-shadow: 0 0 0 3px rgba(0, 212, 97, 0.2);
 }
 
 .skillsList {
@@ -350,13 +350,13 @@
 }
 
 .skillChip:hover {
-    border-color: #f59f32;
+    border-color: #00d461;
 }
 
 .skillChipActive {
-    border-color: #f59f32;
-    background: #fff1dc;
-    color: #8a460e;
+    border-color: #00d461;
+    background: #e6f9f0;
+    color: #065f46;
     font-weight: 700;
 }
 
@@ -379,12 +379,12 @@
 }
 
 .primaryButton {
-    background: #f59f32;
-    color: #16182e;
+    background: #00d461;
+    color: #13223a;
 }
 
 .primaryButton:hover {
-    background: #eb5e34;
+    background: #00b853;
     color: #ffffff;
 }
 
@@ -395,13 +395,13 @@
 
 .secondaryButton {
     background: #ffffff;
-    color: #16182e;
+    color: #13223a;
     border-color: #d1d5db;
 }
 
 .secondaryButton:hover {
-    background: #faf3e5;
-    border-color: #f59f32;
+    background: #f8fafc;
+    border-color: #00d461;
 }
 
 .statusMessage {
@@ -441,10 +441,10 @@
 
 .placeholderBox {
     padding: 24px;
-    background: #faf3e5;
-    border: 1px dashed #f59f32;
+    background: #f8fafc;
+    border: 1px dashed #00d461;
     border-radius: 12px;
-    color: #8a460e;
+    color: #065f46;
     font-size: 0.92rem;
 }
 
@@ -483,8 +483,8 @@
 }
 
 .appsTable thead tr {
-    background: #faf3e5;
-    color: #16182e;
+    background: #f8fafc;
+    color: #13223a;
 }
 
 .appsTable th {
@@ -493,13 +493,13 @@
     font-size: 0.82rem;
     text-transform: uppercase;
     letter-spacing: 0.4px;
-    border-bottom: 2px solid #eee5d5;
+    border-bottom: 2px solid #e2e8f0;
 }
 
 .appsTable td {
     padding: 14px;
     border-bottom: 1px solid #f3f4f6;
-    color: #16182e;
+    color: #13223a;
     vertical-align: middle;
 }
 
@@ -510,7 +510,7 @@
 .candidateName {
     display: block;
     font-weight: 600;
-    color: #16182e;
+    color: #13223a;
 }
 
 .candidateEmail {
@@ -530,8 +530,8 @@
 }
 
 .status_postulado {
-    background: #fff1dc;
-    color: #8a460e;
+    background: #e6f9f0;
+    color: #065f46;
 }
 
 .status_en_revision {
@@ -561,12 +561,12 @@
     background: #ffffff;
     border: 1px solid #e5e7eb;
     border-radius: 14px;
-    box-shadow: 0 4px 12px rgba(22, 24, 46, 0.04);
+    box-shadow: 0 4px 12px rgba(19, 34, 58, 0.04);
     transition: border-color 0.2s;
 }
 
 .jobAdminCard:hover {
-    border-color: #f59f32;
+    border-color: #00d461;
 }
 
 .jobAdminHeader {
@@ -588,7 +588,7 @@
     margin: 0;
     font-size: 1.12rem;
     font-weight: 700;
-    color: #16182e;
+    color: #13223a;
 }
 
 .jobStatusBadge {
@@ -647,9 +647,9 @@
 
 .jobSkillTag {
     padding: 4px 10px;
-    background: #fff1dc;
-    color: #8a460e;
-    border: 1px solid #f8d5a0;
+    background: #e6f9f0;
+    color: #065f46;
+    border: 1px solid #9ee4b8;
     border-radius: 999px;
     font-size: 0.78rem;
     font-weight: 600;
@@ -659,7 +659,7 @@
 .modalOverlay {
     position: fixed;
     inset: 0;
-    background: rgba(22, 24, 46, 0.6);
+    background: rgba(19, 34, 58, 0.6);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -676,7 +676,7 @@
     background: #ffffff;
     border-radius: 18px;
     padding: 28px 32px;
-    box-shadow: 0 20px 50px rgba(22, 24, 46, 0.3);
+    box-shadow: 0 20px 50px rgba(19, 34, 58, 0.3);
 }
 
 .modalHeader {
@@ -686,20 +686,20 @@
     gap: 12px;
     margin-bottom: 20px;
     padding-bottom: 14px;
-    border-bottom: 2px solid #faf3e5;
+    border-bottom: 2px solid #f8fafc;
 }
 
 .modalTitle {
     margin: 0;
     font-size: 1.3rem;
     font-weight: 700;
-    color: #16182e;
+    color: #13223a;
 }
 
 .modalCloseBtn {
     background: #f3f4f6;
     border: none;
-    color: #16182e;
+    color: #13223a;
     width: 34px;
     height: 34px;
     border-radius: 999px;
@@ -737,7 +737,7 @@
     display: block;
     margin-top: 2px;
     font-size: 0.76rem;
-    color: #8a460e;
+    color: #065f46;
     font-weight: 600;
 }
 
@@ -752,20 +752,20 @@
     align-items: center;
     gap: 10px;
     padding: 12px 14px;
-    background: #faf3e5;
-    border: 1px solid #eee5d5;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
     border-radius: 10px;
     font-size: 0.88rem;
     font-weight: 600;
-    color: #16182e;
+    color: #13223a;
 }
 
 /* ===== Panel de filtros y ordenamiento de postulaciones (SCRUM-27) ===== */
 .filtersPanel {
     margin-bottom: 20px;
     padding: 18px 20px;
-    background: #faf3e5;
-    border: 1px solid #eee5d5;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
     border-radius: 14px;
 }
 
@@ -782,7 +782,7 @@
     gap: 12px;
     margin-top: 14px;
     padding-top: 12px;
-    border-top: 1px solid #e5dccb;
+    border-top: 1px solid #e2e8f0;
     flex-wrap: wrap;
 }
 
@@ -794,7 +794,7 @@
 .clearFiltersBtn {
     padding: 7px 14px;
     background: #ffffff;
-    color: #16182e;
+    color: #13223a;
     border: 1px solid #d1d5db;
     border-radius: 8px;
     font-size: 0.82rem;
@@ -804,8 +804,8 @@
 }
 
 .clearFiltersBtn:hover {
-    border-color: #eb5e34;
-    color: #eb5e34;
+    border-color: #00b853;
+    color: #00b853;
 }
 
 @media (max-width: 768px) {

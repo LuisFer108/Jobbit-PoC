@@ -4,7 +4,7 @@
     justify-content: center;
     align-items: flex-start;
     padding: 32px 24px;
-    background: #faf3e5;
+    background: #f4f6f8;
 }
 
 .card {
@@ -13,12 +13,12 @@
     background: #ffffff;
     border-radius: 18px;
     overflow: hidden;
-    box-shadow: 0 12px 40px rgba(22, 24, 46, 0.15);
+    box-shadow: 0 12px 40px rgba(19, 34, 58, 0.12);
 }
 
 /* ===== Barra superior ===== */
 .topbar {
-    background: #16182e;
+    background: #13223a;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -28,7 +28,7 @@
 .brand {
     display: flex;
     align-items: center;
-    background: #faf3e5;
+    background: #ffffff;
     padding: 6px 12px;
     border-radius: 10px;
 }
@@ -43,7 +43,7 @@
     font-family: var(--font-poppins), system-ui, sans-serif;
 }
 
-.userIcon { display: inline-flex; color: #f59f32; }
+.userIcon { display: inline-flex; color: #00d461; }
 
 /* ===== Cuerpo ===== */
 .body { padding: 32px 40px 40px; }
@@ -52,7 +52,7 @@
     margin: 0 0 4px;
     font-size: 1.9rem;
     text-align: center;
-    color: #16182e;
+    color: #13223a;
     font-family: var(--font-poppins), system-ui, sans-serif;
     font-weight: 700;
 }
@@ -61,17 +61,17 @@
 
 .nav { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
 
-.link { color: #eb5e34; text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+.link { color: #00b853; text-decoration: none; font-weight: 600; font-size: 0.95rem; }
 .link:hover { text-decoration: underline; }
 
 .message { text-align: center; color: #dc2626; font-weight: 600; }
-.loading { text-align: center; color: #16182e; font-weight: 600; }
+.loading { text-align: center; color: #13223a; font-weight: 600; }
 
 /* ===== Avisos ===== */
 .notice { padding: 16px 18px; margin-bottom: 20px; border-radius: 12px; line-height: 1.5; font-size: 0.95rem; }
 .warningNotice { background: #fff7ed; border: 1px solid #fed7aa; color: #b45309; }
 .errorNotice { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; }
-.noticeLink { display: inline-block; margin-top: 8px; font-weight: 700; color: #eb5e34; text-decoration: none; }
+.noticeLink { display: inline-block; margin-top: 8px; font-weight: 700; color: #00b853; text-decoration: none; }
 .noticeLink:hover { text-decoration: underline; }
 
 /* ===== Estado vacío ===== */
@@ -80,8 +80,8 @@
     text-align: center;
     border: 1px dashed #d1d5db;
     border-radius: 12px;
-    background: #faf3e5;
-    color: #16182e;
+    background: #f8fafc;
+    color: #13223a;
 }
 .empty p { margin: 0; }
 
@@ -90,11 +90,11 @@
 
 .jobCard {
     padding: 20px;
-    border: 1px solid #ece4d2;
-    border-left: 4px solid #f59f32;
+    border: 1px solid #e2e8f0;
+    border-left: 4px solid #00d461;
     border-radius: 12px;
     background: #ffffff;
-    box-shadow: 0 2px 8px rgba(22, 24, 46, 0.06);
+    box-shadow: 0 2px 8px rgba(19, 34, 58, 0.06);
 }
 .jobCardApplied { background: #f0fdf4; border-left-color: #15803d; }
 
@@ -103,7 +103,7 @@
 .jobTitle {
     margin: 0 0 4px;
     font-size: 1.2rem;
-    color: #16182e;
+    color: #13223a;
     font-family: var(--font-poppins), system-ui, sans-serif;
 }
 
@@ -121,7 +121,7 @@
 .description { margin: 0 0 8px; color: #4b5563; }
 .meta { margin: 0 0 14px; font-size: 0.9rem; color: #6b7280; }
 
-.jobActions { display: flex; justify-content: flex-end; padding-top: 12px; border-top: 1px solid #f1ebdc; }
+.jobActions { display: flex; justify-content: flex-end; padding-top: 12px; border-top: 1px solid #e2e8f0; }
 .appliedInfo { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .appliedButton {
     padding: 10px 20px;
@@ -137,8 +137,8 @@
 /* ===== Botones ===== */
 .primaryButton {
     padding: 12px 24px;
-    background: #f59f32;
-    color: #16182e;
+    background: #00d461;
+    color: #13223a;
     border: none;
     border-radius: 10px;
     font-weight: 700;
@@ -147,21 +147,21 @@
     font-family: var(--font-poppins), system-ui, sans-serif;
     transition: background 0.2s, transform 0.05s;
 }
-.primaryButton:hover { background: #eb5e34; color: #ffffff; }
+.primaryButton:hover { background: #00b853; color: #ffffff; }
 .primaryButton:active { transform: translateY(1px); }
 .primaryButton:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .secondaryButton {
     padding: 12px 24px;
-    border: 1px solid #f59f32;
+    border: 1px solid #00d461;
     border-radius: 10px;
     background: transparent;
-    color: #16182e;
+    color: #13223a;
     font-weight: 600;
     cursor: pointer;
     transition: background 0.2s;
 }
-.secondaryButton:hover { background: rgba(245, 159, 50, 0.15); }
+.secondaryButton:hover { background: rgba(0, 212, 97, 0.15); }
 .secondaryButton:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .logout { margin-top: 28px; text-align: center; }
@@ -175,7 +175,7 @@
     align-items: center;
     justify-content: center;
     padding: 16px;
-    background: rgba(22, 24, 46, 0.6);
+    background: rgba(19, 34, 58, 0.6);
 }
 
 .modal {
@@ -192,20 +192,20 @@
 .wideModal { max-width: 650px; }
 .centered { text-align: center; }
 
-.modalTitle { margin: 0 0 8px; color: #16182e; font-family: var(--font-poppins), system-ui, sans-serif; }
+.modalTitle { margin: 0 0 8px; color: #13223a; font-family: var(--font-poppins), system-ui, sans-serif; }
 .warningTitle { color: #b45309; }
 .helpText { margin: 0 0 8px; font-size: 0.85rem; color: #6b7280; }
 
 .modalActions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
 .centerActions { justify-content: center; }
 
-.profileSummary { margin: 14px 0; padding: 14px; border-radius: 12px; background: #faf3e5; border: 1px solid #f1e6cc; font-size: 0.9rem; }
+.profileSummary { margin: 14px 0; padding: 14px; border-radius: 12px; background: #f8fafc; border: 1px solid #e2e8f0; font-size: 0.9rem; }
 .profileSummary ul { margin: 0; padding-left: 18px; }
 .profileSummary li { margin-bottom: 4px; }
-.summaryTitle { margin: 0 0 8px; font-size: 0.95rem; color: #16182e; }
+.summaryTitle { margin: 0 0 8px; font-size: 0.95rem; color: #13223a; }
 
 .form { display: flex; flex-direction: column; }
-.label { font-weight: 600; margin-bottom: 4px; color: #16182e; }
+.label { font-weight: 600; margin-bottom: 4px; color: #13223a; }
 .textarea {
     width: 100%;
     padding: 12px;
@@ -216,7 +216,7 @@
     resize: vertical;
     transition: border-color 0.2s, box-shadow 0.2s;
 }
-.textarea:focus { border-color: #f59f32; box-shadow: 0 0 0 3px rgba(245, 159, 50, 0.2); }
+.textarea:focus { border-color: #00d461; box-shadow: 0 0 0 3px rgba(0, 212, 97, 0.2); }
 
 .applyError {
     margin: 10px 0 0;

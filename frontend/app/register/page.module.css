@@ -4,7 +4,7 @@
     justify-content: center;
     align-items: center;
     padding: 24px;
-    background: #faf3e5; /* crema de marca */
+    background: #f4f6f8; /* fondo neutro claro Magneto */
 }
 
 .card {
@@ -13,12 +13,12 @@
     background: #ffffff;
     border-radius: 18px;
     overflow: hidden;
-    box-shadow: 0 12px 40px rgba(22, 24, 46, 0.15);
+    box-shadow: 0 12px 40px rgba(19, 34, 58, 0.12);
 }
 
 /* ===== Barra superior ===== */
 .topbar {
-    background: #16182e; /* azul noche */
+    background: #13223a; /* azul noche Magneto */
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -28,7 +28,7 @@
 .brand {
     display: flex;
     align-items: center;
-    background: #faf3e5;
+    background: #ffffff;
     padding: 6px 12px;
     border-radius: 10px;
 }
@@ -43,7 +43,7 @@
     font-family: var(--font-poppins), system-ui, sans-serif;
 }
 
-.userIcon { display: inline-flex; color: #f59f32; }
+.userIcon { display: inline-flex; color: #00d461; }
 
 /* ===== Cuerpo ===== */
 .body { padding: 32px 40px 40px; text-align: center; }
@@ -51,7 +51,7 @@
 .welcome {
     margin: 0 0 4px;
     font-size: 1.9rem;
-    color: #16182e;
+    color: #13223a;
     font-family: var(--font-poppins), system-ui, sans-serif;
     font-weight: 700;
 }
@@ -67,7 +67,7 @@
     margin: 0 auto;
 }
 
-.label { font-size: 0.9rem; color: #16182e; font-weight: 600; margin-top: 6px; }
+.label { font-size: 0.9rem; color: #13223a; font-weight: 600; margin-top: 6px; }
 
 .input {
     width: 100%;
@@ -80,16 +80,16 @@
 }
 
 .input:focus {
-    border-color: #f59f32;
-    box-shadow: 0 0 0 3px rgba(245, 159, 50, 0.2);
+    border-color: #00d461;
+    box-shadow: 0 0 0 3px rgba(0, 212, 97, 0.2);
 }
 
 .actions { display: flex; justify-content: flex-end; margin-top: 18px; }
 
 .primaryButton {
     padding: 14px 28px;
-    background: #f59f32;
-    color: #16182e;
+    background: #00d461;
+    color: #13223a;
     border: none;
     border-radius: 10px;
     font-weight: 700;
@@ -98,10 +98,10 @@
     transition: background 0.2s, transform 0.05s;
     font-family: var(--font-poppins), system-ui, sans-serif;
 }
-.primaryButton:hover { background: #eb5e34; color: #ffffff; }
+.primaryButton:hover { background: #00b853; color: #ffffff; }
 .primaryButton:active { transform: translateY(1px); }
 
-.link { color: #eb5e34; text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+.link { color: #00b853; text-decoration: none; font-weight: 600; font-size: 0.9rem; }
 .link:hover { text-decoration: underline; }
 
 .loginLine { margin: 18px 0 0; text-align: center; color: #6b7280; font-size: 0.95rem; }
@@ -111,7 +111,7 @@
 .goback {
     display: inline-block;
     margin-top: 24px;
-    color: #16182e;
+    color: #13223a;
     text-decoration: none;
     font-size: 0.9rem;
     opacity: 0.75;
