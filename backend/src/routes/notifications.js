@@ -107,6 +107,7 @@ router.get("/", authenticateToken, async (req, res) => {
                 j.salary_range AS job_salary_range,
                 j.min_experience_years AS job_min_experience_years,
                 j.description AS job_description,
+                a.status AS application_status,
                 (CASE WHEN a.id IS NOT NULL THEN TRUE ELSE FALSE END) AS is_applied
              FROM notifications n
              LEFT JOIN job_offers j ON j.id = n.offer_id

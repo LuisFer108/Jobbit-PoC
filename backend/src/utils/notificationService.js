@@ -211,7 +211,92 @@ async function notifyCandidatesForNewOffer(offerId) {
     }
 }
 
+/**
+ * Etiqueta legible para el estado de una postulación.
+ */
+function statusLabel(status) {
+    switch (status) {
+        case "postulado":
+            return "Postulado";
+        case "en_revision":
+            return "En revisión";
+        case "aceptada":
+        case "aceptado":
+            return "Aceptada (¡Avanzas a entrevista!)";
+        case "rechazada":
+        case "rechazado":
+            return "Rechazada";
+        default:
+            return status || "Actualizado";
+    }
+}
+
+/**
+ * Crea y emite en tiempo real una notificación al candidato cuando el administrador
+ * lo postula a una vacante o actualiza el estado de su postulación.
+ */
+async function notifyCandidateApplicationStatus({
+    userId,
+    offerId,
+    jobTitle,
+    jobCompany,
+    jobLocation,
+    jobWorkMode,
+    jobSalaryRange,
+    status,
+    isNewAdminApplication = false
+}) {
+    try {
+        if (!userId || !offerId) return null;
+
+        const companyName = jobCompany ? jobCompany.trim() : "Jobbit Partner";
+        const readableStatus = statusLabel(status);
+
+        let message;
+        if (isNewAdminApplication) {
+            message = `📌 El equipo administrador te ha postulado a la vacante "${jobTitle}" en ${companyName}. Estado actual: ${readableStatus}.`;
+        } else if (status === "en_revision") {
+            message = `🔎 ¡Buenas noticias! Tu postulación a "${jobTitle}" en ${companyName} ahora está EN REVISIÓN.`;
+        } else if (status === "aceptada" || status === "aceptado") {
+            message = `🎉 ¡Felicitaciones! Tu postulación a "${jobTitle}" en ${companyName} fue ACEPTADA para avanzar a entrevista.`;
+        } else if (status === "rechazada" || status === "rechazado") {
+            message = `📋 El estado de tu postulación a "${jobTitle}" en ${companyName} fue actualizado a: Rechazada.`;
+        } else {
+            message = `📋 Tu postulación a "${jobTitle}" en ${companyName} fue actualizada al estado: ${readableStatus}.`;
+        }
+
+        const insertRes = await pool.query(
+            `INSERT INTO notifications (user_id, offer_id, type, score, message, read)
+             VALUES ($1, $2, 'application_status', NULL, $3, FALSE)
+             RETURNING *`,
+            [userId, offerId, message]
+        );
+
+        const notifData = {
+            ...insertRes.rows[0],
+            job_title: jobTitle,
+            job_company: companyName,
+            job_location: jobLocation || "Colombia",
+            job_work_mode: jobWorkMode || "hybrid",
+            job_salary_range: jobSalaryRange || "",
+            application_status: status,
+            is_applied: true
+        };
+
+        realtimeEmitter.emit("notification", {
+            userId,
+            notification: notifData
+        });
+
+        return notifData;
+    } catch (error) {
+        console.error("Error enviando notificación de estado de postulación:", error);
+        return null;
+    }
+}
+
 module.exports = {
     syncNotificationsForUser,
-    notifyCandidatesForNewOffer
+    notifyCandidatesForNewOffer,
+    notifyCandidateApplicationStatus
 };

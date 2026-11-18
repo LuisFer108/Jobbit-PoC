@@ -2,6 +2,7 @@ const express = require("express");
 const pool = require("../db");
 const authenticateToken = require("../middleware/authMiddleware");
 const { validateWorkProfileCompleteness } = require("../utils/profileValidation");
+const { notifyCandidateApplicationStatus } = require("../utils/notificationService");
 
 const router = express.Router();
 
@@ -234,7 +235,7 @@ router.post("/admin", authenticateToken, async (req, res) => {
         }
 
         const jobRes = await pool.query(
-            `SELECT id, title, company FROM job_offers WHERE id = $1`,
+            `SELECT id, title, company, location, work_mode, salary_range FROM job_offers WHERE id = $1`,
             [offerId]
         );
         if (jobRes.rows.length === 0) {
@@ -284,6 +285,15 @@ router.post("/admin", authenticateToken, async (req, res) => {
         client = await pool.connect();
         await client.query("BEGIN");
 
+        // Asegurar que el candidato tenga un registro base en work_profiles, aunque su
+        // hoja de vida esté incompleta, para que pueda entrar a su /dashboard sin bloqueo.
+        await client.query(
+            `INSERT INTO work_profiles (user_id, field, experience_years, preferred_location, work_mode)
+             VALUES ($1, $2, $3, $4, $5)
+             ON CONFLICT (user_id) DO NOTHING`,
+            [userId, field, rawExp, preferredLocation, workMode]
+        );
+
         const insertRes = await client.query(
             `INSERT INTO applications (
                 user_id, offer_id, status, cover_letter,
@@ -319,6 +329,20 @@ router.post("/admin", authenticateToken, async (req, res) => {
         );
 
         await client.query("COMMIT");
+
+        // Notificar en tiempo real al candidato que fue postulado desde el panel admin
+        const jobInfo = jobRes.rows[0];
+        await notifyCandidateApplicationStatus({
+            userId,
+            offerId,
+            jobTitle: jobInfo.title,
+            jobCompany: jobInfo.company,
+            jobLocation: jobInfo.location,
+            jobWorkMode: jobInfo.work_mode,
+            jobSalaryRange: jobInfo.salary_range,
+            status,
+            isNewAdminApplication: true
+        });
 
         return res.status(201).json({
             message: "Postulación creada exitosamente desde el panel administrativo",
@@ -385,6 +409,25 @@ router.patch("/:id/status", authenticateToken, async (req, res) => {
         );
 
         await client.query("COMMIT");
+
+        // Notificar en tiempo real al candidato el cambio de estado de su postulación
+        const jobRes = await pool.query(
+            `SELECT title, company, location, work_mode, salary_range FROM job_offers WHERE id = $1`,
+            [updatedApplication.offer_id]
+        );
+        const jobInfo = jobRes.rows[0] || {};
+
+        await notifyCandidateApplicationStatus({
+            userId: updatedApplication.user_id,
+            offerId: updatedApplication.offer_id,
+            jobTitle: jobInfo.title || "Vacante",
+            jobCompany: jobInfo.company || "Jobbit",
+            jobLocation: jobInfo.location,
+            jobWorkMode: jobInfo.work_mode,
+            jobSalaryRange: jobInfo.salary_range,
+            status,
+            isNewAdminApplication: false
+        });
 
         return res.json({
             message: "Estado actualizado exitosamente",
@@ -553,25 +596,29 @@ router.put("/:id", authenticateToken, async (req, res) => {
             );
 
             await client.query(
-                `UPDATE work_profiles
-                 SET field = $1,
-                     experience_years = $2,
-                     experience = $3,
-                     education = $4,
-                     work_preferences = $5,
-                     preferred_location = $6,
-                     work_mode = $7,
-                     updated_at = CURRENT_TIMESTAMP
-                 WHERE user_id = $8`,
+                `INSERT INTO work_profiles (
+                    user_id, field, experience_years, experience, education,
+                    work_preferences, preferred_location, work_mode, updated_at
+                 )
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, CURRENT_TIMESTAMP)
+                 ON CONFLICT (user_id) DO UPDATE SET
+                    field = EXCLUDED.field,
+                    experience_years = EXCLUDED.experience_years,
+                    experience = EXCLUDED.experience,
+                    education = EXCLUDED.education,
+                    work_preferences = EXCLUDED.work_preferences,
+                    preferred_location = EXCLUDED.preferred_location,
+                    work_mode = EXCLUDED.work_mode,
+                    updated_at = CURRENT_TIMESTAMP`,
                 [
+                    currentApp.user_id,
                     cleanField,
                     parsedExp,
                     typeof experience === "string" ? experience.trim() : "",
                     typeof education === "string" ? education.trim() : "",
                     typeof work_preferences === "string" ? work_preferences.trim() : "",
                     typeof preferred_location === "string" ? preferred_location.trim() : "",
-                    work_mode || "hybrid",
-                    currentApp.user_id
+                    work_mode || "hybrid"
                 ]
             );
         }
@@ -588,6 +635,25 @@ router.put("/:id", authenticateToken, async (req, res) => {
         );
 
         await client.query("COMMIT");
+
+        // Notificar en tiempo real al candidato la actualización de su postulación
+        const jobRes = await pool.query(
+            `SELECT title, company, location, work_mode, salary_range FROM job_offers WHERE id = $1`,
+            [updatedApp.offer_id]
+        );
+        const jobInfo = jobRes.rows[0] || {};
+
+        await notifyCandidateApplicationStatus({
+            userId: currentApp.user_id,
+            offerId: updatedApp.offer_id,
+            jobTitle: jobInfo.title || "Vacante",
+            jobCompany: jobInfo.company || "Jobbit",
+            jobLocation: jobInfo.location,
+            jobWorkMode: jobInfo.work_mode,
+            jobSalaryRange: jobInfo.salary_range,
+            status,
+            isNewAdminApplication: false
+        });
 
         return res.json({
             message: "Postulación y datos del usuario actualizados correctamente en la base de datos",
