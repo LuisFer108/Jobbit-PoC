@@ -38,6 +38,25 @@ export default function AdminPage() {
     const [loadingApps, setLoadingApps] = useState(true);
     const [appsError, setAppsError] = useState("");
 
+    // Listado de vacantes en el panel administrativo (SCRUM-134)
+    const [adminJobs, setAdminJobs] = useState([]);
+    const [loadingJobs, setLoadingJobs] = useState(true);
+    const [jobsError, setJobsError] = useState("");
+
+    // Estado del formulario/modal de edición de vacante (SCRUM-130)
+    const [editingJobId, setEditingJobId] = useState(null);
+    const [editTitle, setEditTitle] = useState("");
+    const [editCompany, setEditCompany] = useState("");
+    const [editDescription, setEditDescription] = useState("");
+    const [editMinExp, setEditMinExp] = useState(0);
+    const [editLocation, setEditLocation] = useState("");
+    const [editWorkMode, setEditWorkMode] = useState("hybrid");
+    const [editSalaryRange, setEditSalaryRange] = useState("2M - 5M");
+    const [editStatus, setEditStatus] = useState("active");
+    const [editSelectedSkills, setEditSelectedSkills] = useState([]);
+    const [savingEdit, setSavingEdit] = useState(false);
+    const [editFeedback, setEditFeedback] = useState(null);
+
     const loadAdminPanel = useCallback(async () => {
         const token = localStorage.getItem("token");
 
@@ -108,6 +127,25 @@ export default function AdminPage() {
             } finally {
                 setLoadingApps(false);
             }
+
+            // Cargar listado completo de vacantes para el administrador (SCRUM-134)
+            setLoadingJobs(true);
+            setJobsError("");
+            try {
+                const jobsRes = await fetch("http://localhost:5001/api/jobs/admin", {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (jobsRes.ok) {
+                    const jobsData = await jobsRes.json();
+                    setAdminJobs(Array.isArray(jobsData) ? jobsData : []);
+                } else {
+                    setJobsError("No fue posible cargar el listado de vacantes.");
+                }
+            } catch {
+                setJobsError("No fue posible cargar el listado de vacantes.");
+            } finally {
+                setLoadingJobs(false);
+            }
         } catch {
             setAccessState("error");
             setAccessMessage("No fue posible conectar con el servidor. Verifica que el backend esté en ejecución.");
@@ -122,6 +160,142 @@ export default function AdminPage() {
         setSelectedSkills((prev) =>
             prev.includes(skillId) ? prev.filter((id) => id !== skillId) : [...prev, skillId]
         );
+    }
+
+    function modalidadTexto(mode) {
+        if (mode === "remote") return "Remoto";
+        if (mode === "hybrid") return "Híbrido";
+        if (mode === "onsite") return "Presencial";
+        return mode || "No especificada";
+    }
+
+    function openEditJobModal(job) {
+        setEditingJobId(job.id);
+        setEditTitle(job.title || "");
+        setEditCompany(job.company || "");
+        setEditDescription(job.description || "");
+        setEditMinExp(job.min_experience_years ?? 0);
+        setEditLocation(job.location || "");
+        setEditWorkMode(job.work_mode || "hybrid");
+        setEditSalaryRange(job.salary_range || "2M - 5M");
+        setEditStatus(job.status || "active");
+        const currentSkillIds = Array.isArray(job.skills)
+            ? job.skills.map((s) => s.skill_id).filter(Boolean)
+            : [];
+        setEditSelectedSkills(currentSkillIds);
+        setEditFeedback(null);
+    }
+
+    function closeEditJobModal() {
+        setEditingJobId(null);
+        setEditFeedback(null);
+    }
+
+    function toggleEditSkill(skillId) {
+        setEditSelectedSkills((prev) =>
+            prev.includes(skillId) ? prev.filter((id) => id !== skillId) : [...prev, skillId]
+        );
+    }
+
+    async function handleUpdateJob(e) {
+        e.preventDefault();
+        setEditFeedback(null);
+
+        // Validaciones en cliente (SCRUM-132)
+        if (!editTitle.trim() || editTitle.trim().length < 3) {
+            setEditFeedback({
+                error: true,
+                text: "El título de la vacante es obligatorio y debe tener al menos 3 caracteres."
+            });
+            return;
+        }
+
+        if (!editCompany.trim()) {
+            setEditFeedback({
+                error: true,
+                text: "Por favor ingresa el nombre de la empresa."
+            });
+            return;
+        }
+
+        if (!editLocation.trim()) {
+            setEditFeedback({
+                error: true,
+                text: "Por favor ingresa la ubicación de la vacante."
+            });
+            return;
+        }
+
+        const parsedExp = Number(editMinExp);
+        if (editMinExp === "" || !Number.isInteger(parsedExp) || parsedExp < 0 || parsedExp > 50) {
+            setEditFeedback({
+                error: true,
+                text: "Los años mínimos de experiencia deben ser un número entero entre 0 y 50."
+            });
+            return;
+        }
+
+        const token = localStorage.getItem("token");
+        if (!token) {
+            router.replace("/login");
+            return;
+        }
+
+        setSavingEdit(true);
+
+        try {
+            const payload = {
+                title: editTitle.trim(),
+                company: editCompany.trim(),
+                description: editDescription.trim(),
+                min_experience_years: parsedExp,
+                location: editLocation.trim(),
+                work_mode: editWorkMode,
+                salary_range: editSalaryRange,
+                status: editStatus,
+                skills: editSelectedSkills.map((id) => ({ skill_id: id, requirement: "must", weight: 2 }))
+            };
+
+            const res = await fetch(`http://localhost:5001/api/jobs/${editingJobId}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+
+            if (res.status === 401) {
+                localStorage.removeItem("token");
+                router.replace("/login");
+                return;
+            }
+
+            if (!res.ok) {
+                setEditFeedback({
+                    error: true,
+                    text: data.message || "No se pudo actualizar la vacante. Revisa los datos ingresados."
+                });
+                return;
+            }
+
+            // Mostrar mensaje de éxito en la pestaña de vacantes, cerrar modal y recargar datos desde BD
+            setJobFeedback({
+                error: false,
+                text: `¡La vacante "${editTitle.trim()}" fue modificada y guardada correctamente en la base de datos!`
+            });
+            closeEditJobModal();
+            loadAdminPanel();
+        } catch {
+            setEditFeedback({
+                error: true,
+                text: "Error de conexión al guardar los cambios de la vacante."
+            });
+        } finally {
+            setSavingEdit(false);
+        }
     }
 
     // Etiqueta amigable para cada estado de postulación
@@ -652,6 +826,87 @@ export default function AdminPage() {
                                         : "Publicar vacante y notificar candidatos (>90%)"}
                                 </button>
                             </form>
+
+                            {/* LISTADO DE VACANTES PARA EL ADMINISTRADOR (SCRUM-134) */}
+                            <div className={styles.sectionHeaderRow} style={{ marginTop: "32px" }}>
+                                <h2 className={styles.sectionTitle}>
+                                    Vacantes registradas ({adminJobs.length})
+                                </h2>
+                            </div>
+                            <p className={styles.sectionIntro}>
+                                Consulta todas las vacantes almacenadas en PostgreSQL y haz clic en{" "}
+                                <strong>Editar vacante</strong> para corregir información, actualizar habilidades o
+                                cambiar su estado (Activa / Inactiva).
+                            </p>
+
+                            {jobsError && (
+                                <div role="alert" className={styles.alertError}>
+                                    {jobsError}
+                                </div>
+                            )}
+
+                            {loadingJobs ? (
+                                <p className={styles.statusMessage}>Cargando catálogo de vacantes...</p>
+                            ) : adminJobs.length === 0 ? (
+                                <div className={styles.placeholderBox}>
+                                    <p>No hay vacantes registradas todavía. Usa el formulario superior para crear la primera.</p>
+                                </div>
+                            ) : (
+                                <div className={styles.jobsAdminList}>
+                                    {adminJobs.map((job) => (
+                                        <article key={job.id} className={styles.jobAdminCard}>
+                                            <div className={styles.jobAdminHeader}>
+                                                <div>
+                                                    <div className={styles.jobTitleRow}>
+                                                        <h3 className={styles.jobAdminTitle}>{job.title}</h3>
+                                                        <span
+                                                            className={`${styles.jobStatusBadge} ${
+                                                                job.status === "active"
+                                                                    ? styles.jobStatusActive
+                                                                    : styles.jobStatusInactive
+                                                            }`}
+                                                        >
+                                                            {job.status === "active" ? "Activa" : "Inactiva"}
+                                                        </span>
+                                                    </div>
+                                                    <p className={styles.jobAdminCompany}>
+                                                        {job.company || "Jobbit Partner"} · 📍 {job.location || "Remoto"}
+                                                    </p>
+                                                </div>
+
+                                                <button
+                                                    type="button"
+                                                    onClick={() => openEditJobModal(job)}
+                                                    className={styles.secondaryButton}
+                                                >
+                                                    ✎ Editar vacante
+                                                </button>
+                                            </div>
+
+                                            {job.description && (
+                                                <p className={styles.jobAdminDesc}>{job.description}</p>
+                                            )}
+
+                                            <div className={styles.jobAdminMeta}>
+                                                <span>💼 {modalidadTexto(job.work_mode)}</span>
+                                                <span>⏳ Mín. {job.min_experience_years ?? 0} año(s)</span>
+                                                <span>💰 {job.salary_range || "No especificado"}</span>
+                                                <span>📋 {job.applications_count ?? 0} postulación(es)</span>
+                                            </div>
+
+                                            {Array.isArray(job.skills) && job.skills.length > 0 && (
+                                                <div className={styles.jobAdminSkills}>
+                                                    {job.skills.map((sk) => (
+                                                        <span key={sk.skill_id} className={styles.jobSkillTag}>
+                                                            {sk.name}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </article>
+                                    ))}
+                                </div>
+                            )}
                         </section>
                     )}
 
@@ -733,6 +988,199 @@ export default function AdminPage() {
                     )}
                 </div>
             </div>
+
+            {/* MODAL / FORMULARIO DE EDICIÓN DE VACANTE (SCRUM-130) */}
+            {editingJobId !== null && (
+                <div className={styles.modalOverlay} role="dialog" aria-modal="true" aria-labelledby="edit-job-title">
+                    <div className={styles.modalCard}>
+                        <div className={styles.modalHeader}>
+                            <h3 id="edit-job-title" className={styles.modalTitle}>
+                                Editar vacante #{editingJobId}
+                            </h3>
+                            <button
+                                type="button"
+                                onClick={closeEditJobModal}
+                                className={styles.modalCloseBtn}
+                                aria-label="Cerrar ventana de edición"
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        {editFeedback && (
+                            <div
+                                role={editFeedback.error ? "alert" : "status"}
+                                className={editFeedback.error ? styles.alertError : styles.alertSuccess}
+                            >
+                                {editFeedback.text}
+                            </div>
+                        )}
+
+                        <form onSubmit={handleUpdateJob} className={styles.form} noValidate>
+                            <div className={styles.formGridTwo}>
+                                <div className={styles.fieldGroup}>
+                                    <label className={styles.label} htmlFor="edit-title">
+                                        Título de la vacante *
+                                    </label>
+                                    <input
+                                        id="edit-title"
+                                        type="text"
+                                        required
+                                        value={editTitle}
+                                        onChange={(e) => setEditTitle(e.target.value)}
+                                        className={styles.input}
+                                    />
+                                </div>
+                                <div className={styles.fieldGroup}>
+                                    <label className={styles.label} htmlFor="edit-company">
+                                        Empresa *
+                                    </label>
+                                    <input
+                                        id="edit-company"
+                                        type="text"
+                                        required
+                                        value={editCompany}
+                                        onChange={(e) => setEditCompany(e.target.value)}
+                                        className={styles.input}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className={styles.fieldGroup}>
+                                <label className={styles.label} htmlFor="edit-description">
+                                    Descripción de la vacante
+                                </label>
+                                <textarea
+                                    id="edit-description"
+                                    rows={3}
+                                    value={editDescription}
+                                    onChange={(e) => setEditDescription(e.target.value)}
+                                    className={styles.textarea}
+                                />
+                            </div>
+
+                            <div className={styles.formGridThree}>
+                                <div className={styles.fieldGroup}>
+                                    <label className={styles.label} htmlFor="edit-exp">
+                                        Años mín. experiencia *
+                                    </label>
+                                    <input
+                                        id="edit-exp"
+                                        type="number"
+                                        min={0}
+                                        max={50}
+                                        value={editMinExp}
+                                        onChange={(e) => setEditMinExp(e.target.value)}
+                                        className={styles.input}
+                                    />
+                                </div>
+                                <div className={styles.fieldGroup}>
+                                    <label className={styles.label} htmlFor="edit-mode">
+                                        Modalidad
+                                    </label>
+                                    <select
+                                        id="edit-mode"
+                                        value={editWorkMode}
+                                        onChange={(e) => setEditWorkMode(e.target.value)}
+                                        className={styles.select}
+                                    >
+                                        <option value="remote">Remoto</option>
+                                        <option value="hybrid">Híbrido</option>
+                                        <option value="onsite">Presencial</option>
+                                    </select>
+                                </div>
+                                <div className={styles.fieldGroup}>
+                                    <label className={styles.label} htmlFor="edit-salary">
+                                        Rango salarial
+                                    </label>
+                                    <select
+                                        id="edit-salary"
+                                        value={editSalaryRange}
+                                        onChange={(e) => setEditSalaryRange(e.target.value)}
+                                        className={styles.select}
+                                    >
+                                        <option value="Menos de 2M">Menos de 2M</option>
+                                        <option value="2M - 5M">2M - 5M</option>
+                                        <option value="Más de 5M">Más de 5M</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className={styles.formGridTwo}>
+                                <div className={styles.fieldGroup}>
+                                    <label className={styles.label} htmlFor="edit-location">
+                                        Ubicación *
+                                    </label>
+                                    <input
+                                        id="edit-location"
+                                        type="text"
+                                        required
+                                        value={editLocation}
+                                        onChange={(e) => setEditLocation(e.target.value)}
+                                        className={styles.input}
+                                    />
+                                </div>
+                                <div className={styles.fieldGroup}>
+                                    <label className={styles.label} htmlFor="edit-status">
+                                        Estado de la vacante
+                                    </label>
+                                    <select
+                                        id="edit-status"
+                                        value={editStatus}
+                                        onChange={(e) => setEditStatus(e.target.value)}
+                                        className={styles.select}
+                                    >
+                                        <option value="active">Activa (visible para candidatos)</option>
+                                        <option value="inactive">Inactiva (oculta para candidatos)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            {skillsCatalog.length > 0 && (
+                                <div className={styles.fieldGroup}>
+                                    <span className={styles.label}>
+                                        Habilidades requeridas:
+                                    </span>
+                                    <div className={styles.skillsList}>
+                                        {skillsCatalog.map((s) => {
+                                            const active = editSelectedSkills.includes(s.id);
+                                            return (
+                                                <button
+                                                    key={s.id}
+                                                    type="button"
+                                                    aria-pressed={active}
+                                                    onClick={() => toggleEditSkill(s.id)}
+                                                    className={`${styles.skillChip} ${active ? styles.skillChipActive : ""}`}
+                                                >
+                                                    {active ? "✓ " : "+ "}{s.name}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className={styles.modalActions}>
+                                <button
+                                    type="button"
+                                    onClick={closeEditJobModal}
+                                    className={styles.secondaryButton}
+                                    disabled={savingEdit}
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={savingEdit}
+                                    className={styles.primaryButton}
+                                >
+                                    {savingEdit ? "Guardando cambios..." : "Guardar cambios en la vacante"}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </main>
     );
 }
