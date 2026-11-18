@@ -40,6 +40,14 @@ export default function AdminPage() {
     const [appsSuccess, setAppsSuccess] = useState("");
     const [candidatesList, setCandidatesList] = useState([]);
 
+    // Filtros y ordenamiento de postulaciones (SCRUM-27: SCRUM-172 a SCRUM-177)
+    const [filterStatus, setFilterStatus] = useState("all");
+    const [filterOfferId, setFilterOfferId] = useState("all");
+    const [filterWorkMode, setFilterWorkMode] = useState("all");
+    const [filterMinExp, setFilterMinExp] = useState("");
+    const [filterSearch, setFilterSearch] = useState("");
+    const [sortByApps, setSortByApps] = useState("date_desc");
+
     // Modal de edición de postulación (SCRUM-168)
     const [editingAppId, setEditingAppId] = useState(null);
     const [editAppOfferId, setEditAppOfferId] = useState("");
@@ -212,9 +220,65 @@ export default function AdminPage() {
         setCandidatesList([]);
     }, []);
 
+    // SCRUM-27: consulta GET /api/applications/all con los filtros y el orden seleccionados
+    const fetchFilteredApplications = useCallback(async (customFilters = {}) => {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        const statusVal = customFilters.status !== undefined ? customFilters.status : filterStatus;
+        const offerVal = customFilters.offerId !== undefined ? customFilters.offerId : filterOfferId;
+        const modeVal = customFilters.workMode !== undefined ? customFilters.workMode : filterWorkMode;
+        const minExpVal = customFilters.minExperience !== undefined ? customFilters.minExperience : filterMinExp;
+        const searchVal = customFilters.search !== undefined ? customFilters.search : filterSearch;
+        const sortVal = customFilters.sortBy !== undefined ? customFilters.sortBy : sortByApps;
+
+        const query = new URLSearchParams();
+        if (statusVal && statusVal !== "all") query.set("status", statusVal);
+        if (offerVal && offerVal !== "all") query.set("offerId", offerVal);
+        if (modeVal && modeVal !== "all") query.set("workMode", modeVal);
+        if (minExpVal !== "" && minExpVal !== null) query.set("minExperience", String(minExpVal));
+        if (searchVal && searchVal.trim() !== "") query.set("search", searchVal.trim());
+        if (sortVal) query.set("sortBy", sortVal);
+
+        setLoadingApps(true);
+        setAppsError("");
+        try {
+            const appsRes = await fetch(
+                `http://localhost:5001/api/applications/all?${query.toString()}`,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            if (appsRes.ok) {
+                const appsData = await appsRes.json();
+                setApplications(Array.isArray(appsData) ? appsData : []);
+            } else {
+                setAppsError("No fue posible aplicar los filtros a las postulaciones.");
+            }
+        } catch {
+            setAppsError("Error de conexión al filtrar las postulaciones.");
+        } finally {
+            setLoadingApps(false);
+        }
+    }, [filterStatus, filterOfferId, filterWorkMode, filterMinExp, filterSearch, sortByApps]);
+
+    function handleClearAppFilters() {
+        setFilterStatus("all");
+        setFilterOfferId("all");
+        setFilterWorkMode("all");
+        setFilterMinExp("");
+        setFilterSearch("");
+        setSortByApps("date_desc");
+    }
+
     useEffect(() => {
         loadAdminPanel();
     }, [loadAdminPanel]);
+
+    // SCRUM-27: re-consulta las postulaciones cuando cambia cualquier filtro u orden
+    useEffect(() => {
+        if (accessState === "authorized") {
+            fetchFilteredApplications();
+        }
+    }, [accessState, fetchFilteredApplications]);
 
     // SCRUM-23 (SCRUM-139): Garantizar que la sesión no quede abierta en ninguna instancia
     // (otras pestañas abiertas o restauración desde caché al usar el botón "Atrás").
@@ -1278,6 +1342,128 @@ export default function AdminPage() {
                                 </div>
                             )}
 
+                            {/* BARRA DE FILTROS Y ORDENAMIENTO DE POSTULACIONES (SCRUM-27: SCRUM-172 a SCRUM-177) */}
+                            <div className={styles.filtersPanel} aria-label="Filtros y ordenamiento de postulaciones">
+                                <div className={styles.filtersGrid}>
+                                    <div className={styles.fieldGroup}>
+                                        <label className={styles.label} htmlFor="filter-app-search">
+                                            Buscar candidato o vacante
+                                        </label>
+                                        <input
+                                            id="filter-app-search"
+                                            type="search"
+                                            placeholder="Nombre, correo, cargo o empresa..."
+                                            value={filterSearch}
+                                            onChange={(e) => setFilterSearch(e.target.value)}
+                                            className={styles.input}
+                                        />
+                                    </div>
+
+                                    <div className={styles.fieldGroup}>
+                                        <label className={styles.label} htmlFor="filter-app-status">
+                                            Filtrar por estado
+                                        </label>
+                                        <select
+                                            id="filter-app-status"
+                                            value={filterStatus}
+                                            onChange={(e) => setFilterStatus(e.target.value)}
+                                            className={styles.select}
+                                        >
+                                            <option value="all">Todos los estados</option>
+                                            <option value="postulado">Postulado</option>
+                                            <option value="en_revision">En revisión</option>
+                                            <option value="aceptada">Aceptada</option>
+                                            <option value="rechazada">Rechazada</option>
+                                        </select>
+                                    </div>
+
+                                    <div className={styles.fieldGroup}>
+                                        <label className={styles.label} htmlFor="filter-app-offer">
+                                            Filtrar por vacante
+                                        </label>
+                                        <select
+                                            id="filter-app-offer"
+                                            value={filterOfferId}
+                                            onChange={(e) => setFilterOfferId(e.target.value)}
+                                            className={styles.select}
+                                        >
+                                            <option value="all">Todas las vacantes</option>
+                                            {adminJobs.map((job) => (
+                                                <option key={job.id} value={String(job.id)}>
+                                                    {job.title} ({job.company || "Jobbit"})
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div className={styles.fieldGroup}>
+                                        <label className={styles.label} htmlFor="filter-app-mode">
+                                            Modalidad del candidato
+                                        </label>
+                                        <select
+                                            id="filter-app-mode"
+                                            value={filterWorkMode}
+                                            onChange={(e) => setFilterWorkMode(e.target.value)}
+                                            className={styles.select}
+                                        >
+                                            <option value="all">Todas las modalidades</option>
+                                            <option value="remote">Remoto</option>
+                                            <option value="hybrid">Híbrido</option>
+                                            <option value="onsite">Presencial</option>
+                                        </select>
+                                    </div>
+
+                                    <div className={styles.fieldGroup}>
+                                        <label className={styles.label} htmlFor="filter-app-minexp">
+                                            Experiencia mín. (años)
+                                        </label>
+                                        <input
+                                            id="filter-app-minexp"
+                                            type="number"
+                                            min={0}
+                                            max={50}
+                                            placeholder="Ej: 2"
+                                            value={filterMinExp}
+                                            onChange={(e) => setFilterMinExp(e.target.value)}
+                                            className={styles.input}
+                                        />
+                                    </div>
+
+                                    <div className={styles.fieldGroup}>
+                                        <label className={styles.label} htmlFor="sort-apps">
+                                            Ordenar por (4 criterios)
+                                        </label>
+                                        <select
+                                            id="sort-apps"
+                                            value={sortByApps}
+                                            onChange={(e) => setSortByApps(e.target.value)}
+                                            className={styles.select}
+                                        >
+                                            <option value="date_desc">📅 Fecha: más recientes primero</option>
+                                            <option value="date_asc">📅 Fecha: más antiguas primero</option>
+                                            <option value="status_asc">📌 Estado: Postulado → Revisión → Aceptada</option>
+                                            <option value="status_desc">📌 Estado: Aceptada / Rechazada primero</option>
+                                            <option value="exp_desc">⏳ Experiencia: mayor a menor</option>
+                                            <option value="exp_asc">⏳ Experiencia: menor a mayor</option>
+                                            <option value="candidate_asc">👤 Candidato: orden alfabético (A - Z)</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div className={styles.filtersFooter}>
+                                    <span className={styles.resultsCounter} role="status">
+                                        Mostrando <strong>{applications.length}</strong> postulación(es)
+                                    </span>
+                                    <button
+                                        type="button"
+                                        onClick={handleClearAppFilters}
+                                        className={styles.clearFiltersBtn}
+                                    >
+                                        ↺ Limpiar filtros y orden
+                                    </button>
+                                </div>
+                            </div>
+
                             {appsError && (
                                 <div role="alert" className={styles.alertError}>
                                     {appsError}
@@ -1288,7 +1474,11 @@ export default function AdminPage() {
                                 <p className={styles.statusMessage}>Cargando postulaciones...</p>
                             ) : applications.length === 0 ? (
                                 <div className={styles.placeholderBox}>
-                                    <p>Aún no hay postulaciones registradas en la plataforma.</p>
+                                    <p>
+                                        {filterStatus !== "all" || filterOfferId !== "all" || filterWorkMode !== "all" || filterMinExp !== "" || filterSearch.trim() !== ""
+                                            ? "No se encontraron postulaciones que coincidan con los filtros seleccionados."
+                                            : "Aún no hay postulaciones registradas en la plataforma."}
+                                    </p>
                                 </div>
                             ) : (
                                 <div className={styles.tableWrapper}>
