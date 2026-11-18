@@ -28,6 +28,8 @@ async function ensureTables() {
 
             ALTER TABLE notifications ADD COLUMN IF NOT EXISTS offer_id INTEGER REFERENCES job_offers(id) ON DELETE CASCADE;
             ALTER TABLE notifications ADD COLUMN IF NOT EXISTS score NUMERIC(5,2);
+
+            ALTER TABLE applications ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
         `);
     } catch {
         // En caso de que no haya conexión inicial aún, fallará silenciosamente hasta que conecte

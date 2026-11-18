@@ -731,3 +731,31 @@
     padding-top: 22px;
     border-top: 1px solid #e5e7eb;
 }
+
+/* ===== Detalles adicionales en tabla de postulaciones (SCRUM-28) ===== */
+.candidateMeta {
+    display: block;
+    margin-top: 2px;
+    font-size: 0.76rem;
+    color: #8a460e;
+    font-weight: 600;
+}
+
+.dateCell {
+    font-size: 0.8rem;
+    color: #4b5563;
+    white-space: nowrap;
+}
+
+.checkboxRow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: #faf3e5;
+    border: 1px solid #eee5d5;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #16182e;
+}
