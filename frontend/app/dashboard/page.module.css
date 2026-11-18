@@ -2,8 +2,8 @@
 .page {
     min-height: 100vh;
     padding: 40px 24px;
-    background: #faf3e5;
-    color: #16182e;
+    background: #f4f6f8;
+    color: #13223a;
     font-family: var(--font-poppins), system-ui, sans-serif;
 }
 
@@ -14,20 +14,20 @@
     background: #ffffff;
     border-radius: 18px;
     overflow: hidden;
-    box-shadow: 0 12px 40px rgba(22, 24, 46, 0.12);
+    box-shadow: 0 12px 40px rgba(19, 34, 58, 0.12);
 }
 
 /* ===== Cabecera ===== */
 .header {
     padding: 28px 36px;
-    background: #16182e;
+    background: #13223a;
     color: #ffffff;
-    border-bottom: 4px solid #f59f32;
+    border-bottom: 4px solid #00d461;
 }
 
 .eyebrow {
     margin: 0 0 8px;
-    color: #f59f32;
+    color: #00d461;
     font-size: 0.8rem;
     font-weight: 700;
     letter-spacing: 1.5px;
@@ -42,7 +42,7 @@
 }
 
 .title span {
-    color: #f59f32;
+    color: #00d461;
 }
 
 .headerDescription {
@@ -59,7 +59,7 @@
 
 .sectionTitle {
     margin: 0 0 20px;
-    color: #16182e;
+    color: #13223a;
     font-size: 1.2rem;
     font-weight: 700;
 }
@@ -71,7 +71,7 @@
     height: 3px;
     margin-top: 8px;
     border-radius: 4px;
-    background: #f59f32;
+    background: #00d461;
 }
 
 /* ===== Estado del perfil ===== */
@@ -125,14 +125,14 @@
 .detail {
     min-width: 0;
     padding: 16px;
-    background: #faf3e5;
-    border: 1px solid #eee5d5;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
     border-radius: 12px;
     transition: border-color 0.2s, transform 0.2s;
 }
 
 .detail:hover {
-    border-color: #f59f32;
+    border-color: #00d461;
     transform: translateY(-2px);
 }
 
@@ -146,7 +146,7 @@
 
 .detailValue {
     display: block;
-    color: #16182e;
+    color: #13223a;
     font-size: 0.95rem;
     font-weight: 600;
     line-height: 1.6;
@@ -173,9 +173,9 @@
     display: inline-flex;
     align-items: center;
     padding: 7px 12px;
-    background: #fff1dc;
-    color: #8a460e;
-    border: 1px solid #f8d5a0;
+    background: #e6f9f0;
+    color: #065f46;
+    border: 1px solid #9ee4b8;
     border-radius: 20px;
     font-size: 0.85rem;
     font-weight: 600;
@@ -223,24 +223,24 @@
 }
 
 .primaryButton {
-    background: #f59f32;
-    color: #16182e;
+    background: #00d461;
+    color: #13223a;
 }
 
 .primaryButton:hover {
-    background: #eb5e34;
+    background: #00b853;
     color: #ffffff;
 }
 
 .secondaryButton {
     background: #ffffff;
-    color: #16182e;
+    color: #13223a;
     border-color: #d1d5db;
 }
 
 .secondaryButton:hover {
-    background: #faf3e5;
-    border-color: #f59f32;
+    background: #f1f5f9;
+    border-color: #00d461;
 }
 
 .primaryButton:active,
@@ -250,7 +250,7 @@
 
 .primaryButton:focus-visible,
 .secondaryButton:focus-visible {
-    outline: 3px solid rgba(245, 159, 50, 0.4);
+    outline: 3px solid rgba(0, 212, 97, 0.4);
     outline-offset: 3px;
 }
 

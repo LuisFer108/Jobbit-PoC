@@ -56,8 +56,8 @@ export default function LoginPage() {
                    {/* Barra superior con logo + título */}
                 <header className={styles.topbar}>
                     <div className={styles.brand}>
-                        {/* Chip claro detrás del logo: el texto "JOBBIT" del SVG es azul noche
-                            (#16182e) y sobre la barra azul noche quedaría ilegible. El fondo claro
+                        {/* Chip claro detrás del logo: el texto "JOBBIT" del SVG es azul marino
+                            (#13223a) y sobre la barra azul marino quedaría ilegible. El fondo claro
                             lo hace resaltar. */}
                         <Image
                             src="/Logo-jobbit.svg"

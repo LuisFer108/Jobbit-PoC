@@ -4,7 +4,7 @@
     justify-content: center;
     align-items: flex-start;
     padding: 32px 24px;
-    background: #faf3e5; /* crema de marca */
+    background: #f4f6f8; /* fondo neutro claro Magneto */
 }
 
 .card {
@@ -13,12 +13,12 @@
     background: #ffffff;
     border-radius: 18px;
     overflow: hidden;
-    box-shadow: 0 12px 40px rgba(22, 24, 46, 0.15);
+    box-shadow: 0 12px 40px rgba(19, 34, 58, 0.12);
 }
 
 /* ===== Barra superior ===== */
 .topbar {
-    background: #16182e; /* azul noche de marca */
+    background: #13223a; /* azul noche de marca Magneto */
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -28,7 +28,7 @@
 .brand {
     display: flex;
     align-items: center;
-    background: #faf3e5;
+    background: #ffffff;
     padding: 6px 12px;
     border-radius: 10px;
 }
@@ -45,7 +45,7 @@
 
 .userIcon {
     display: inline-flex;
-    color: #f59f32; /* ámbar de marca */
+    color: #00d461; /* verde esmeralda Magneto */
 }
 
 /* ===== Cuerpo ===== */
@@ -57,7 +57,7 @@
     margin: 0 0 4px;
     font-size: 1.9rem;
     text-align: center;
-    color: #16182e;
+    color: #13223a;
     font-family: var(--font-poppins), system-ui, sans-serif;
     font-weight: 700;
 }
@@ -88,7 +88,7 @@
 
 .label {
     font-size: 0.9rem;
-    color: #16182e;
+    color: #13223a;
     font-weight: 600;
 }
 
@@ -102,7 +102,7 @@
     font-size: 1rem;
     font-family: inherit;
     background: #ffffff;
-    color: #16182e;
+    color: #13223a;
     transition: border-color 0.2s, box-shadow 0.2s;
 }
 
@@ -113,8 +113,8 @@
 
 .input:focus,
 .textarea:focus {
-    border-color: #f59f32; /* foco ámbar */
-    box-shadow: 0 0 0 3px rgba(245, 159, 50, 0.2);
+    border-color: #00d461; /* foco verde */
+    box-shadow: 0 0 0 3px rgba(0, 212, 97, 0.2);
 }
 
 /* ===== Habilidades ===== */
@@ -129,8 +129,9 @@
 .counter {
     font-size: 0.8rem;
     font-weight: 700;
-    color: #16182e;
-    background: #faf3e5;
+    color: #13223a;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
     padding: 4px 10px;
     border-radius: 999px;
 }
@@ -145,9 +146,9 @@
 .skillChip {
     padding: 8px 14px;
     border-radius: 999px;
-    border: 1px solid #f59f32;
+    border: 1px solid #00d461;
     background: transparent;
-    color: #16182e;
+    color: #13223a;
     font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
@@ -155,17 +156,17 @@
 }
 
 .skillChip:hover {
-    background: rgba(245, 159, 50, 0.15);
+    background: rgba(0, 212, 97, 0.15);
 }
 
 .skillChipSelected {
-    background: #f59f32;
-    color: #16182e;
+    background: #00d461;
+    color: #13223a;
 }
 
 .skillChipSelected:hover {
-    background: #eb5e34;
-    border-color: #eb5e34;
+    background: #00b853;
+    border-color: #00b853;
     color: #ffffff;
 }
 
@@ -181,8 +182,8 @@
 
 .primaryButton {
     padding: 14px 28px;
-    background: #f59f32;
-    color: #16182e;
+    background: #00d461;
+    color: #13223a;
     border: none;
     border-radius: 10px;
     font-weight: 700;
@@ -193,7 +194,7 @@
 }
 
 .primaryButton:hover {
-    background: #eb5e34;
+    background: #00b853;
     color: #ffffff;
 }
 
@@ -231,7 +232,7 @@
 
 /* ===== Específicos de edición ===== */
 .cancelLink {
-    color: #16182e;
+    color: #13223a;
     text-decoration: none;
     font-size: 0.9rem;
     opacity: 0.75;
@@ -251,6 +252,6 @@
 
 .loadingText {
     align-self: center;
-    color: #16182e;
+    color: #13223a;
     font-weight: 600;
 }

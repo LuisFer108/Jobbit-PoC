@@ -4,7 +4,7 @@
     justify-content: center;
     align-items: flex-start;
     padding: 32px 24px;
-    background: #faf3e5; /* crema de marca */
+    background: #f4f6f8; /* fondo neutro claro Magneto */
 }
 
 .container {
@@ -13,12 +13,12 @@
     background: #ffffff;
     border-radius: 18px;
     overflow: hidden;
-    box-shadow: 0 12px 40px rgba(22, 24, 46, 0.15);
+    box-shadow: 0 12px 40px rgba(19, 34, 58, 0.12);
 }
 
 /* ===== Barra superior ===== */
 .topbar {
-    background: #16182e; /* azul noche */
+    background: #13223a; /* azul noche Magneto */
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -28,7 +28,7 @@
 .brand {
     display: flex;
     align-items: center;
-    background: #faf3e5;
+    background: #ffffff;
     padding: 6px 12px;
     border-radius: 10px;
 }
@@ -43,7 +43,7 @@
     font-family: var(--font-poppins), system-ui, sans-serif;
 }
 
-.userIcon { display: inline-flex; color: #f59f32; }
+.userIcon { display: inline-flex; color: #00d461; }
 
 /* ===== Cabecera ===== */
 .header { padding: 28px 40px 8px; text-align: center; }
@@ -52,7 +52,7 @@
     display: block;
     text-align: left;
     margin-bottom: 16px;
-    color: #16182e;
+    color: #13223a;
     text-decoration: none;
     font-size: 0.9rem;
     opacity: 0.75;
@@ -65,20 +65,20 @@
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: #eb5e34;
+    color: #00d461;
 }
 
 .title {
     margin: 0 0 6px;
     font-size: 1.9rem;
-    color: #16182e;
+    color: #13223a;
     font-family: var(--font-poppins), system-ui, sans-serif;
     font-weight: 700;
 }
 
 .subtitle { margin: 0 auto 14px; max-width: 620px; color: #6b7280; }
 
-.applicationsLink { color: #eb5e34; text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+.applicationsLink { color: #00b853; text-decoration: none; font-weight: 600; font-size: 0.95rem; }
 .applicationsLink:hover { text-decoration: underline; }
 
 .content { padding: 16px 40px 40px; display: flex; flex-direction: column; gap: 24px; }
@@ -87,8 +87,8 @@
 .skillsCard {
     padding: 20px;
     border-radius: 14px;
-    background: #faf3e5;
-    border: 1px solid #f1e6cc;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
 }
 
 .skillsHeader {
@@ -102,7 +102,7 @@
 .sectionTitle {
     margin: 0 0 4px;
     font-size: 1.2rem;
-    color: #16182e;
+    color: #13223a;
     font-family: var(--font-poppins), system-ui, sans-serif;
 }
 
@@ -111,11 +111,11 @@
 .counter, .resultsCount {
     font-size: 0.8rem;
     font-weight: 700;
-    color: #16182e;
+    color: #13223a;
     background: #ffffff;
     padding: 4px 12px;
     border-radius: 999px;
-    border: 1px solid #f1e6cc;
+    border: 1px solid #e2e8f0;
     white-space: nowrap;
 }
 
@@ -128,17 +128,17 @@
     gap: 6px;
     padding: 8px 14px;
     border-radius: 999px;
-    border: 1px solid #f59f32;
+    border: 1px solid #00d461;
     background: #ffffff;
-    color: #16182e;
+    color: #13223a;
     font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
     transition: background 0.2s, color 0.2s;
 }
-.skillChip:hover { background: rgba(245, 159, 50, 0.15); }
-.skillChipSelected { background: #f59f32; }
-.skillChipSelected:hover { background: #eb5e34; border-color: #eb5e34; color: #ffffff; }
+.skillChip:hover { background: rgba(0, 212, 97, 0.15); }
+.skillChipSelected { background: #00d461; color: #13223a; }
+.skillChipSelected:hover { background: #00b853; border-color: #00b853; color: #ffffff; }
 
 .skillsFooter {
     display: flex;
@@ -157,8 +157,8 @@
 .primaryButton {
     display: inline-block;
     padding: 12px 24px;
-    background: #f59f32;
-    color: #16182e;
+    background: #00d461;
+    color: #13223a;
     border: none;
     border-radius: 10px;
     text-decoration: none;
@@ -168,28 +168,28 @@
     font-family: var(--font-poppins), system-ui, sans-serif;
     transition: background 0.2s, transform 0.05s;
 }
-.primaryButton:hover { background: #eb5e34; color: #ffffff; }
+.primaryButton:hover { background: #00b853; color: #ffffff; }
 .primaryButton:active { transform: translateY(1px); }
 .primaryButton:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .secondaryButton {
     padding: 12px 24px;
-    border: 1px solid #f59f32;
+    border: 1px solid #00d461;
     border-radius: 10px;
     background: transparent;
-    color: #16182e;
+    color: #13223a;
     font-weight: 600;
     cursor: pointer;
     transition: background 0.2s;
 }
-.secondaryButton:hover { background: rgba(245, 159, 50, 0.15); }
+.secondaryButton:hover { background: rgba(0, 212, 97, 0.15); }
 .secondaryButton:disabled { opacity: 0.6; cursor: not-allowed; }
 
 /* ===== Aviso ===== */
 .notice { padding: 16px 18px; border-radius: 12px; line-height: 1.5; font-size: 0.95rem; }
 .warningNotice { background: #fff7ed; border: 1px solid #fed7aa; color: #b45309; }
 .noticeTitle { display: block; margin-bottom: 4px; }
-.noticeLink { display: inline-block; margin-top: 8px; font-weight: 700; color: #eb5e34; text-decoration: none; }
+.noticeLink { display: inline-block; margin-top: 8px; font-weight: 700; color: #00b853; text-decoration: none; }
 .noticeLink:hover { text-decoration: underline; }
 
 /* ===== Recomendaciones ===== */
@@ -202,8 +202,8 @@
     text-align: center;
     border: 1px dashed #d1d5db;
     border-radius: 14px;
-    background: #faf3e5;
-    color: #16182e;
+    background: #f8fafc;
+    color: #13223a;
 }
 .emptyState h3 { margin: 8px 0; }
 .emptyState p { margin: 0 0 16px; color: #6b7280; }
@@ -211,23 +211,23 @@
 
 .jobCard {
     padding: 20px;
-    border: 1px solid #ece4d2;
-    border-left: 4px solid #f59f32;
+    border: 1px solid #e2e8f0;
+    border-left: 4px solid #00d461;
     border-radius: 14px;
     background: #ffffff;
-    box-shadow: 0 2px 8px rgba(22, 24, 46, 0.06);
+    box-shadow: 0 2px 8px rgba(19, 34, 58, 0.06);
 }
 .jobCardApplied { background: #f0fdf4; border-left-color: #15803d; }
 
 .jobHeader { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
 .jobInfo { flex: 1; min-width: 200px; }
 
-.jobNumber { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; color: #eb5e34; }
+.jobNumber { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; color: #00d461; }
 
 .jobTitle {
     margin: 2px 0;
     font-size: 1.25rem;
-    color: #16182e;
+    color: #13223a;
     font-family: var(--font-poppins), system-ui, sans-serif;
 }
 
@@ -248,7 +248,7 @@
 .score { font-size: 2rem; font-weight: 800; line-height: 1; font-family: var(--font-poppins), system-ui, sans-serif; }
 .scoreBadge { padding: 3px 10px; border: 1px solid; border-radius: 999px; font-size: 0.75rem; font-weight: 700; }
 
-.progressTrack { height: 8px; margin: 14px 0; border-radius: 999px; background: #f1ebdc; overflow: hidden; }
+.progressTrack { height: 8px; margin: 14px 0; border-radius: 999px; background: #e2e8f0; overflow: hidden; }
 .progressFill { height: 100%; border-radius: 999px; transition: width 0.4s; }
 
 .description { margin: 0 0 12px; color: #4b5563; }
@@ -256,14 +256,14 @@
 .metadata { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-bottom: 14px; font-size: 0.88rem; color: #6b7280; }
 .metaItem { display: flex; gap: 6px; align-items: center; }
 
-.subsectionTitle { margin: 0 0 8px; font-size: 0.9rem; color: #16182e; }
+.subsectionTitle { margin: 0 0 8px; font-size: 0.9rem; color: #13223a; }
 
 .requiredSkills, .breakdown { margin-top: 14px; }
 .requiredSkillsList { display: flex; flex-wrap: wrap; gap: 8px; }
 
 .requiredSkill { padding: 4px 12px; border-radius: 999px; font-size: 0.82rem; font-weight: 600; border: 1px solid; }
 .matchedSkill { background: #dcfce7; color: #15803d; border-color: #86efac; }
-.unmatchedSkill { background: #f8f6f0; color: #6b7280; border-color: #e8e1d0; }
+.unmatchedSkill { background: #f8fafc; color: #6b7280; border-color: #e2e8f0; }
 
 .breakdownGrid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
 .breakdownItem {
@@ -272,12 +272,13 @@
     gap: 2px;
     padding: 10px;
     border-radius: 10px;
-    background: #faf3e5;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
     text-align: center;
     font-size: 0.8rem;
     color: #6b7280;
 }
-.breakdownItem strong { font-size: 1.05rem; color: #16182e; }
+.breakdownItem strong { font-size: 1.05rem; color: #13223a; }
 
 .jobActions { display: flex; justify-content: flex-end; margin-top: 16px; }
 .appliedInfo { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
@@ -301,7 +302,7 @@
     align-items: center;
     justify-content: center;
     padding: 16px;
-    background: rgba(22, 24, 46, 0.6);
+    background: rgba(19, 34, 58, 0.6);
 }
 
 .modal {
@@ -317,20 +318,20 @@
 .applyModal { max-width: 640px; }
 .confirmationModal { text-align: center; }
 
-.modalTitle { margin: 0 0 8px; color: #16182e; font-family: var(--font-poppins), system-ui, sans-serif; }
+.modalTitle { margin: 0 0 8px; color: #13223a; font-family: var(--font-poppins), system-ui, sans-serif; }
 .warningTitle { color: #b45309; }
 .modalDescription { margin: 0 0 12px; color: #374151; }
 .helpText { margin: 0 0 8px; font-size: 0.85rem; color: #6b7280; }
 .modalActions, .confirmationActions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
 .confirmationActions { justify-content: center; }
 
-.profileSummary { margin: 14px 0; padding: 14px; border-radius: 12px; background: #faf3e5; border: 1px solid #f1e6cc; }
-.summaryTitle { margin: 0 0 8px; font-size: 0.95rem; color: #16182e; }
+.profileSummary { margin: 14px 0; padding: 14px; border-radius: 12px; background: #f8fafc; border: 1px solid #e2e8f0; }
+.summaryTitle { margin: 0 0 8px; font-size: 0.95rem; color: #13223a; }
 .profileDetails { margin: 0; padding-left: 18px; font-size: 0.9rem; color: #374151; }
 .profileDetails li { margin-bottom: 4px; }
 
 .form { display: flex; flex-direction: column; }
-.label { font-weight: 600; margin-bottom: 4px; color: #16182e; }
+.label { font-weight: 600; margin-bottom: 4px; color: #13223a; }
 .textarea {
     width: 100%;
     padding: 12px;
@@ -341,7 +342,7 @@
     resize: vertical;
     transition: border-color 0.2s, box-shadow 0.2s;
 }
-.textarea:focus { border-color: #f59f32; box-shadow: 0 0 0 3px rgba(245, 159, 50, 0.2); }
+.textarea:focus { border-color: #00d461; box-shadow: 0 0 0 3px rgba(0, 212, 97, 0.2); }
 
 .applyError {
     margin: 10px 0 0;

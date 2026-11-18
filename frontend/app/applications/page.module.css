@@ -4,7 +4,7 @@
     justify-content: center;
     align-items: flex-start;
     padding: 32px 24px;
-    background: #faf3e5;
+    background: #f4f6f8;
 }
 
 .card {
@@ -13,12 +13,12 @@
     background: #ffffff;
     border-radius: 18px;
     overflow: hidden;
-    box-shadow: 0 12px 40px rgba(22, 24, 46, 0.15);
+    box-shadow: 0 12px 40px rgba(19, 34, 58, 0.12);
 }
 
 /* ===== Barra superior ===== */
 .topbar {
-    background: #16182e;
+    background: #13223a;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -28,7 +28,7 @@
 .brand {
     display: flex;
     align-items: center;
-    background: #faf3e5;
+    background: #ffffff;
     padding: 6px 12px;
     border-radius: 10px;
 }
@@ -43,7 +43,7 @@
     font-family: var(--font-poppins), system-ui, sans-serif;
 }
 
-.userIcon { display: inline-flex; color: #f59f32; }
+.userIcon { display: inline-flex; color: #00d461; }
 
 /* ===== Cuerpo ===== */
 .body { padding: 32px 40px 40px; }
@@ -52,7 +52,7 @@
     margin: 0 0 4px;
     font-size: 1.9rem;
     text-align: center;
-    color: #16182e;
+    color: #13223a;
     font-family: var(--font-poppins), system-ui, sans-serif;
     font-weight: 700;
 }
@@ -67,11 +67,11 @@
     margin-bottom: 24px;
 }
 
-.link { color: #eb5e34; text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+.link { color: #00b853; text-decoration: none; font-weight: 600; font-size: 0.95rem; }
 .link:hover { text-decoration: underline; }
 
 .message { text-align: center; color: #dc2626; font-weight: 600; }
-.loading { text-align: center; color: #16182e; font-weight: 600; }
+.loading { text-align: center; color: #13223a; font-weight: 600; }
 
 /* ===== Estado vacío ===== */
 .empty {
@@ -79,8 +79,8 @@
     text-align: center;
     border: 1px dashed #d1d5db;
     border-radius: 12px;
-    background: #faf3e5;
-    color: #16182e;
+    background: #f8fafc;
+    color: #13223a;
 }
 .empty p { margin: 0 0 16px; font-size: 1.05rem; }
 
@@ -89,11 +89,11 @@
 
 .appCard {
     padding: 20px;
-    border: 1px solid #ece4d2;
-    border-left: 4px solid #f59f32;
+    border: 1px solid #e2e8f0;
+    border-left: 4px solid #00d461;
     border-radius: 12px;
     background: #ffffff;
-    box-shadow: 0 2px 8px rgba(22, 24, 46, 0.06);
+    box-shadow: 0 2px 8px rgba(19, 34, 58, 0.06);
 }
 
 .appHeader {
@@ -107,7 +107,7 @@
 .appTitle {
     margin: 0 0 4px;
     font-size: 1.2rem;
-    color: #16182e;
+    color: #13223a;
     font-family: var(--font-poppins), system-ui, sans-serif;
 }
 
@@ -120,7 +120,7 @@
     font-size: 0.8rem;
 }
 
-.company { margin: 0 0 6px; font-weight: 700; color: #16182e; }
+.company { margin: 0 0 6px; font-weight: 700; color: #13223a; }
 .meta { margin: 0 0 6px; font-size: 0.9rem; color: #6b7280; }
 
 .box {
@@ -131,15 +131,15 @@
 }
 .box p { margin: 4px 0 0; }
 
-.profileBox { background: #fff7e6; border: 1px solid #f9d9a0; color: #16182e; }
-.letterBox { background: #f8f6f0; border: 1px solid #e8e1d0; color: #374151; white-space: pre-line; }
+.profileBox { background: #e6f9f0; border: 1px solid #9ee4b8; color: #065f46; }
+.letterBox { background: #f8fafc; border: 1px solid #e2e8f0; color: #374151; white-space: pre-line; }
 
 /* ===== Botones ===== */
 .primaryButton {
     display: inline-block;
     padding: 12px 24px;
-    background: #f59f32;
-    color: #16182e;
+    background: #00d461;
+    color: #13223a;
     border: none;
     border-radius: 10px;
     text-decoration: none;
@@ -149,22 +149,22 @@
     font-family: var(--font-poppins), system-ui, sans-serif;
     transition: background 0.2s, transform 0.05s;
 }
-.primaryButton:hover { background: #eb5e34; color: #ffffff; }
+.primaryButton:hover { background: #00b853; color: #ffffff; }
 .primaryButton:active { transform: translateY(1px); }
 
 .secondaryButton {
     margin-top: 6px;
     padding: 8px 16px;
-    border: 1px solid #f59f32;
+    border: 1px solid #00d461;
     border-radius: 10px;
     background: transparent;
-    color: #16182e;
+    color: #13223a;
     font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
     transition: background 0.2s;
 }
-.secondaryButton:hover { background: rgba(245, 159, 50, 0.15); }
+.secondaryButton:hover { background: rgba(0, 212, 97, 0.15); }
 .secondaryButton:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .logout { margin-top: 28px; text-align: center; }
@@ -178,7 +178,7 @@
     align-items: center;
     justify-content: center;
     padding: 16px;
-    background: rgba(22, 24, 46, 0.6);
+    background: rgba(19, 34, 58, 0.6);
 }
 
 .modal {
@@ -194,13 +194,13 @@
 
 .modalTitle {
     margin: 0 0 8px;
-    color: #16182e;
+    color: #13223a;
     font-family: var(--font-poppins), system-ui, sans-serif;
 }
 
-.timelineTitle { margin: 20px 0 10px; font-size: 1rem; color: #16182e; }
+.timelineTitle { margin: 20px 0 10px; font-size: 1rem; color: #13223a; }
 
-.timeline { border-left: 2px solid #f59f32; padding-left: 18px; margin-left: 6px; }
+.timeline { border-left: 2px solid #00d461; padding-left: 18px; margin-left: 6px; }
 
 .timelineItem {
     position: relative;
@@ -220,7 +220,7 @@
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background: #eb5e34;
+    background: #00d461;
 }
 
 .timelineDate { font-size: 0.85rem; color: #6b7280; }
