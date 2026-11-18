@@ -69,8 +69,10 @@ export default function ApplicationsPage() {
             case "en_revision":
                 return { bg: "#fef3c7", color: "#b45309", border: "#fcd34d" };
             case "aceptado":
+            case "aceptada":
                 return { bg: "#dcfce7", color: "#15803d", border: "#86efac" };
             case "rechazado":
+            case "rechazada":
                 return { bg: "#fee2e2", color: "#b91c1c", border: "#fca5a5" };
             default:
                 return { bg: "#f3f4f6", color: "#374151", border: "#d1d5db" };

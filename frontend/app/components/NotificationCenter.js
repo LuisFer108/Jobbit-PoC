@@ -76,8 +76,11 @@ export default function NotificationCenter() {
                 setNotifications(list);
                 setUnreadCount(data.unreadCount || 0);
 
-                // Si hay alguna notificación no leída y no aplicada con >90%, mostrar banner emergente
-                const highlight = list.find((n) => !n.read && !n.is_applied && Number(n.score) > 90);
+                // Mostrar banner emergente ante una notificación de estado de postulación
+                // o una vacante de alta compatibilidad no leída.
+                const highlight = list.find(
+                    (n) => !n.read && (n.type === "application_status" || (!n.is_applied && Number(n.score) > 90))
+                );
                 if (highlight) {
                     setBannerNotif(highlight);
                 }
@@ -322,6 +325,54 @@ export default function NotificationCenter() {
                         ) : (
                             notifications.map((n) => {
                                 const scoreNum = Math.round(Number(n.score) || 0);
+                                const isStatusNotif = n.type === "application_status";
+
+                                // Notificación de cambio de estado de una postulación (SCRUM-28 flujo admin → candidato)
+                                if (isStatusNotif) {
+                                    return (
+                                        <div
+                                            key={n.id}
+                                            className={`${styles.item} ${n.read ? styles.itemRead : styles.itemUnread}`}
+                                        >
+                                            <div className={styles.itemTop}>
+                                                <span className={styles.scorePill}>
+                                                    📋 Actualización de postulación
+                                                </span>
+                                                <span className={styles.itemDate}>
+                                                    {new Date(n.created_at).toLocaleDateString()}
+                                                </span>
+                                            </div>
+
+                                            <p className={styles.itemCompany}>{n.message}</p>
+
+                                            <div className={styles.itemActions}>
+                                                <button
+                                                    type="button"
+                                                    className={styles.applyButton}
+                                                    onClick={() => {
+                                                        markAsRead(n.id);
+                                                        setIsOpen(false);
+                                                        router.push("/applications");
+                                                    }}
+                                                >
+                                                    Ver mis postulaciones
+                                                </button>
+
+                                                {!n.read && (
+                                                    <button
+                                                        type="button"
+                                                        className={styles.dismissButton}
+                                                        onClick={(e) => markAsRead(n.id, e)}
+                                                        title="Marcar como leída"
+                                                    >
+                                                        ✕
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    );
+                                }
+
                                 return (
                                     <div
                                         key={n.id}
@@ -399,45 +450,76 @@ export default function NotificationCenter() {
 
             {/* Banner interactivo flotante en pantalla */}
             {bannerNotif && !isOpen && (
-                <aside className={styles.toast} role="alert" aria-live="assertive">
-                    <div className={styles.toastIcon}>🎯</div>
-                    <div className={styles.toastContent}>
-                        <div className={styles.toastTitle}>
-                            ¡Vacante en tiempo real ({Math.round(bannerNotif.score)}% de afinidad)!
+                bannerNotif.type === "application_status" ? (
+                    <aside className={styles.toast} role="alert" aria-live="assertive">
+                        <div className={styles.toastIcon}>📋</div>
+                        <div className={styles.toastContent}>
+                            <div className={styles.toastTitle}>
+                                📋 Actualización en tus postulaciones
+                            </div>
+                            <p className={styles.toastDesc}>{bannerNotif.message}</p>
+                            <div className={styles.toastButtons}>
+                                <button
+                                    type="button"
+                                    className={styles.toastApply}
+                                    onClick={() => {
+                                        markAsRead(bannerNotif.id);
+                                        router.push("/applications");
+                                    }}
+                                >
+                                    Ver estado de mi postulación
+                                </button>
+                                <button
+                                    type="button"
+                                    className={styles.toastClose}
+                                    onClick={() => markAsRead(bannerNotif.id)}
+                                >
+                                    Cerrar
+                                </button>
+                            </div>
                         </div>
-                        <p className={styles.toastDesc}>
-                            <strong>{bannerNotif.job_title}</strong> en {bannerNotif.job_company}.
-                        </p>
-                        <p className={styles.toastQuestion}>¿Quieres aplicar ahora?</p>
-                        <div className={styles.toastButtons}>
-                            <button
-                                type="button"
-                                className={styles.toastApply}
-                                onClick={() => handleApply(bannerNotif)}
-                                disabled={applyingId === bannerNotif.id}
-                            >
-                                {applyingId === bannerNotif.id ? "Postulando..." : "✓ Sí, aplicar"}
-                            </button>
-                            <button
-                                type="button"
-                                className={styles.toastDetails}
-                                onClick={() => {
-                                    markAsRead(bannerNotif.id);
-                                    router.push("/jobs");
-                                }}
-                            >
-                                Ver vacante
-                            </button>
-                            <button
-                                type="button"
-                                className={styles.toastClose}
-                                onClick={() => markAsRead(bannerNotif.id)}
-                            >
-                                Cerrar
-                            </button>
+                    </aside>
+                ) : (
+                    <aside className={styles.toast} role="alert" aria-live="assertive">
+                        <div className={styles.toastIcon}>🎯</div>
+                        <div className={styles.toastContent}>
+                            <div className={styles.toastTitle}>
+                                ¡Vacante en tiempo real ({Math.round(bannerNotif.score)}% de afinidad)!
+                            </div>
+                            <p className={styles.toastDesc}>
+                                <strong>{bannerNotif.job_title}</strong> en {bannerNotif.job_company}.
+                            </p>
+                            <p className={styles.toastQuestion}>¿Quieres aplicar ahora?</p>
+                            <div className={styles.toastButtons}>
+                                <button
+                                    type="button"
+                                    className={styles.toastApply}
+                                    onClick={() => handleApply(bannerNotif)}
+                                    disabled={applyingId === bannerNotif.id}
+                                >
+                                    {applyingId === bannerNotif.id ? "Postulando..." : "✓ Sí, aplicar"}
+                                </button>
+                                <button
+                                    type="button"
+                                    className={styles.toastDetails}
+                                    onClick={() => {
+                                        markAsRead(bannerNotif.id);
+                                        router.push("/jobs");
+                                    }}
+                                >
+                                    Ver vacante
+                                </button>
+                                <button
+                                    type="button"
+                                    className={styles.toastClose}
+                                    onClick={() => markAsRead(bannerNotif.id)}
+                                >
+                                    Cerrar
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                </aside>
+                    </aside>
+                )
             )}
         </div>
     );

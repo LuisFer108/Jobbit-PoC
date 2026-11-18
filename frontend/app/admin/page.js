@@ -37,6 +37,50 @@ export default function AdminPage() {
     const [applications, setApplications] = useState([]);
     const [loadingApps, setLoadingApps] = useState(true);
     const [appsError, setAppsError] = useState("");
+    const [appsSuccess, setAppsSuccess] = useState("");
+    const [candidatesList, setCandidatesList] = useState([]);
+
+    // Filtros y ordenamiento de postulaciones (SCRUM-27: SCRUM-172 a SCRUM-177)
+    const [filterStatus, setFilterStatus] = useState("all");
+    const [filterOfferId, setFilterOfferId] = useState("all");
+    const [filterWorkMode, setFilterWorkMode] = useState("all");
+    const [filterMinExp, setFilterMinExp] = useState("");
+    const [filterSearch, setFilterSearch] = useState("");
+    const [sortByApps, setSortByApps] = useState("date_desc");
+
+    // Modal de edición de postulación (SCRUM-168)
+    const [editingAppId, setEditingAppId] = useState(null);
+    const [editAppOfferId, setEditAppOfferId] = useState("");
+    const [editAppStatus, setEditAppStatus] = useState("postulado");
+    const [editAppName, setEditAppName] = useState("");
+    const [editAppEmail, setEditAppEmail] = useState("");
+    const [editAppField, setEditAppField] = useState("");
+    const [editAppExpYears, setEditAppExpYears] = useState(0);
+    const [editAppExperience, setEditAppExperience] = useState("");
+    const [editAppEducation, setEditAppEducation] = useState("");
+    const [editAppPreferences, setEditAppPreferences] = useState("");
+    const [editAppLocation, setEditAppLocation] = useState("");
+    const [editAppWorkMode, setEditAppWorkMode] = useState("hybrid");
+    const [editAppCoverLetter, setEditAppCoverLetter] = useState("");
+    const [editAppNote, setEditAppNote] = useState("");
+    const [editAppSyncUser, setEditAppSyncUser] = useState(true);
+    const [savingAppEdit, setSavingAppEdit] = useState(false);
+    const [editAppFeedback, setEditAppFeedback] = useState(null);
+
+    // Modal de creación de postulación desde admin (SCRUM-28 / SCRUM-171)
+    const [creatingAppModal, setCreatingAppModal] = useState(false);
+    const [newAppUserId, setNewAppUserId] = useState("");
+    const [newAppOfferId, setNewAppOfferId] = useState("");
+    const [newAppStatus, setNewAppStatus] = useState("postulado");
+    const [newAppName, setNewAppName] = useState("");
+    const [newAppEmail, setNewAppEmail] = useState("");
+    const [newAppField, setNewAppField] = useState("");
+    const [newAppExpYears, setNewAppExpYears] = useState(0);
+    const [newAppLocation, setNewAppLocation] = useState("");
+    const [newAppWorkMode, setNewAppWorkMode] = useState("hybrid");
+    const [newAppCoverLetter, setNewAppCoverLetter] = useState("");
+    const [savingNewApp, setSavingNewApp] = useState(false);
+    const [newAppFeedback, setNewAppFeedback] = useState(null);
 
     // Listado de vacantes en el panel administrativo (SCRUM-134)
     const [adminJobs, setAdminJobs] = useState([]);
@@ -127,6 +171,15 @@ export default function AdminPage() {
                 } else {
                     setAppsError("No fue posible cargar las postulaciones.");
                 }
+
+                // Cargar la lista de candidatos para crear postulaciones desde admin (SCRUM-28)
+                const candidatesRes = await fetch("http://localhost:5001/api/applications/candidates", {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (candidatesRes.ok) {
+                    const candidatesData = await candidatesRes.json();
+                    setCandidatesList(Array.isArray(candidatesData) ? candidatesData : []);
+                }
             } catch {
                 setAppsError("No fue posible cargar las postulaciones.");
             } finally {
@@ -165,12 +218,73 @@ export default function AdminPage() {
         setAdminJobs([]);
         setApplications([]);
         setEditingJobId(null);
+        setEditingAppId(null);
+        setCreatingAppModal(false);
+        setCandidatesList([]);
     }, []);
+
+    // SCRUM-27: consulta GET /api/applications/all con los filtros y el orden seleccionados
+    const fetchFilteredApplications = useCallback(async (customFilters = {}) => {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        const statusVal = customFilters.status !== undefined ? customFilters.status : filterStatus;
+        const offerVal = customFilters.offerId !== undefined ? customFilters.offerId : filterOfferId;
+        const modeVal = customFilters.workMode !== undefined ? customFilters.workMode : filterWorkMode;
+        const minExpVal = customFilters.minExperience !== undefined ? customFilters.minExperience : filterMinExp;
+        const searchVal = customFilters.search !== undefined ? customFilters.search : filterSearch;
+        const sortVal = customFilters.sortBy !== undefined ? customFilters.sortBy : sortByApps;
+
+        const query = new URLSearchParams();
+        if (statusVal && statusVal !== "all") query.set("status", statusVal);
+        if (offerVal && offerVal !== "all") query.set("offerId", offerVal);
+        if (modeVal && modeVal !== "all") query.set("workMode", modeVal);
+        if (minExpVal !== "" && minExpVal !== null) query.set("minExperience", String(minExpVal));
+        if (searchVal && searchVal.trim() !== "") query.set("search", searchVal.trim());
+        if (sortVal) query.set("sortBy", sortVal);
+
+        setLoadingApps(true);
+        setAppsError("");
+        try {
+            const appsRes = await fetch(
+                `http://localhost:5001/api/applications/all?${query.toString()}`,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            if (appsRes.ok) {
+                const appsData = await appsRes.json();
+                setApplications(Array.isArray(appsData) ? appsData : []);
+            } else {
+                setAppsError("No fue posible aplicar los filtros a las postulaciones.");
+            }
+        } catch {
+            setAppsError("Error de conexión al filtrar las postulaciones.");
+        } finally {
+            setLoadingApps(false);
+        }
+    }, [filterStatus, filterOfferId, filterWorkMode, filterMinExp, filterSearch, sortByApps]);
+
+    function handleClearAppFilters() {
+        setFilterStatus("all");
+        setFilterOfferId("all");
+        setFilterWorkMode("all");
+        setFilterMinExp("");
+        setFilterSearch("");
+        setSortByApps("date_desc");
+    }
 
     useEffect(() => {
         loadAdminPanel();
     }, [loadAdminPanel]);
 
+    // SCRUM-27: re-consulta las postulaciones cuando cambia cualquier filtro u orden
+    useEffect(() => {
+        if (accessState === "authorized") {
+            fetchFilteredApplications();
+        }
+    }, [accessState, fetchFilteredApplications]);
+
+    // SCRUM-23 (SCRUM-139): Garantizar que la sesión no quede abierta en ninguna instancia
+    // (otras pestañas abiertas o restauración desde caché al usar el botón "Atrás").
     useEffect(() => {
         function handleStorageOrLogout(event) {
             if (event.type === "storage" && event.key === "token" && !event.newValue) {
@@ -397,12 +511,234 @@ export default function AdminPage() {
                     prev.map((app) => (app.id === applicationId ? { ...app, status: previous } : app))
                 );
                 setAppsError("No se pudo actualizar el estado de la postulación. Intenta de nuevo.");
+            } else {
+                // Actualizar en vivo la fecha de última modificación de esa fila (SCRUM-170)
+                const data = await res.json().catch(() => ({}));
+                const newUpdatedAt = data.application?.updated_at || new Date().toISOString();
+                setApplications((prev) =>
+                    prev.map((app) => (app.id === applicationId ? { ...app, updated_at: newUpdatedAt } : app))
+                );
             }
         } catch {
             setApplications((prev) =>
                 prev.map((app) => (app.id === applicationId ? { ...app, status: previous } : app))
             );
             setAppsError("Error de conexión al actualizar el estado.");
+        }
+    }
+
+    function formatFechaModificacion(dateStr) {
+        if (!dateStr) return "—";
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return "—";
+        return d.toLocaleString("es-CO", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+    }
+
+    function openEditApplicationModal(app) {
+        setEditingAppId(app.id);
+        setEditAppOfferId(app.offer_id || "");
+        setEditAppStatus(app.status || "postulado");
+        setEditAppName(app.candidate_name || "");
+        setEditAppEmail(app.candidate_email || "");
+        setEditAppField(app.field || "");
+        setEditAppExpYears(app.experience_years ?? 0);
+        setEditAppExperience(app.experience || "");
+        setEditAppEducation(app.education || "");
+        setEditAppPreferences(app.work_preferences || "");
+        setEditAppLocation(app.preferred_location || "");
+        setEditAppWorkMode(app.work_mode || "hybrid");
+        setEditAppCoverLetter(app.cover_letter || "");
+        setEditAppNote("");
+        setEditAppSyncUser(true);
+        setEditAppFeedback(null);
+        setAppsError("");
+        setAppsSuccess("");
+    }
+
+    function closeEditApplicationModal() {
+        setEditingAppId(null);
+        setEditAppFeedback(null);
+    }
+
+    async function handleUpdateApplication(e) {
+        e.preventDefault();
+        setEditAppFeedback(null);
+
+        if (!editAppName.trim() || editAppName.trim().length < 2) {
+            setEditAppFeedback({ error: true, text: "El nombre del candidato es obligatorio." });
+            return;
+        }
+        if (!editAppEmail.trim() || !editAppEmail.includes("@")) {
+            setEditAppFeedback({ error: true, text: "Ingresa un correo electrónico válido." });
+            return;
+        }
+        if (!editAppField.trim()) {
+            setEditAppFeedback({ error: true, text: "El campo profesional es obligatorio." });
+            return;
+        }
+        const parsedExp = Number(editAppExpYears);
+        if (editAppExpYears === "" || !Number.isInteger(parsedExp) || parsedExp < 0 || parsedExp > 50) {
+            setEditAppFeedback({ error: true, text: "Los años de experiencia deben ser un entero entre 0 y 50." });
+            return;
+        }
+
+        const token = localStorage.getItem("token");
+        if (!token) {
+            router.replace("/login");
+            return;
+        }
+
+        setSavingAppEdit(true);
+
+        try {
+            const res = await fetch(`http://localhost:5001/api/applications/${editingAppId}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    offer_id: Number(editAppOfferId),
+                    status: editAppStatus,
+                    candidate_name: editAppName.trim(),
+                    candidate_email: editAppEmail.trim(),
+                    field: editAppField.trim(),
+                    experience_years: parsedExp,
+                    experience: editAppExperience.trim(),
+                    education: editAppEducation.trim(),
+                    work_preferences: editAppPreferences.trim(),
+                    preferred_location: editAppLocation.trim(),
+                    work_mode: editAppWorkMode,
+                    cover_letter: editAppCoverLetter.trim(),
+                    note: editAppNote.trim(),
+                    syncUserProfile: editAppSyncUser
+                })
+            });
+
+            const data = await res.json();
+
+            if (res.status === 401) {
+                localStorage.removeItem("token");
+                clearAdminSessionState();
+                router.replace("/login");
+                return;
+            }
+
+            if (!res.ok) {
+                setEditAppFeedback({
+                    error: true,
+                    text: data.message || "No se pudo actualizar la postulación."
+                });
+                return;
+            }
+
+            setAppsSuccess(`¡Postulación #${editingAppId} modificada y guardada en PostgreSQL correctamente!`);
+            closeEditApplicationModal();
+            loadAdminPanel();
+        } catch {
+            setEditAppFeedback({
+                error: true,
+                text: "Error de conexión al guardar los cambios de la postulación."
+            });
+        } finally {
+            setSavingAppEdit(false);
+        }
+    }
+
+    function openCreateApplicationModal() {
+        const firstCand = candidatesList[0] || null;
+        const firstJob = adminJobs[0] || null;
+        setNewAppUserId(firstCand ? String(firstCand.user_id) : "");
+        setNewAppOfferId(firstJob ? String(firstJob.id) : "");
+        setNewAppStatus("postulado");
+        setNewAppName(firstCand?.name || "");
+        setNewAppEmail(firstCand?.email || "");
+        setNewAppField(firstCand?.field || "Desarrollo de Software");
+        setNewAppExpYears(firstCand?.experience_years ?? 1);
+        setNewAppLocation(firstCand?.preferred_location || "Bogotá");
+        setNewAppWorkMode(firstCand?.work_mode || "hybrid");
+        setNewAppCoverLetter("");
+        setNewAppFeedback(null);
+        setCreatingAppModal(true);
+    }
+
+    function handleSelectCandidateForNewApp(selectedId) {
+        setNewAppUserId(selectedId);
+        const cand = candidatesList.find((c) => String(c.user_id) === String(selectedId));
+        if (cand) {
+            setNewAppName(cand.name || "");
+            setNewAppEmail(cand.email || "");
+            setNewAppField(cand.field || "Desarrollo de Software");
+            setNewAppExpYears(cand.experience_years ?? 0);
+            setNewAppLocation(cand.preferred_location || "Bogotá");
+            setNewAppWorkMode(cand.work_mode || "hybrid");
+        }
+    }
+
+    async function handleCreateAdminApplication(e) {
+        e.preventDefault();
+        setNewAppFeedback(null);
+
+        if (!newAppUserId || !newAppOfferId) {
+            setNewAppFeedback({ error: true, text: "Selecciona tanto el candidato como la vacante." });
+            return;
+        }
+
+        const token = localStorage.getItem("token");
+        if (!token) {
+            router.replace("/login");
+            return;
+        }
+
+        setSavingNewApp(true);
+
+        try {
+            const res = await fetch("http://localhost:5001/api/applications/admin", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    user_id: Number(newAppUserId),
+                    offer_id: Number(newAppOfferId),
+                    status: newAppStatus,
+                    candidate_name: newAppName.trim(),
+                    candidate_email: newAppEmail.trim(),
+                    field: newAppField.trim(),
+                    experience_years: Number(newAppExpYears) || 0,
+                    preferred_location: newAppLocation.trim(),
+                    work_mode: newAppWorkMode,
+                    cover_letter: newAppCoverLetter.trim()
+                })
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                setNewAppFeedback({
+                    error: true,
+                    text: data.message || "Error al crear la postulación."
+                });
+                return;
+            }
+
+            setAppsSuccess("¡Nueva postulación creada y registrada en la base de datos!");
+            setCreatingAppModal(false);
+            loadAdminPanel();
+        } catch {
+            setNewAppFeedback({
+                error: true,
+                text: "Error de conexión al crear la postulación."
+            });
+        } finally {
+            setSavingNewApp(false);
         }
     }
 
@@ -960,19 +1296,156 @@ export default function AdminPage() {
                         <section className={styles.section}>
                             <div className={styles.sectionHeaderRow}>
                                 <h2 className={styles.sectionTitle}>Seguimiento de postulaciones</h2>
-                                <button
-                                    type="button"
-                                    className={styles.backTabLink}
-                                    onClick={() => setActiveTab("overview")}
-                                >
-                                    ← Volver al resumen
-                                </button>
+                                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                                    <button
+                                        type="button"
+                                        className={styles.primaryButton}
+                                        onClick={openCreateApplicationModal}
+                                    >
+                                        + Crear postulación
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className={styles.backTabLink}
+                                        onClick={() => setActiveTab("overview")}
+                                    >
+                                        ← Volver al resumen
+                                    </button>
+                                </div>
                             </div>
                             <p className={styles.sectionIntro}>
                                 Se han registrado{" "}
                                 <strong>{summary?.total_applications ?? applications.length} postulación(es)</strong> en la plataforma.
                                 Actualiza el estado de cada proceso para llevar a los candidatos rumbo a la entrevista.
                             </p>
+
+                            {appsSuccess && (
+                                <div role="status" className={styles.alertSuccess}>
+                                    {appsSuccess}
+                                </div>
+                            )}
+
+                            {/* BARRA DE FILTROS Y ORDENAMIENTO DE POSTULACIONES (SCRUM-27: SCRUM-172 a SCRUM-177) */}
+                            <div className={styles.filtersPanel} aria-label="Filtros y ordenamiento de postulaciones">
+                                <div className={styles.filtersGrid}>
+                                    <div className={styles.fieldGroup}>
+                                        <label className={styles.label} htmlFor="filter-app-search">
+                                            Buscar candidato o vacante
+                                        </label>
+                                        <input
+                                            id="filter-app-search"
+                                            type="search"
+                                            placeholder="Nombre, correo, cargo o empresa..."
+                                            value={filterSearch}
+                                            onChange={(e) => setFilterSearch(e.target.value)}
+                                            className={styles.input}
+                                        />
+                                    </div>
+
+                                    <div className={styles.fieldGroup}>
+                                        <label className={styles.label} htmlFor="filter-app-status">
+                                            Filtrar por estado
+                                        </label>
+                                        <select
+                                            id="filter-app-status"
+                                            value={filterStatus}
+                                            onChange={(e) => setFilterStatus(e.target.value)}
+                                            className={styles.select}
+                                        >
+                                            <option value="all">Todos los estados</option>
+                                            <option value="postulado">Postulado</option>
+                                            <option value="en_revision">En revisión</option>
+                                            <option value="aceptada">Aceptada</option>
+                                            <option value="rechazada">Rechazada</option>
+                                        </select>
+                                    </div>
+
+                                    <div className={styles.fieldGroup}>
+                                        <label className={styles.label} htmlFor="filter-app-offer">
+                                            Filtrar por vacante
+                                        </label>
+                                        <select
+                                            id="filter-app-offer"
+                                            value={filterOfferId}
+                                            onChange={(e) => setFilterOfferId(e.target.value)}
+                                            className={styles.select}
+                                        >
+                                            <option value="all">Todas las vacantes</option>
+                                            {adminJobs.map((job) => (
+                                                <option key={job.id} value={String(job.id)}>
+                                                    {job.title} ({job.company || "Jobbit"})
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div className={styles.fieldGroup}>
+                                        <label className={styles.label} htmlFor="filter-app-mode">
+                                            Modalidad del candidato
+                                        </label>
+                                        <select
+                                            id="filter-app-mode"
+                                            value={filterWorkMode}
+                                            onChange={(e) => setFilterWorkMode(e.target.value)}
+                                            className={styles.select}
+                                        >
+                                            <option value="all">Todas las modalidades</option>
+                                            <option value="remote">Remoto</option>
+                                            <option value="hybrid">Híbrido</option>
+                                            <option value="onsite">Presencial</option>
+                                        </select>
+                                    </div>
+
+                                    <div className={styles.fieldGroup}>
+                                        <label className={styles.label} htmlFor="filter-app-minexp">
+                                            Experiencia mín. (años)
+                                        </label>
+                                        <input
+                                            id="filter-app-minexp"
+                                            type="number"
+                                            min={0}
+                                            max={50}
+                                            placeholder="Ej: 2"
+                                            value={filterMinExp}
+                                            onChange={(e) => setFilterMinExp(e.target.value)}
+                                            className={styles.input}
+                                        />
+                                    </div>
+
+                                    <div className={styles.fieldGroup}>
+                                        <label className={styles.label} htmlFor="sort-apps">
+                                            Ordenar por (4 criterios)
+                                        </label>
+                                        <select
+                                            id="sort-apps"
+                                            value={sortByApps}
+                                            onChange={(e) => setSortByApps(e.target.value)}
+                                            className={styles.select}
+                                        >
+                                            <option value="date_desc">📅 Fecha: más recientes primero</option>
+                                            <option value="date_asc">📅 Fecha: más antiguas primero</option>
+                                            <option value="status_asc">📌 Estado: Postulado → Revisión → Aceptada</option>
+                                            <option value="status_desc">📌 Estado: Aceptada / Rechazada primero</option>
+                                            <option value="exp_desc">⏳ Experiencia: mayor a menor</option>
+                                            <option value="exp_asc">⏳ Experiencia: menor a mayor</option>
+                                            <option value="candidate_asc">👤 Candidato: orden alfabético (A - Z)</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div className={styles.filtersFooter}>
+                                    <span className={styles.resultsCounter} role="status">
+                                        Mostrando <strong>{applications.length}</strong> postulación(es)
+                                    </span>
+                                    <button
+                                        type="button"
+                                        onClick={handleClearAppFilters}
+                                        className={styles.clearFiltersBtn}
+                                    >
+                                        ↺ Limpiar filtros y orden
+                                    </button>
+                                </div>
+                            </div>
 
                             {appsError && (
                                 <div role="alert" className={styles.alertError}>
@@ -984,7 +1457,11 @@ export default function AdminPage() {
                                 <p className={styles.statusMessage}>Cargando postulaciones...</p>
                             ) : applications.length === 0 ? (
                                 <div className={styles.placeholderBox}>
-                                    <p>Aún no hay postulaciones registradas en la plataforma.</p>
+                                    <p>
+                                        {filterStatus !== "all" || filterOfferId !== "all" || filterWorkMode !== "all" || filterMinExp !== "" || filterSearch.trim() !== ""
+                                            ? "No se encontraron postulaciones que coincidan con los filtros seleccionados."
+                                            : "Aún no hay postulaciones registradas en la plataforma."}
+                                    </p>
                                 </div>
                             ) : (
                                 <div className={styles.tableWrapper}>
@@ -994,7 +1471,9 @@ export default function AdminPage() {
                                                 <th>Candidato</th>
                                                 <th>Vacante</th>
                                                 <th>Estado</th>
+                                                <th>Última modificación</th>
                                                 <th>Cambiar estado</th>
+                                                <th>Acciones</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -1003,12 +1482,23 @@ export default function AdminPage() {
                                                     <td>
                                                         <span className={styles.candidateName}>{app.candidate_name}</span>
                                                         <span className={styles.candidateEmail}>{app.candidate_email}</span>
+                                                        {app.field && (
+                                                            <span className={styles.candidateMeta}>
+                                                                {app.field} · {app.experience_years ?? 0} año(s)
+                                                            </span>
+                                                        )}
                                                     </td>
-                                                    <td>{app.job_title}</td>
+                                                    <td>
+                                                        <span className={styles.candidateName}>{app.job_title}</span>
+                                                        <span className={styles.candidateEmail}>{app.job_company}</span>
+                                                    </td>
                                                     <td>
                                                         <span className={`${styles.statusBadge} ${styles[`status_${app.status}`] || ""}`}>
                                                             {estadoTexto(app.status)}
                                                         </span>
+                                                    </td>
+                                                    <td className={styles.dateCell}>
+                                                        {formatFechaModificacion(app.updated_at || app.created_at)}
                                                     </td>
                                                     <td>
                                                         <select
@@ -1022,6 +1512,15 @@ export default function AdminPage() {
                                                             <option value="aceptada">Aceptada</option>
                                                             <option value="rechazada">Rechazada</option>
                                                         </select>
+                                                    </td>
+                                                    <td>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => openEditApplicationModal(app)}
+                                                            className={styles.secondaryButton}
+                                                        >
+                                                            ✎ Editar
+                                                        </button>
                                                     </td>
                                                 </tr>
                                             ))}
@@ -1226,6 +1725,407 @@ export default function AdminPage() {
                                     className={styles.primaryButton}
                                 >
                                     {savingEdit ? "Guardando cambios..." : "Guardar cambios en la vacante"}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* MODAL DE EDICIÓN DE POSTULACIÓN (SCRUM-168) */}
+            {editingAppId !== null && (
+                <div className={styles.modalOverlay} role="dialog" aria-modal="true" aria-labelledby="edit-app-title">
+                    <div className={styles.modalCard}>
+                        <div className={styles.modalHeader}>
+                            <h3 id="edit-app-title" className={styles.modalTitle}>
+                                Editar postulación #{editingAppId}
+                            </h3>
+                            <button
+                                type="button"
+                                onClick={closeEditApplicationModal}
+                                className={styles.modalCloseBtn}
+                                aria-label="Cerrar ventana de edición"
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        {editAppFeedback && (
+                            <div
+                                role={editAppFeedback.error ? "alert" : "status"}
+                                className={editAppFeedback.error ? styles.alertError : styles.alertSuccess}
+                            >
+                                {editAppFeedback.text}
+                            </div>
+                        )}
+
+                        <form onSubmit={handleUpdateApplication} className={styles.form} noValidate>
+                            <div className={styles.formGridTwo}>
+                                <div className={styles.fieldGroup}>
+                                    <label className={styles.label} htmlFor="edit-app-name">Nombre del candidato *</label>
+                                    <input
+                                        id="edit-app-name"
+                                        type="text"
+                                        required
+                                        value={editAppName}
+                                        onChange={(e) => setEditAppName(e.target.value)}
+                                        className={styles.input}
+                                    />
+                                </div>
+                                <div className={styles.fieldGroup}>
+                                    <label className={styles.label} htmlFor="edit-app-email">Correo del candidato *</label>
+                                    <input
+                                        id="edit-app-email"
+                                        type="email"
+                                        required
+                                        value={editAppEmail}
+                                        onChange={(e) => setEditAppEmail(e.target.value)}
+                                        className={styles.input}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className={styles.formGridThree}>
+                                <div className={styles.fieldGroup}>
+                                    <label className={styles.label} htmlFor="edit-app-offer">Vacante asociada</label>
+                                    <select
+                                        id="edit-app-offer"
+                                        value={editAppOfferId}
+                                        onChange={(e) => setEditAppOfferId(e.target.value)}
+                                        className={styles.select}
+                                    >
+                                        {adminJobs.map((job) => (
+                                            <option key={job.id} value={job.id}>{job.title}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className={styles.fieldGroup}>
+                                    <label className={styles.label} htmlFor="edit-app-status">Estado</label>
+                                    <select
+                                        id="edit-app-status"
+                                        value={editAppStatus}
+                                        onChange={(e) => setEditAppStatus(e.target.value)}
+                                        className={styles.select}
+                                    >
+                                        <option value="postulado">Postulado</option>
+                                        <option value="en_revision">En revisión</option>
+                                        <option value="aceptada">Aceptada</option>
+                                        <option value="rechazada">Rechazada</option>
+                                    </select>
+                                </div>
+                                <div className={styles.fieldGroup}>
+                                    <label className={styles.label} htmlFor="edit-app-exp">Años de experiencia</label>
+                                    <input
+                                        id="edit-app-exp"
+                                        type="number"
+                                        min={0}
+                                        max={50}
+                                        value={editAppExpYears}
+                                        onChange={(e) => setEditAppExpYears(e.target.value)}
+                                        className={styles.input}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className={styles.formGridThree}>
+                                <div className={styles.fieldGroup}>
+                                    <label className={styles.label} htmlFor="edit-app-field">Campo profesional *</label>
+                                    <input
+                                        id="edit-app-field"
+                                        type="text"
+                                        required
+                                        value={editAppField}
+                                        onChange={(e) => setEditAppField(e.target.value)}
+                                        className={styles.input}
+                                    />
+                                </div>
+                                <div className={styles.fieldGroup}>
+                                    <label className={styles.label} htmlFor="edit-app-location">Ubicación preferida</label>
+                                    <input
+                                        id="edit-app-location"
+                                        type="text"
+                                        value={editAppLocation}
+                                        onChange={(e) => setEditAppLocation(e.target.value)}
+                                        className={styles.input}
+                                    />
+                                </div>
+                                <div className={styles.fieldGroup}>
+                                    <label className={styles.label} htmlFor="edit-app-mode">Modalidad preferida</label>
+                                    <select
+                                        id="edit-app-mode"
+                                        value={editAppWorkMode}
+                                        onChange={(e) => setEditAppWorkMode(e.target.value)}
+                                        className={styles.select}
+                                    >
+                                        <option value="remote">Remoto</option>
+                                        <option value="hybrid">Híbrido</option>
+                                        <option value="onsite">Presencial</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className={styles.fieldGroup}>
+                                <label className={styles.label} htmlFor="edit-app-experience">Descripción de experiencia</label>
+                                <textarea
+                                    id="edit-app-experience"
+                                    rows={2}
+                                    value={editAppExperience}
+                                    onChange={(e) => setEditAppExperience(e.target.value)}
+                                    className={styles.textarea}
+                                />
+                            </div>
+
+                            <div className={styles.fieldGroup}>
+                                <label className={styles.label} htmlFor="edit-app-education">Educación / Formación</label>
+                                <textarea
+                                    id="edit-app-education"
+                                    rows={2}
+                                    value={editAppEducation}
+                                    onChange={(e) => setEditAppEducation(e.target.value)}
+                                    className={styles.textarea}
+                                />
+                            </div>
+
+                            <div className={styles.fieldGroup}>
+                                <label className={styles.label} htmlFor="edit-app-prefs">Preferencias laborales</label>
+                                <textarea
+                                    id="edit-app-prefs"
+                                    rows={2}
+                                    value={editAppPreferences}
+                                    onChange={(e) => setEditAppPreferences(e.target.value)}
+                                    className={styles.textarea}
+                                />
+                            </div>
+
+                            <div className={styles.fieldGroup}>
+                                <label className={styles.label} htmlFor="edit-app-cover">Carta de presentación</label>
+                                <textarea
+                                    id="edit-app-cover"
+                                    rows={2}
+                                    value={editAppCoverLetter}
+                                    onChange={(e) => setEditAppCoverLetter(e.target.value)}
+                                    className={styles.textarea}
+                                />
+                            </div>
+
+                            <div className={styles.fieldGroup}>
+                                <label className={styles.label} htmlFor="edit-app-note">Nota de la modificación (opcional)</label>
+                                <input
+                                    id="edit-app-note"
+                                    type="text"
+                                    placeholder="Ej: Se corrigió el correo del candidato"
+                                    value={editAppNote}
+                                    onChange={(e) => setEditAppNote(e.target.value)}
+                                    className={styles.input}
+                                />
+                            </div>
+
+                            <label className={styles.checkboxRow}>
+                                <input
+                                    type="checkbox"
+                                    checked={editAppSyncUser}
+                                    onChange={(e) => setEditAppSyncUser(e.target.checked)}
+                                />
+                                Sincronizar también estos datos con el perfil del usuario (users / work_profiles)
+                            </label>
+
+                            <div className={styles.modalActions}>
+                                <button
+                                    type="button"
+                                    onClick={closeEditApplicationModal}
+                                    className={styles.secondaryButton}
+                                    disabled={savingAppEdit}
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={savingAppEdit}
+                                    className={styles.primaryButton}
+                                >
+                                    {savingAppEdit ? "Guardando cambios..." : "Guardar cambios"}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* MODAL DE CREACIÓN DE POSTULACIÓN DESDE ADMIN (SCRUM-28 / SCRUM-171) */}
+            {creatingAppModal && (
+                <div className={styles.modalOverlay} role="dialog" aria-modal="true" aria-labelledby="new-app-title">
+                    <div className={styles.modalCard}>
+                        <div className={styles.modalHeader}>
+                            <h3 id="new-app-title" className={styles.modalTitle}>
+                                Crear nueva postulación
+                            </h3>
+                            <button
+                                type="button"
+                                onClick={() => setCreatingAppModal(false)}
+                                className={styles.modalCloseBtn}
+                                aria-label="Cerrar ventana de creación"
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        {newAppFeedback && (
+                            <div
+                                role={newAppFeedback.error ? "alert" : "status"}
+                                className={newAppFeedback.error ? styles.alertError : styles.alertSuccess}
+                            >
+                                {newAppFeedback.text}
+                            </div>
+                        )}
+
+                        <form onSubmit={handleCreateAdminApplication} className={styles.form} noValidate>
+                            <div className={styles.formGridTwo}>
+                                <div className={styles.fieldGroup}>
+                                    <label className={styles.label} htmlFor="new-app-candidate">Candidato *</label>
+                                    <select
+                                        id="new-app-candidate"
+                                        value={newAppUserId}
+                                        onChange={(e) => handleSelectCandidateForNewApp(e.target.value)}
+                                        className={styles.select}
+                                    >
+                                        <option value="">Selecciona un candidato</option>
+                                        {candidatesList.map((c) => (
+                                            <option key={c.user_id} value={c.user_id}>
+                                                {c.name} ({c.email})
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className={styles.fieldGroup}>
+                                    <label className={styles.label} htmlFor="new-app-offer">Vacante *</label>
+                                    <select
+                                        id="new-app-offer"
+                                        value={newAppOfferId}
+                                        onChange={(e) => setNewAppOfferId(e.target.value)}
+                                        className={styles.select}
+                                    >
+                                        <option value="">Selecciona una vacante</option>
+                                        {adminJobs.map((job) => (
+                                            <option key={job.id} value={job.id}>{job.title}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className={styles.formGridTwo}>
+                                <div className={styles.fieldGroup}>
+                                    <label className={styles.label} htmlFor="new-app-name">Nombre del candidato</label>
+                                    <input
+                                        id="new-app-name"
+                                        type="text"
+                                        value={newAppName}
+                                        onChange={(e) => setNewAppName(e.target.value)}
+                                        className={styles.input}
+                                    />
+                                </div>
+                                <div className={styles.fieldGroup}>
+                                    <label className={styles.label} htmlFor="new-app-email">Correo del candidato</label>
+                                    <input
+                                        id="new-app-email"
+                                        type="email"
+                                        value={newAppEmail}
+                                        onChange={(e) => setNewAppEmail(e.target.value)}
+                                        className={styles.input}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className={styles.formGridThree}>
+                                <div className={styles.fieldGroup}>
+                                    <label className={styles.label} htmlFor="new-app-field">Campo profesional</label>
+                                    <input
+                                        id="new-app-field"
+                                        type="text"
+                                        value={newAppField}
+                                        onChange={(e) => setNewAppField(e.target.value)}
+                                        className={styles.input}
+                                    />
+                                </div>
+                                <div className={styles.fieldGroup}>
+                                    <label className={styles.label} htmlFor="new-app-exp">Años de experiencia</label>
+                                    <input
+                                        id="new-app-exp"
+                                        type="number"
+                                        min={0}
+                                        max={50}
+                                        value={newAppExpYears}
+                                        onChange={(e) => setNewAppExpYears(e.target.value)}
+                                        className={styles.input}
+                                    />
+                                </div>
+                                <div className={styles.fieldGroup}>
+                                    <label className={styles.label} htmlFor="new-app-status">Estado inicial</label>
+                                    <select
+                                        id="new-app-status"
+                                        value={newAppStatus}
+                                        onChange={(e) => setNewAppStatus(e.target.value)}
+                                        className={styles.select}
+                                    >
+                                        <option value="postulado">Postulado</option>
+                                        <option value="en_revision">En revisión</option>
+                                        <option value="aceptada">Aceptada</option>
+                                        <option value="rechazada">Rechazada</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className={styles.formGridTwo}>
+                                <div className={styles.fieldGroup}>
+                                    <label className={styles.label} htmlFor="new-app-location">Ubicación preferida</label>
+                                    <input
+                                        id="new-app-location"
+                                        type="text"
+                                        value={newAppLocation}
+                                        onChange={(e) => setNewAppLocation(e.target.value)}
+                                        className={styles.input}
+                                    />
+                                </div>
+                                <div className={styles.fieldGroup}>
+                                    <label className={styles.label} htmlFor="new-app-mode">Modalidad preferida</label>
+                                    <select
+                                        id="new-app-mode"
+                                        value={newAppWorkMode}
+                                        onChange={(e) => setNewAppWorkMode(e.target.value)}
+                                        className={styles.select}
+                                    >
+                                        <option value="remote">Remoto</option>
+                                        <option value="hybrid">Híbrido</option>
+                                        <option value="onsite">Presencial</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className={styles.fieldGroup}>
+                                <label className={styles.label} htmlFor="new-app-cover">Carta de presentación</label>
+                                <textarea
+                                    id="new-app-cover"
+                                    rows={2}
+                                    value={newAppCoverLetter}
+                                    onChange={(e) => setNewAppCoverLetter(e.target.value)}
+                                    className={styles.textarea}
+                                />
+                            </div>
+
+                            <div className={styles.modalActions}>
+                                <button
+                                    type="button"
+                                    onClick={() => setCreatingAppModal(false)}
+                                    className={styles.secondaryButton}
+                                    disabled={savingNewApp}
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={savingNewApp}
+                                    className={styles.primaryButton}
+                                >
+                                    {savingNewApp ? "Creando postulación..." : "Crear postulación"}
                                 </button>
                             </div>
                         </form>
