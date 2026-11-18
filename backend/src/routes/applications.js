@@ -5,8 +5,102 @@ const { validateWorkProfileCompleteness } = require("../utils/profileValidation"
 
 const router = express.Router();
 
+// LISTAR TODAS LAS POSTULACIONES DEL SISTEMA (Solo Administradores)
+router.get("/all", authenticateToken, async (req, res) => {
+    try {
+        if (req.user.role !== "admin") {
+            return res.status(403).json({ message: "No autorizado. Acceso restringido para administradores." });
+        }
+
+        const result = await pool.query(
+            `SELECT
+                a.id,
+                a.user_id,
+                a.offer_id,
+                a.status,
+                a.cover_letter,
+                a.candidate_name,
+                a.candidate_email,
+                a.field,
+                a.experience_years,
+                a.created_at,
+                j.title AS job_title,
+                j.company AS job_company,
+                j.location AS job_location
+             FROM applications a
+             JOIN job_offers j ON j.id = a.offer_id
+             ORDER BY a.created_at DESC`
+        );
+
+        res.json(result.rows);
+    } catch (error) {
+        console.error("Error al obtener todas las postulaciones para admin:", error);
+        res.status(500).json({ message: "Error al cargar las postulaciones" });
+    }
+});
+
+// ACTUALIZAR EL ESTADO DE UNA POSTULACIÓN (Solo Administradores)
+router.patch("/:id/status", authenticateToken, async (req, res) => {
+    let client;
+    try {
+        if (req.user.role !== "admin") {
+            return res.status(403).json({ message: "No autorizado. Solo los administradores pueden cambiar el estado." });
+        }
+
+        const applicationId = parseInt(req.params.id, 10);
+        const { status, note } = req.body;
+
+        if (isNaN(applicationId)) {
+            return res.status(400).json({ message: "ID de postulación inválido" });
+        }
+
+        if (!status) {
+            return res.status(400).json({ message: "El nuevo estado es obligatorio" });
+        }
+
+        client = await pool.connect();
+        await client.query("BEGIN");
+
+        const updateResult = await client.query(
+            `UPDATE applications 
+             SET status = $1 
+             WHERE id = $2 
+             RETURNING *`,
+            [status, applicationId]
+        );
+
+        if (updateResult.rows.length === 0) {
+            await client.query("ROLLBACK");
+            return res.status(404).json({ message: "Postulación no encontrada" });
+        }
+
+        const updatedApplication = updateResult.rows[0];
+
+        await client.query(
+            `INSERT INTO application_status_history (application_id, status, note)
+             VALUES ($1, $2, $3)`,
+            [applicationId, status, note || `Actualizado a: ${status}`]
+        );
+
+        await client.query("COMMIT");
+
+        return res.json({
+            message: "Estado actualizado exitosamente",
+            application: updatedApplication
+        });
+
+    } catch (error) {
+        if (client) {
+            try { await client.query("ROLLBACK"); } catch (rbErr) { console.error(rbErr); }
+        }
+        console.error("Error al actualizar estado:", error);
+        res.status(500).json({ message: "Error interno al actualizar el estado" });
+    } finally {
+        if (client) client.release();
+    }
+});
+
 // LISTAR TODAS LAS POSTULACIONES DEL CANDIDATO AUTENTICADO
-// Permite ver el estado actual de cada postulación y los datos guardados
 router.get("/my-applications", authenticateToken, async (req, res) => {
     try {
         const userId = req.user.userId;
@@ -90,12 +184,10 @@ router.get("/:id", authenticateToken, async (req, res) => {
 
         const application = appResult.rows[0];
 
-        // Solo el propio postulante o un admin pueden ver los detalles
         if (application.user_id !== req.user.userId && req.user.role !== "admin") {
             return res.status(403).json({ message: "Acceso no autorizado a esta postulación" });
         }
 
-        // Obtener historial de cambios de estado
         const historyResult = await pool.query(
             `SELECT id, status, note, changed_at
              FROM application_status_history
@@ -117,12 +209,6 @@ router.get("/:id", authenticateToken, async (req, res) => {
 });
 
 // CREAR POSTULACIÓN ASISTIDA A UNA VACANTE
-// Valida:
-// 1. Vacante existente y activa
-// 2. Perfil laboral existente y completo
-// 3. No duplicidad de postulación
-// Registra la postulación guardando una copia estática de los datos importantes
-// del perfil laboral del candidato al momento de postularse, más la carta de presentación y su historial
 router.post("/", authenticateToken, async (req, res) => {
     let client;
     try {
@@ -136,7 +222,6 @@ router.post("/", authenticateToken, async (req, res) => {
             });
         }
 
-        // 1. Validar que la vacante exista y esté activa
         const jobResult = await pool.query(
             `SELECT id, title, company, status FROM job_offers WHERE id = $1`,
             [offerId]
@@ -155,7 +240,6 @@ router.post("/", authenticateToken, async (req, res) => {
             });
         }
 
-        // 2. Validar que el usuario tenga perfil laboral y que esté COMPLETO
         const profileResult = await pool.query(
             `SELECT wp.*, u.name, u.email
              FROM work_profiles wp
@@ -182,7 +266,6 @@ router.post("/", authenticateToken, async (req, res) => {
             });
         }
 
-        // 3. Validar no duplicidad de postulación
         const existingApp = await pool.query(
             `SELECT id, status, created_at FROM applications WHERE user_id = $1 AND offer_id = $2`,
             [userId, offerId]
@@ -196,7 +279,6 @@ router.post("/", authenticateToken, async (req, res) => {
             });
         }
 
-        // Iniciar transacción para registrar la postulación y su historial
         client = await pool.connect();
         await client.query("BEGIN");
 
@@ -270,7 +352,6 @@ router.post("/", authenticateToken, async (req, res) => {
 
         console.error("Error en postulación asistida:", error);
 
-        // Código de error Postgres 23505: violación de índice único (duplicado)
         if (error.code === "23505") {
             return res.status(409).json({
                 message: "Ya te has postulado previamente a esta vacante",
