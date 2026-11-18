@@ -548,3 +548,177 @@
     background: #fef2f2;
     color: #dc2626;
 }
+
+/* ===== Listado de vacantes del administrador (SCRUM-134) ===== */
+.jobsAdminList {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.jobAdminCard {
+    padding: 20px 22px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(22, 24, 46, 0.04);
+    transition: border-color 0.2s;
+}
+
+.jobAdminCard:hover {
+    border-color: #f59f32;
+}
+
+.jobAdminHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.jobTitleRow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.jobAdminTitle {
+    margin: 0;
+    font-size: 1.12rem;
+    font-weight: 700;
+    color: #16182e;
+}
+
+.jobStatusBadge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.jobStatusActive {
+    background: #ecfdf5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
+.jobStatusInactive {
+    background: #f3f4f6;
+    color: #4b5563;
+    border: 1px solid #d1d5db;
+}
+
+.jobAdminCompany {
+    margin: 6px 0 0;
+    color: #4b5563;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.jobAdminDesc {
+    margin: 12px 0;
+    color: #4b5563;
+    font-size: 0.9rem;
+    line-height: 1.55;
+}
+
+.jobAdminMeta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #f3f4f6;
+    color: #6b7280;
+    font-size: 0.84rem;
+    font-weight: 600;
+}
+
+.jobAdminSkills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 12px;
+}
+
+.jobSkillTag {
+    padding: 4px 10px;
+    background: #fff1dc;
+    color: #8a460e;
+    border: 1px solid #f8d5a0;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+/* ===== Modal de edición de vacante (SCRUM-130) ===== */
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(22, 24, 46, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    z-index: 1000;
+    overflow-y: auto;
+}
+
+.modalCard {
+    width: 100%;
+    max-width: 720px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 28px 32px;
+    box-shadow: 0 20px 50px rgba(22, 24, 46, 0.3);
+}
+
+.modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid #faf3e5;
+}
+
+.modalTitle {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #16182e;
+}
+
+.modalCloseBtn {
+    background: #f3f4f6;
+    border: none;
+    color: #16182e;
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.modalCloseBtn:hover {
+    background: #e5e7eb;
+}
+
+.modalActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 10px;
+    padding-top: 16px;
+    border-top: 1px solid #e5e7eb;
+    flex-wrap: wrap;
+}
