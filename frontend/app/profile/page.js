@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import LogoutButton from "../components/LogoutButton";
+import SkillSelector from "../components/SkillSelector";
 import styles from "./page.module.css";
 
 export default function ProfilePage() {
@@ -254,27 +255,14 @@ export default function ProfilePage() {
 
                         {/* Habilidades */}
                         <div className={`${styles.field} ${styles.fullWidth}`}>
-                            <div className={styles.skillsHeader}>
-                                <span className={styles.label}>Tus habilidades técnicas (máximo 5)</span>
-                                <span className={styles.counter}>{selectedSkills.length}/5 seleccionadas</span>
-                            </div>
-
-                            <div className={styles.skillsList}>
-                                {catalog.map((s) => {
-                                    const isSelected = selectedSkills.includes(s.id);
-                                    return (
-                                        <button
-                                            key={s.id}
-                                            type="button"
-                                            onClick={() => toggleSkill(s.id)}
-                                            className={`${styles.skillChip} ${isSelected ? styles.skillChipSelected : ""}`}
-                                            aria-pressed={isSelected}
-                                        >
-                                            {isSelected ? "✓ " : "+ "}{s.name}
-                                        </button>
-                                    );
-                                })}
-                            </div>
+                            <SkillSelector
+                                catalog={catalog}
+                                selectedSkills={selectedSkills}
+                                onToggleSkill={toggleSkill}
+                                maxSkills={5}
+                                title="Tus habilidades profesionales (máximo 5)"
+                                subtitle="Explora por categoría o busca habilidades de tu área laboral para mejorar tus recomendaciones"
+                            />
                         </div>
 
                         <div className={`${styles.actions} ${styles.fullWidth}`}>

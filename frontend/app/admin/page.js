@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import LogoutButton from "../components/LogoutButton";
+import SkillSelector from "../components/SkillSelector";
 import styles from "./page.module.css";
 
 export default function AdminPage() {
@@ -1177,25 +1178,14 @@ export default function AdminPage() {
 
                                 {skillsCatalog.length > 0 && (
                                     <div className={styles.fieldGroup}>
-                                        <span className={styles.label}>
-                                            Habilidades requeridas (para el cálculo de compatibilidad):
-                                        </span>
-                                        <div className={styles.skillsList}>
-                                            {skillsCatalog.map((s) => {
-                                                const active = selectedSkills.includes(s.id);
-                                                return (
-                                                    <button
-                                                        key={s.id}
-                                                        type="button"
-                                                        aria-pressed={active}
-                                                        onClick={() => toggleSkill(s.id)}
-                                                        className={`${styles.skillChip} ${active ? styles.skillChipActive : ""}`}
-                                                    >
-                                                        {active ? "✓ " : "+ "}{s.name}
-                                                    </button>
-                                                );
-                                            })}
-                                        </div>
+                                        <SkillSelector
+                                            catalog={skillsCatalog}
+                                            selectedSkills={selectedSkills}
+                                            onToggleSkill={toggleSkill}
+                                            maxSkills={null}
+                                            title="Habilidades requeridas (para cálculo de compatibilidad)"
+                                            subtitle="Filtra por categoría o busca habilidades requeridas para esta vacante"
+                                        />
                                     </div>
                                 )}
 
@@ -1688,25 +1678,14 @@ export default function AdminPage() {
 
                             {skillsCatalog.length > 0 && (
                                 <div className={styles.fieldGroup}>
-                                    <span className={styles.label}>
-                                        Habilidades requeridas:
-                                    </span>
-                                    <div className={styles.skillsList}>
-                                        {skillsCatalog.map((s) => {
-                                            const active = editSelectedSkills.includes(s.id);
-                                            return (
-                                                <button
-                                                    key={s.id}
-                                                    type="button"
-                                                    aria-pressed={active}
-                                                    onClick={() => toggleEditSkill(s.id)}
-                                                    className={`${styles.skillChip} ${active ? styles.skillChipActive : ""}`}
-                                                >
-                                                    {active ? "✓ " : "+ "}{s.name}
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
+                                    <SkillSelector
+                                        catalog={skillsCatalog}
+                                        selectedSkills={editSelectedSkills}
+                                        onToggleSkill={toggleEditSkill}
+                                        maxSkills={null}
+                                        title="Habilidades requeridas para la vacante"
+                                        subtitle="Filtra por categoría o busca las habilidades que requiere el puesto"
+                                    />
                                 </div>
                             )}
 
