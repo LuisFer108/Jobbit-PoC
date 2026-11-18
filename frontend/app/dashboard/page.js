@@ -15,6 +15,7 @@ export default function DashboardPage() {
 
     const [profile, setProfile] = useState(null);
     const [userSkills, setUserSkills] = useState([]);
+    const [myApplications, setMyApplications] = useState([]);
 
     useEffect(() => {
         async function getProfile() {
@@ -26,11 +27,14 @@ export default function DashboardPage() {
             }
 
             try {
-                const [profileRes, skillsRes] = await Promise.all([
+                const [profileRes, skillsRes, appsRes] = await Promise.all([
                     fetch("http://localhost:5001/api/profile", {
                         headers: { "Authorization": `Bearer ${token}` }
                     }),
                     fetch("http://localhost:5001/api/skills/mine", {
+                        headers: { "Authorization": `Bearer ${token}` }
+                    }),
+                    fetch("http://localhost:5001/api/applications/my-applications", {
                         headers: { "Authorization": `Bearer ${token}` }
                     })
                 ]);
@@ -46,6 +50,11 @@ export default function DashboardPage() {
                 if (skillsRes.ok) {
                     const skillsData = await skillsRes.json();
                     setUserSkills(skillsData.skills || []);
+                }
+
+                if (appsRes.ok) {
+                    const appsData = await appsRes.json();
+                    setMyApplications(Array.isArray(appsData) ? appsData : []);
                 }
             } catch (err) {
                 console.error("Error al cargar datos del dashboard:", err);
@@ -225,6 +234,15 @@ export default function DashboardPage() {
                     >
                         ✎ Actualizar perfil laboral
                     </Link>
+
+                    {myApplications.length > 0 && (
+                        <Link
+                            href="/applications"
+                            className={styles.secondaryButton}
+                        >
+                            📋 Ver mis postulaciones y estados ({myApplications.length})
+                        </Link>
+                    )}
                 </nav>
 
                 {/* Cerrar sesión */}
