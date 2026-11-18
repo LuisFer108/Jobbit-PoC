@@ -722,3 +722,12 @@
     border-top: 1px solid #e5e7eb;
     flex-wrap: wrap;
 }
+
+/* ===== Pie de cierre de sesión en el panel administrativo (SCRUM-23) ===== */
+.footerLogout {
+    display: flex;
+    justify-content: center;
+    margin-top: 32px;
+    padding-top: 22px;
+    border-top: 1px solid #e5e7eb;
+}
